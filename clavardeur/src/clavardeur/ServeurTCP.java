@@ -9,14 +9,14 @@ public class ServeurTCP{
 	HashMap <Personne, Byte[]> bufferReception;
 	Reseau network;
 	public ServeurTCP(Reseau network) {
-		this.bufferReception = new HashMap <Personne, Byte[]>;
+		this.bufferReception = new HashMap <Personne, Byte[]>();
 		this.network = network;
 	}
 	public void getData() throws IOException{
         //creation objet ServerSocket
         ServerSocket ServeurTCP = new ServerSocket(1025);
         //Waiting connexion
-        Socket s = ServerTCP.accept();        
+        Socket s = ServeurTCP.accept();        
         //Set up INput streams
         InputStream is = s.getInputStream();
         //Recevoir les datas
@@ -25,8 +25,6 @@ public class ServeurTCP{
         this.network.notify();
         //Clore la connexion
         s.close();
-        
-
     }
 	/*quand reçoit données fait un this.network.notify()*/
 }
