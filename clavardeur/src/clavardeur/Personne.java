@@ -11,9 +11,5 @@ public class Personne {
 	public Personne(InetAddress adresse, String pseudo) {
 		this.adresse = adresse;
 		this.pseudo = pseudo;
-	}
-	public String toString() {
-		return pseudo+"@"+adresse.toString();
-	}
-	
+	}	
 }
