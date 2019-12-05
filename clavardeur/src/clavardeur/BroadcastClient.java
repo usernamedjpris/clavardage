@@ -5,8 +5,7 @@ import java.net.*;
 public class BroadcastClient {
     private static DatagramSocket socket = null;
   
-    public static void broadcast(
-      String broadcastMessage) throws IOException, SocketException {
+    public static void broadcast(String broadcastMessage) throws IOException, SocketException {
         socket = new DatagramSocket();
         socket.setBroadcast(true);
  

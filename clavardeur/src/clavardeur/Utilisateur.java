@@ -3,7 +3,10 @@ package clavardeur;
 public class Utilisateur {
 	private String pseudo;
 	private long idUtilisateur;
-	
+	/**
+	 * @param pseudo
+	 * @param idUtilisateur
+	 */
 	public Utilisateur(long idU) {
 		this.idUtilisateur = idU;
 		this.pseudo = "anonymous";
