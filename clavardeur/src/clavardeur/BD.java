@@ -1,15 +1,20 @@
 package clavardeur;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+/*import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.PreparedStatement;*/
 
 public class BD {
 	static BD instance=null;
 	String mp="";
-	String url="jdbc:mysql://mysql-dataonly.alwaysdata.net/dataonly_test";
-	String login="dataonly";
-	java.sql.Connection c=null;
+	String url="jdbc:mysql://localhost/clavardage_test";
+	String login="root";
+	Connection c=null;
 	java.sql.Statement s=null;
 
 	@SuppressWarnings("static-access")
@@ -23,7 +28,6 @@ public class BD {
 			e.printStackTrace();
 		}
 			c=DriverManager.getConnection(url,login, mp);
-			s=c.createStatement();
 	}
 	public void deconnexion() {
 		try {
@@ -43,11 +47,39 @@ public class BD {
 			s=c.createStatement();
 			//naturellement les plus vieux sont priorisés sur les plus jeunes
 			ResultSet aux= s.executeQuery("SELECT idName,idScore,idTime FROM score ORDER BY idScore DESC LIMIT 0,20");
+
+      /*STEP 5: Extract data from result set
+      while(rs.next()){
+         //Retrieve by column name
+         int id  = rs.getInt("id");
+         int age = rs.getInt("age");
+         String first = rs.getString("first");
+         String last = rs.getString("last");
+			 */
 			return aux;
 			
 	}
 	
 	public void setScore(String name,int score) throws SQLException {
+		 PreparedStatement stmt = null;
+		   String sql = "UPDATE Employees set age=? WHERE id=?";
+		      stmt = c.prepareStatement(sql);
+		      //Bind values into the parameters.
+		      stmt.setInt(1, 35);
+		      stmt.setInt(2, 102); 
+		      int rows = stmt.executeUpdate();
+		      ResultSet rs = stmt.executeQuery(sql);
+		      while(rs.next()){
+		          //Retrieve by column name
+		          int id  = rs.getInt("id");
+		          int age = rs.getInt("age");
+		          String first = rs.getString("first");
+		          String last = rs.getString("last");
+		       }
+		       //STEP 6: Clean-up environment
+		       rs.close();
+		       stmt.close();
+		       
 		s.executeUpdate("INSERT INTO `score`(`idName`, `idScore`) VALUES ('"+name+"','"+score+"')");
 		//supprime le ou les (accès concurrent) dernier score
 		//Limit offset,nombre de resultats
@@ -67,7 +99,11 @@ public class BD {
 	          this.deconnexion();
 	     }
 	private BD() {
-		this.connexion();
+		try {
+			this.connexion();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
