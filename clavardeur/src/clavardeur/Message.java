@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 import java.util.Date;
 
 public class Message {
-	public enum Type {DECONNECTION, SWITCH, CONNECTION, ALIVE, DEFAULT}
+	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE, DEFAULT}
 	byte[] data;
 	Personne emetteur;
 	Personne destinataire;
