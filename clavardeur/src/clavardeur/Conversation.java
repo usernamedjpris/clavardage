@@ -4,6 +4,10 @@ import java.util.ArrayList;
 public class Conversation {
 	private Personne to;
 	private ArrayList<Message> historique;
+	/**
+	 * @param to
+	 * @param historique
+	 */
 	
 	public Conversation(Personne to, ArrayList<Message> hist) {
 		this.to = to;

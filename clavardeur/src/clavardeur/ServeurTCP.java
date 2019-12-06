@@ -1,30 +1,25 @@
 package clavardeur;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.*;
-import java.util.HashMap;
-public class ServeurTCP{
-	HashMap <Personne, Byte[]> bufferReception;
-	Reseau network;
-	public ServeurTCP(Reseau network) {
-		this.bufferReception = new HashMap <Personne, Byte[]>();
-		this.network = network;
-	}
-	public void getData() throws IOException{
-        //creation objet ServerSocket
-        ServerSocket ServeurTCP = new ServerSocket(1025);
-        //Waiting connexion
-        Socket s = ServeurTCP.accept();        
-        //Set up INput streams
-        InputStream is = s.getInputStream();
-        //Recevoir les datas
-        BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-        //System.out.println(in.readLine()+"\n");
-        this.network.notify();
-        //Clore la connexion
-        s.close();
+import java.util.Observable;
+import java.util.Observer;
+import java.io.*;
+
+
+public class ServeurTCP extends Observable implements Observer{
+    public ServeurTCP() {}
+    
+	public void launch() throws IOException {
+        @SuppressWarnings("resource")
+		ServerSocket ssoc = new ServerSocket(1025);        
+        while(true){//Waiting connections (while true to be improved ?)
+            Socket soc = ssoc.accept();
+            ServeurSocketThread st = new ServeurSocketThread(soc);
+            Thread th = new Thread(st);
+            th.start();
+            st.addObserver(this); 
+        }
     }
-	/*quand reçoit données fait un this.network.notify()*/
+	public void update(Observable o, Object arg) {
+		notifyObservers(arg);
+	}
 }

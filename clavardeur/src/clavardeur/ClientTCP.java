@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 public class ClientTCP {
-	HashMap <Personne, Byte[]> bufferEnvoi;
+
 	
     public void sendMessage (Message m) throws IOException{ //String data, Personne dest, Personne emmet
         //Initier la connexion
@@ -30,4 +30,5 @@ public class ClientTCP {
         //Clore la connexion
         s.close();	    
 	}
+
 }

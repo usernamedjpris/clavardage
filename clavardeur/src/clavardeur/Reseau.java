@@ -2,31 +2,41 @@ package clavardeur;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.Observer;
 
-public class Reseau extends Observable {
+import clavardeur.Message.Type;
+
+public class Reseau extends Observable implements Observer {
 	ArrayList <Message> bufferReception;
-	//ServeurTCP reception;
+	ServeurTCP reception;
 	ClientTCP envoi;
+	ArrayList <Message> bufferEnvoi;
 	BroadcastClient clientUDP;
+	ServeurUDP serveurUDP;
 	static Reseau theNetwork;
 	/**
 	 * @param reception
 	 * @param envoi
 	 * @param clientUDP
+	 * @throws IOException 
 	 */
-	private Reseau() {
-		//this.reception = new ServeurTCP(this.getReseau());
+	private Reseau() throws IOException {
+		this.reception = new ServeurTCP();
+		this.reception.launch();
+		this.reception.addObserver(this);
+		this.serveurUDP = new ServeurUDP();
+		this.serveurUDP.launch();
+		this.serveurUDP.addObserver(this);
 		this.envoi = new ClientTCP();
 		this.clientUDP = new BroadcastClient();
 		this.bufferReception = new ArrayList <Message>();
 	}
 
-	public static Reseau getReseau() {
+
+	public static Reseau getReseau() throws IOException {
 		if (theNetwork == null) {
 			theNetwork = new Reseau();
 		} 
@@ -45,26 +55,11 @@ public class Reseau extends Observable {
 	public void sendDataBroadcast(Message message) throws SocketException, IOException {
 		clientUDP.broadcast(message);
 	}
-	
-	public void getData() throws IOException, ClassNotFoundException{
-        //creation objet ServerSocket
-        ServerSocket ServeurTCP = new ServerSocket(1025);
-        //Waiting connexion
-        Socket s = ServeurTCP.accept();        
-        //Set up INput streams
-        InputStream is = s.getInputStream();
-        DataInputStream dis = new DataInputStream(is);
-        //Recevoir les datas
-        ////// BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-        int len = dis.readInt();
-        byte[] data = new byte[len];
-        if (len > 0) {
-            dis.readFully(data);
-        }
-        
-        bufferReception.add(Message.deserialize(data)); //a quoi sert il ce buffer ?
-        this.notifyObservers(Message.deserialize(data));
-        //Clore la connexion
-        s.close();
-    }
+	public void getActiveUsers(Personne emmet) throws SocketException, IOException{
+		Message message = new Message(Type.WHOISALIVE, emmet);
+		this.sendDataBroadcast(message);
+	}
+	public void update(Observable o, Object arg) {
+		notifyObservers(arg);
+	}
 }
