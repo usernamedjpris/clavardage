@@ -2,14 +2,12 @@ package clavardeur;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.*;
-import java.util.Date;
+import java.net.Socket;
 import java.util.HashMap;
 public class ClientTCP {
 
 	
-    public void sendMessage (String data, Personne dest, Personne emmet) throws IOException{
+    public void sendMessage (Message m) throws IOException{ //String data, Personne dest, Personne emmet
         //Initier la connexion
         Socket s = new Socket ("127.0.0.1",1025); //127.0.0.1 == localhost
         //Set up OUTput streams
@@ -17,11 +15,11 @@ public class ClientTCP {
         DataOutputStream dos = new DataOutputStream(os);
 
         //Envoyer les datas       
-        Date date = new Date(); //exo3
+       // Date date = new Date(); //exo3
         /////////PrintWriter out = new PrintWriter(os,true);
-        Message message = new Message(data, emmet, dest, date);
+       // Message message = new Message(data, emmet, dest, date);
         //System.out.println("-> envoi : "+data+emmet.getPseudo()+" -> "+dest.getPseudo());
-        byte[] byteMessage = Message.serialize(message);
+        byte[] byteMessage = Message.serialize(m);
         int len = byteMessage.length;
         dos.writeInt(len);
         if (len > 0) {

@@ -8,8 +8,10 @@ public class Conversation {
 	 * @param to
 	 * @param historique
 	 */
-	public Conversation(Personne to) {
+	
+	public Conversation(Personne to, ArrayList<Message> hist) {
 		this.to = to;
+		historique=hist;
 	}
 	
 	public void AddMessage(ArrayList<Message> messages) {
