@@ -6,7 +6,7 @@ import java.util.Observer;
 
 public class Reseau extends Observable implements Observer {
 	ArrayList <Message> bufferReception;
-	//ServeurTCP reception;
+	ServeurTCP reception;
 	ClientTCP envoi;
 	ArrayList <Message> bufferEnvoi;
 	BroadcastClient clientUDP;
@@ -15,15 +15,17 @@ public class Reseau extends Observable implements Observer {
 	 * @param reception
 	 * @param envoi
 	 * @param clientUDP
+	 * @throws IOException 
 	 */
-	private Reseau() {
-		//this.reception = new ServeurTCP(this.getReseau());
+	private Reseau() throws IOException {
+		this.reception = new ServeurTCP().launch();
+		this.reception.addObserver(this);
 		this.envoi = new ClientTCP();
 		this.clientUDP = new BroadcastClient();
 		this.bufferReception = new ArrayList <Message>();
 	}
 
-	public Reseau getReseau() {
+	public Reseau getReseau() throws IOException {
 		if (theNetwork == null) {
 			theNetwork = new Reseau();
 		} 
@@ -38,7 +40,7 @@ public class Reseau extends Observable implements Observer {
 		clientUDP.broadcast(strMessage);
 	}
 	
-	public Message update(Observable o, Object arg) {
-		notify
+	public void update(Observable o, Object arg) {
+		notifyObservers(arg);
 	}
 }
