@@ -13,15 +13,17 @@ public class Application implements Observer {
 	HashMap<String,ConversationGui> conv;
 	VuePrincipale main;
 	static BD maBD=BD.getBD();
+	ArrayList<Personne> pActives=new ArrayList<Personne>();
+	ArrayList<String> pInactives=new ArrayList<String>();
 	public static void main(String[] args) {
-		
 		Application monApp=new Application();
-		monApp.show();
 	}
 	Application(){
 		Enumeration<NetworkInterface> net= NetworkInterface.getNetworkInterfaces();//to work offline
 		byte[] mac=net.nextElement().getHardwareAddress();
 		user= new Utilisateur((mac.toString()).hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
+		pActives=Reseau.getReseau().getActiveUsers();
+		Reseau.getReseau().addObserver(this);
 		conv=new HashMap<String,ConversationGui>;
 		main=new VuePrincipale(this);
 		main.show();
@@ -48,8 +50,14 @@ public class Application implements Observer {
 		ArrayList<Message> hist=maBD.getHistorique(maBD.getIdPersonne(toPersonne.getPseudo()));
 		conv.put(toPersonne.getPseudo(), new ConversationGui(new Conversation(toPersonne,hist),10));
 	}
+	public ArrayList<Personne> getpActives() {
+		return pActives;
+	}
+	public ArrayList<String> getPseudoTalked(){
+		maBD.getPseudoTalked(user.getId());
+	}
 	@Override
-	public void update(Observable o, Object arg) {
+public void update(Observable o, Object arg) {
 		//try convert arg to message 
 		//if message => convGUI update
 		  if (arg instanceof Message) {  
@@ -64,9 +72,19 @@ public class Application implements Observer {
 	           else if(message.getType()==Message.Type.DECONNECTION) {
 	        	   conv.get(message.getEmetteur()).deconnection();
 	           }
-	           else if(message.getType()==Message.Type.DECONNECTION) {
-	        	   conv.get(message.getEmetteur()).deconnection();
+	           else if(message.getType()==Message.Type.ALIVE) {
+	        	   //show status bar
+	        	   
 	           }
+	           else if(message.getType()==Message.Type.WHOISALIVE) {
+	        	   sendActiveUserPseudo();
+	           }
+	           else if(message.getType()==Message.Type.CONNECTION) {
+	        	   pActives.add(message.emetteur);
+	        	   //show pop-up
+	           }
+	           else
+	        	   System.out.print("WARNING unknow message type !");
 	        	   
 	        }  
 		//try string
@@ -77,3 +95,4 @@ public class Application implements Observer {
 		//si deconnexion, change status dans la liste des users
 		//inactive sending in conversation
 	}
+}
