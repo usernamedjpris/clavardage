@@ -11,8 +11,7 @@ public class BroadcastClient {
  
         byte[] buffer = broadcastMessage.getBytes();
  
-        DatagramPacket packet 
-          = new DatagramPacket(buffer, buffer.length, InetAddress.getByName("255.255.255.255"), 4445);
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName("255.255.255.255"), 4445);
         socket.send(packet);
         socket.close();
     }
