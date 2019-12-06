@@ -5,8 +5,9 @@ public class Conversation {
 	private Personne to;
 	private ArrayList<Message> historique;
 	
-	public Conversation(Personne to) {
+	public Conversation(Personne to, ArrayList<Message> hist) {
 		this.to = to;
+		historique=hist;
 	}
 	
 	public void AddMessage(ArrayList<Message> messages) {

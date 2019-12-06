@@ -13,8 +13,8 @@ public class Utilisateur {
 
 	public Boolean setPseudo (String nouveauPseudo) {
 		Boolean bool = true;
-		if (Application.checkUnicity(nouveauPseudo) {
-			Application.sendPseudoSwitch(who.getPseudo(), nouveauPseudo, this.idUtilisateur)
+		if (Application.checkUnicity(nouveauPseudo)) {
+			Application.sendPseudoSwitch(who.getPseudo(), nouveauPseudo, this.idUtilisateur);
 			who.setPseudo(nouveauPseudo);
 		} else {
 			bool = false;
@@ -23,11 +23,15 @@ public class Utilisateur {
 	}
 
 	public String getPseudo() {
-		return pseudo;
+		return who.getPseudo();
 	}
 
 	public long getIdUtilisateur() {
 		return idUtilisateur;
+	}
+
+	public Personne getPersonne() {
+		return who;
 	}
 
 

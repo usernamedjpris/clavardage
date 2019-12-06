@@ -2,13 +2,14 @@ package clavardeur;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
 public class Application implements Observer {
-	Utilisateur user;
+	static Utilisateur user;
 	HashMap<String,ConversationGui> conv;
 	VuePrincipale main;
 	static BD maBD=BD.getBD();
@@ -29,11 +30,11 @@ public class Application implements Observer {
 		return user.getPseudo();
 	}
 	void sendActiveUserPseudo() {
-		Reseau.getReseau().sendDataBroadcast(user.getPseudo().getBytes())
+		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.ALIVE,user.getPersonne()));
 	}
-	//before check unicty pseudo
+	//after check unicty pseudo
 	static void sendPseudoSwitch(String old, String newPseudo,long  id) {
-		Reseau.getReseau().sendDataBroadcast("SWITCH".getBytes()+" "+old.getBytes()+" "+newPseudo.getBytes());
+		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.SWITCH,user.getPersonne(),newPseudo));
 		maBD.delIdPseudoLink(old);
 		maBD.setIdPseudoLink(newPseudo,id);
 	}
@@ -41,11 +42,11 @@ public class Application implements Observer {
 		return maBD.checkUnicity();
 	}
 	void deconnexion(String pseudo) {
-		Reseau.getReseau().sendDataBroadcast(new Message(message.Type.DECONNECTION,user.getPersonne());
+		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user.getPersonne()));
 	}
-	public createConversation(Personne toPersonne) {
+	public void createConversation(Personne toPersonne) {
 		ArrayList<Message> hist=maBD.getHistorique(maBD.getIdPersonne(toPersonne.getPseudo()));
-		conv.put(toPersonne.getPseudo(), new ConversationGui(new Conversation(toPersonne,hist ),10));
+		conv.put(toPersonne.getPseudo(), new ConversationGui(new Conversation(toPersonne,hist),10));
 	}
 	@Override
 	public void update(Observable o, Object arg) {
@@ -53,17 +54,17 @@ public class Application implements Observer {
 		//if message => convGUI update
 		  if (arg instanceof Message) {  
 	           Message message = (Message) arg;  
-	           if(message.getType()==message.Type.DEFAULT)
+	           if(message.getType()==Message.Type.DEFAULT)
 	        	   conv.get(message.getEmetteur()).update(message);
-	           else if(message.getType()==message.Type.SWITCH) {
-	        	   long id =maBD.getIdPersonne(message.getEmetteur);
-	        	   maBD.delIdPseudoLink(message.getEmetteur);
+	           else if(message.getType()==Message.Type.SWITCH) {
+	        	   long id =maBD.getIdPersonne(message.getEmetteur());
+	        	   maBD.delIdPseudoLink(message.getEmetteur());
 	       		   maBD.setIdPseudoLink(message.getNewPseudo(),id);
 	           }
-	           else if(message.getType()==message.Type.DECONNECTION) {
+	           else if(message.getType()==Message.Type.DECONNECTION) {
 	        	   conv.get(message.getEmetteur()).deconnection();
 	           }
-	           else if(message.getType()==message.Type.DECONNECTION) {
+	           else if(message.getType()==Message.Type.DECONNECTION) {
 	        	   conv.get(message.getEmetteur()).deconnection();
 	           }
 	        	   

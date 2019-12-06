@@ -1,15 +1,12 @@
 package clavardeur;
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Observable;
-import java.util.Observer;
 
 public class Reseau extends Observable {
 	ArrayList <Message> bufferReception;
@@ -29,19 +26,24 @@ public class Reseau extends Observable {
 		this.bufferReception = new ArrayList <Message>();
 	}
 
-	public Reseau getReseau() {
+	public static Reseau getReseau() {
 		if (theNetwork == null) {
 			theNetwork = new Reseau();
 		} 
 		return theNetwork;
 	}
 	
-	public void sendData(Message message, Personne pers) {
-		envoi.sendData(message, pers);
+	public void sendData(Message message) {
+		try {
+			envoi.sendMessage(message);
+		} catch (IOException e) {
+			//warning graphique envoi fail 
+			e.printStackTrace();
+		}
 	}
 	
-	public void sendDataBroadcast(String strMessage) throws SocketException, IOException {
-		clientUDP.broadcast(strMessage);
+	public void sendDataBroadcast(Message message) throws SocketException, IOException {
+		clientUDP.broadcast(message);
 	}
 	
 	public void getData() throws IOException, ClassNotFoundException{
