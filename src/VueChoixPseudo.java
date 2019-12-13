@@ -6,16 +6,12 @@ import java.awt.BorderLayout;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import java.awt.GridLayout;
+import java.awt.LayoutManager;
 import java.awt.FlowLayout;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.ColumnSpec;
-import com.jgoodies.forms.layout.RowSpec;
-import com.jgoodies.forms.layout.FormSpecs;
 import javax.swing.JButton;
 import java.awt.Font;
-import net.miginfocom.swing.MigLayout;
 
-public class vueChoixNom {
+public class VueChoixPseudo {
 
 	private JFrame frame;
 	private JTextField textField;
@@ -27,7 +23,7 @@ public class vueChoixNom {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					vueChoixNom window = new vueChoixNom();
+					VueChoixPseudo window = new VueChoixPseudo();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -39,7 +35,7 @@ public class vueChoixNom {
 	/**
 	 * Create the application.
 	 */
-	public vueChoixNom() {
+	public VueChoixPseudo() {
 		initialize();
 	}
 
@@ -50,7 +46,7 @@ public class vueChoixNom {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 710, 467);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new MigLayout("", "[grow][grow][grow]", "[36px][36px][36px][36px][36px][36px][36px]"));
+		frame.getContentPane().setLayout(new LayoutManager("", "[grow][grow][grow]", "[36px][36px][36px][36px][36px][36px][36px]"));
 		
 		JLabel label = new JLabel("");
 		frame.getContentPane().add(label, "cell 0 0,grow");
