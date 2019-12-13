@@ -1,5 +1,3 @@
-package clavardeur;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -82,10 +80,10 @@ public class Message {
 	public byte[] getData() {
 		return this.data;
 	}
-	public Object getEmetteur() {
+	public Personne getEmetteur() {
 		return emetteur;
 	}
-	public Object getNewPseudo() {
+	public String getNewPseudo() {
 		return newPseudo;
 	}
 	public Type getType() {

@@ -1,14 +1,14 @@
-package clavardeur;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 /*import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.PreparedStatement;*/
-
+//https://docs.oracle.com/javadb/10.8.3.0/getstart/rwwdactivity3.html
+//rq si on veut embded la bd
 public class BD {
 	static BD instance=null;
 	String mp="";
@@ -18,8 +18,8 @@ public class BD {
 	java.sql.Statement s=null;
 
 	@SuppressWarnings("static-access")
-	public static BD getInstance() {
-		return instance!=null?instance:(instance=new BD()).getInstance();
+	public static BD getBD() {
+		return instance!=null?instance:(instance=new BD()).getBD();
 	}
 	public void connexion() throws SQLException {
 		try {
@@ -105,5 +105,30 @@ public class BD {
 			e.printStackTrace();
 		}
 	}
+	public void delIdPseudoLink(String old) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void setIdPseudoLink(String newPseudo, long id) {
+		// TODO Auto-generated method stub
+		
+	}
+	public boolean checkUnicity() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	public Object getIdPersonne(String pseudo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public ArrayList<Message> getHistorique(Object idPersonne) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public void getPseudoTalked(long id) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

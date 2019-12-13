@@ -1,4 +1,3 @@
-package clavardeur;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -22,11 +21,10 @@ public class Application implements Observer {
 		Enumeration<NetworkInterface> net= NetworkInterface.getNetworkInterfaces();//to work offline
 		byte[] mac=net.nextElement().getHardwareAddress();
 		user= new Utilisateur((mac.toString()).hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
-		pActives=Reseau.getReseau().getActiveUsers();
+		Reseau.getReseau().getActiveUsers(user.getPersonne());
 		Reseau.getReseau().addObserver(this);
 		conv=new HashMap<String,ConversationGui>;
 		main=new VuePrincipale(this);
-		main.show();
 	}
 	String getPseudo() {
 		return user.getPseudo();
