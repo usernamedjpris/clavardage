@@ -1,7 +1,8 @@
-package clavardeur;
+
 import java.io.IOException;
 import java.net.*;
 
+//https://www.baeldung.com/java-broadcast-multicast
 public class BroadcastClient {
     private DatagramSocket socket = null;
   
@@ -9,9 +10,9 @@ public class BroadcastClient {
         socket = new DatagramSocket();
         socket.setBroadcast(true);
  
-        byte[] buffer = message.getData();
- 
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName("255.255.255.255"), 4445);
+        byte[] buffer = Message.serialize(message);
+        InetAddress a=InetAddress.getByName("255.255.255.255");
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length,a, 4446);
         socket.send(packet);
         socket.close();
     }

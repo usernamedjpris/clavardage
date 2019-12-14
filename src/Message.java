@@ -3,11 +3,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
-
-public class Message {
+/* limit serialization / when write/redef java methods : 
+ * You have seen while deserializing the object the values of a and b has changed. 
+ * The reason being a was marked as transient and b was static.
+In case of transient variables:- 
+A variable defined with transient keyword is not serialized during serialization process.
+This variable will be initialized with default value during deserialization. (e.g: for objects it is null, for int it is 0).
+In case of static Variables:- 
+A variable defined with static keyword is not serialized during serialization process.
+This variable will be loaded with current value defined in the class during deserialization.
+*/
+public class Message implements Serializable {
 	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE, DEFAULT}
 	byte[] data;
 	Personne emetteur;
@@ -77,9 +87,6 @@ public class Message {
 	    ObjectInputStream is = new ObjectInputStream(in);
 	    return (Message) is.readObject();
 	}
-	public byte[] getData() {
-		return this.data;
-	}
 	public Personne getEmetteur() {
 		return emetteur;
 	}
@@ -88,6 +95,14 @@ public class Message {
 	}
 	public Type getType() {
 		return t;
+	}
+	public String toHtml() {
+		// TODO Auto-generated method stub
+		if(t==Type.DEFAULT) {
+			return "<p>"+new String(data)+"</p>"; //image ??
+		}
+		else
+			return "";
 	}
 
 }

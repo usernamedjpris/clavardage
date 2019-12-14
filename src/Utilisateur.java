@@ -1,5 +1,3 @@
-package clavardeur;
-
 import java.net.InetAddress;
 
 public class Utilisateur {

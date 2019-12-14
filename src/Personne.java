@@ -1,7 +1,7 @@
-package clavardeur;
+import java.io.Serializable;
 import java.net.*;
 
-public class Personne {
+public class Personne implements Serializable{
 	private InetAddress adresse;
 	private String pseudo;
 	/**

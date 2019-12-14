@@ -9,29 +9,25 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 import java.awt.Font;
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Dimension;
 
-import javax.swing.border.SoftBevelBorder;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
 
 public class VuePrincipale {
 
 	private JFrame frame;
 	private JTextField textField;
-
+	HashMap<String,String> conv;
 	/**
 	 * Launch the application.
 	 */
@@ -50,6 +46,7 @@ public class VuePrincipale {
 
 	public VuePrincipale(Application application) {
 		initialize();
+		this.frame.setVisible(true);
 	}
 
 	public VuePrincipale() {
@@ -127,5 +124,26 @@ ep.setText("html code");
 			btnNewButton_1 = new JButton("Déconnexion 😥");
 			btnNewButton_1.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
 			panel.add(btnNewButton_1);
+	}
+	public void createConversation(Personne toPersonne) {
+		ArrayList<Message> hist=BD.getBD().getHistorique(BD.getBD().getIdPersonne(toPersonne.getPseudo()));
+		String html="";
+		for(Message m:hist) //max de chargement historiques messages possible
+			html+=m.toHtml();
+		conv.put(toPersonne.getPseudo(), html);
+	}
+	public void update(Personne emetteur, Message message) {
+		//R: save des messsages dans la BD à l'envoie et à la réception par AA
+		conv.put(emetteur.getPseudo(), message.toHtml());
+		//if list active user 
+		//maj Jpanel en add le message
+		//sinon change la jList en gras/rouge 
+		//quand switch de conv => aff conv.get(Pseudo)
+		
+	}
+
+	public void deconnection(Personne emetteur) {
+		// TODO Auto-generated method stub
+		
 	}
 }

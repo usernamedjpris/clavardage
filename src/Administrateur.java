@@ -1,5 +1,3 @@
-package clavardeur;
-
 public class Administrateur  {
 	BD bdd;
 	public Administrateur() {

@@ -1,40 +1,69 @@
 
+import java.awt.EventQueue;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
 public class Application implements Observer {
 	static Utilisateur user;
-	HashMap<String,ConversationGui> conv;
+	//
 	VuePrincipale main;
 	static BD maBD=BD.getBD();
 	ArrayList<Personne> pActives=new ArrayList<Personne>();
 	ArrayList<String> pInactives=new ArrayList<String>();
 	public static void main(String[] args) {
-		Application monApp=new Application();
+		try {
+			Application monApp=new Application();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	Application(){
-		Enumeration<NetworkInterface> net= NetworkInterface.getNetworkInterfaces();//to work offline
-		byte[] mac=net.nextElement().getHardwareAddress();
-		user= new Utilisateur((mac.toString()).hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
-		Reseau.getReseau().getActiveUsers(user.getPersonne());
+	Application() throws IOException{
 		Reseau.getReseau().addObserver(this);
-		conv=new HashMap<String,ConversationGui>;
+		/*Enumeration<NetworkInterface> net= NetworkInterface.getNetworkInterfaces();//to work offline
+		for(byte m:net.nextElement().getHardwareAddress())
+		System.out.print(m);
+		NetworkInterface.getByInetAddress(new InetAddress("127.0.0.1")); */
+        byte[] m=NetworkInterface.getByInetAddress(InetAddress.getLocalHost()).getHardwareAddress();
+        StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < m.length; i++) {
+			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));		
+		}
+	    String mac=sb.toString();
+	    System.out.print(mac);
+		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
+		Reseau.getReseau().getActiveUsers(user.getPersonne());
+		//conv=new HashMap<String,ConversationGui>;
 		main=new VuePrincipale(this);
 	}
 	String getPseudo() {
 		return user.getPseudo();
 	}
 	void sendActiveUserPseudo() {
-		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.ALIVE,user.getPersonne()));
+		try {
+			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.ALIVE,user.getPersonne()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	//after check unicty pseudo
 	static void sendPseudoSwitch(String old, String newPseudo,long  id) {
-		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.SWITCH,user.getPersonne(),newPseudo));
+		try {
+			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.SWITCH,user.getPersonne(),newPseudo));
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		maBD.delIdPseudoLink(old);
 		maBD.setIdPseudoLink(newPseudo,id);
 	}
@@ -42,33 +71,39 @@ public class Application implements Observer {
 		return maBD.checkUnicity();
 	}
 	void deconnexion(String pseudo) {
-		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user.getPersonne()));
+		try {
+			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user.getPersonne()));
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-	public void createConversation(Personne toPersonne) {
-		ArrayList<Message> hist=maBD.getHistorique(maBD.getIdPersonne(toPersonne.getPseudo()));
-		conv.put(toPersonne.getPseudo(), new ConversationGui(new Conversation(toPersonne,hist),10));
-	}
+
 	public ArrayList<Personne> getpActives() {
 		return pActives;
 	}
-	public ArrayList<String> getPseudoTalked(){
+	/*public ArrayList<String> getPseudoTalked(){
 		maBD.getPseudoTalked(user.getId());
-	}
+	}*/
 	@Override
 public void update(Observable o, Object arg) {
 		//try convert arg to message 
-		//if message => convGUI update
 		  if (arg instanceof Message) {  
 	           Message message = (Message) arg;  
-	           if(message.getType()==Message.Type.DEFAULT)
-	        	   conv.get(message.getEmetteur()).update(message);
+	           if(message.getType()==Message.Type.DEFAULT) {
+	        	   main.update(message.getEmetteur(),message);
+		           maBD.addData(message,maBD.getIdPersonne(message.getEmetteur().getPseudo())); //SAVE BD LE MESSAGE RECU
+	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
-	        	   long id =maBD.getIdPersonne(message.getEmetteur());
-	        	   maBD.delIdPseudoLink(message.getEmetteur());
+	        	   long id =maBD.getIdPersonne(message.getEmetteur().getPseudo());
+	        	   maBD.delIdPseudoLink(message.getEmetteur().getPseudo());
 	       		   maBD.setIdPseudoLink(message.getNewPseudo(),id);
 	           }
 	           else if(message.getType()==Message.Type.DECONNECTION) {
-	        	   conv.get(message.getEmetteur()).deconnection();
+	        	   main.deconnection(message.getEmetteur());
 	           }
 	           else if(message.getType()==Message.Type.ALIVE) {
 	        	   //show status bar
@@ -85,12 +120,5 @@ public void update(Observable o, Object arg) {
 	        	   System.out.print("WARNING unknow message type !");
 	        	   
 	        }  
-		//try string
-		//si string and swithc
-		//update pseudo
-		//si pseudo ask
-		//send UDP pseudo
-		//si deconnexion, change status dans la liste des users
-		//inactive sending in conversation
 	}
 }

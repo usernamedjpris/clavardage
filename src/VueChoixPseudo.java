@@ -1,14 +1,12 @@
 import java.awt.EventQueue;
-import javax.swing.JFrame;
-import javax.swing.JSplitPane;
-import java.awt.BorderLayout;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
-import java.awt.FlowLayout;
-import javax.swing.JButton;
 import java.awt.Font;
+import java.awt.GridLayout;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
 
 public class VueChoixPseudo {
 
@@ -45,7 +43,7 @@ public class VueChoixPseudo {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 710, 467);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new LayoutManager("", "[grow][grow][grow]", "[36px][36px][36px][36px][36px][36px][36px]"));
+		frame.getContentPane().setLayout(new GridLayout());
 		
 		JLabel label = new JLabel("");
 		frame.getContentPane().add(label, "cell 0 0,grow");

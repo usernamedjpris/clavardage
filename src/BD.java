@@ -105,7 +105,7 @@ public class BD {
 			e.printStackTrace();
 		}
 	}
-	public void delIdPseudoLink(String old) {
+	public void delIdPseudoLink(String string) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -117,15 +117,19 @@ public class BD {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	public Object getIdPersonne(String pseudo) {
+	public long getIdPersonne(String string) {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 	public ArrayList<Message> getHistorique(Object idPersonne) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	public void getPseudoTalked(long id) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void addData(Message message, long idPersonne) {
 		// TODO Auto-generated method stub
 		
 	}

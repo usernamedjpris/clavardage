@@ -1,13 +1,9 @@
-package clavardeur;
-import java.io.DataInputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
-import clavardeur.Message.Type;
 
 public class Reseau extends Observable implements Observer {
 	ArrayList <Message> bufferReception;
@@ -25,11 +21,19 @@ public class Reseau extends Observable implements Observer {
 	 */
 	private Reseau() throws IOException {
 		this.reception = new ServeurTCP();
-		this.reception.launch();
 		this.reception.addObserver(this);
+		Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+		     reception.closeServeur();
+		    }});
+		Thread tr = new Thread(reception);
+        tr.start();
 		this.serveurUDP = new ServeurUDP();
-		this.serveurUDP.launch();
 		this.serveurUDP.addObserver(this);
+		Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+		     serveurUDP.closeServeur();
+		    }});
+		Thread tu = new Thread(serveurUDP);
+        tu.start();
 		this.envoi = new ClientTCP();
 		this.clientUDP = new BroadcastClient();
 		this.bufferReception = new ArrayList <Message>();
@@ -56,7 +60,7 @@ public class Reseau extends Observable implements Observer {
 		clientUDP.broadcast(message);
 	}
 	public void getActiveUsers(Personne emmet) throws SocketException, IOException{
-		Message message = new Message(Type.WHOISALIVE, emmet);
+		Message message = new Message(Message.Type.WHOISALIVE, emmet);
 		this.sendDataBroadcast(message);
 	}
 	public void update(Observable o, Object arg) {

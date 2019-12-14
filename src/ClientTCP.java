@@ -27,6 +27,8 @@ public class ClientTCP {
         /////////out.write(Message.serialize(message));
         /////////out.flush();
         //Clore la connexion
+        dos.close();
+        os.close();
         s.close();	    
 	}
 

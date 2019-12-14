@@ -1,4 +1,4 @@
-package clavardeur;
+
 import java.net.*;
 import java.io.*;
 import java.util.Date;
@@ -25,8 +25,12 @@ public class ServeurSocketThread extends Observable implements Runnable {
                 dis.readFully(data);
             }            
             //bufferReception.add(Message.deserialize(data)); //a quoi sert il ce buffer ?
-            this.notifyObservers(Message.deserialize(data));
-            out.flush();
+            try {
+				this.notifyObservers(Message.deserialize(data));
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+            //out.flush();
             //Clore la connexion
             s.close();
         }

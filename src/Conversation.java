@@ -1,4 +1,4 @@
-package clavardeur;
+
 import java.util.ArrayList;
 
 public class Conversation {
