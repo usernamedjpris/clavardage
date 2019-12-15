@@ -6,19 +6,28 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
+import java.util.AbstractMap.*;
+import javax.swing.DefaultListModel;
 
+//tips: ctrl +r =run (me)
+//ctrl+maj+F11=code coverage (standard)
 public class Application implements Observer {
 	static Utilisateur user;
-	//
 	VuePrincipale main;
-	static BD maBD=BD.getBD();
+	BD maBD=BD.getBD();
+	DefaultListModel<Map.Entry<String, Personne>> model = new DefaultListModel<>();
 	ArrayList<Personne> pActives=new ArrayList<Personne>();
 	ArrayList<String> pInactives=new ArrayList<String>();
+	
 	public static void main(String[] args) {
 		try {
-			Application monApp=new Application();
+			new Application();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -41,10 +50,20 @@ public class Application implements Observer {
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
 		Reseau.getReseau().getActiveUsers(user.getPersonne());
 		//conv=new HashMap<String,ConversationGui>;
-		main=new VuePrincipale(this);
+		model.addElement(new SimpleEntry<>("Jérémie (connecté)", new Personne(null, mac,true)));
+		model.addElement(new SimpleEntry<>("Rémi (déconnecté)", new Personne(null, mac, false )));
+		main=new VuePrincipale(this,model);
+		/* javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGUI();
+            }
+        });*/
 	}
 	String getPseudo() {
 		return user.getPseudo();
+	}
+	Personne getPersonne() {
+		return user.getPersonne();
 	}
 	void sendActiveUserPseudo() {
 		try {
@@ -64,11 +83,11 @@ public class Application implements Observer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		maBD.delIdPseudoLink(old);
-		maBD.setIdPseudoLink(newPseudo,id);
+		BD.getBD().delIdPseudoLink(old);
+		BD.getBD().setIdPseudoLink(newPseudo,id);
 	}
 	static boolean checkUnicity(String pseudo) {
-		return maBD.checkUnicity();
+		return BD.getBD().checkUnicity();
 	}
 	void deconnexion(String pseudo) {
 		try {
@@ -104,21 +123,36 @@ public void update(Observable o, Object arg) {
 	           }
 	           else if(message.getType()==Message.Type.DECONNECTION) {
 	        	   main.deconnection(message.getEmetteur());
+	        	   pActives.remove(message.getEmetteur());
 	           }
 	           else if(message.getType()==Message.Type.ALIVE) {
-	        	   //show status bar
-	        	   
+	        	   pActives.add(message.getEmetteur());
+	        	  // pseudoToPerson.put(message.getEmetteur().getPseudo(), message.getEmetteur());
 	           }
 	           else if(message.getType()==Message.Type.WHOISALIVE) {
 	        	   sendActiveUserPseudo();
 	           }
 	           else if(message.getType()==Message.Type.CONNECTION) {
-	        	   pActives.add(message.emetteur);
-	        	   //show pop-up
+	        	   pActives.add(message.getEmetteur());
+	        	  // pseudoToPerson.put(message.getEmetteur().getPseudo(), message.getEmetteur());
+	        	  int index = model.indexOf(message.getEmetteur());
+	        	  if(index <0) {
+	        	   model.add(0, new SimpleEntry<String, Personne>(message.getEmetteur().getPseudo(),message.getEmetteur()));
+	        	  }
+	        	  else {
+	        		  Personne p=model.get(index).getValue();
+	        		  p.setConnected(true);
+	        		  p.setInetAdress(message.getEmetteur().getAdresse());
+	        	  }
+	        	  
 	           }
 	           else
 	        	   System.out.print("WARNING unknow message type !");
 	        	   
 	        }  
+	}
+	//pseudo affiché => pseudo disponible #faire un  getTalkedWith de la BD et un WHOISALIVE pour savoir qui est connecté
+	public Personne getPersonneOfPseudo(String pseudo) {
+		return model.get(model.indexOf(pseudo)).getValue();
 	}
 }

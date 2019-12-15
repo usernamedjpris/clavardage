@@ -6,7 +6,7 @@ public class Utilisateur {
 
 	public Utilisateur(long idU, InetAddress ip) {
 		this.idUtilisateur = idU;
-		who=new Personne(ip,"anonymous" );
+		who=new Personne(ip,"anonymous",true );
 	}
 
 	public Boolean setPseudo (String nouveauPseudo) {

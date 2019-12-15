@@ -34,30 +34,27 @@ public class Message implements Serializable {
 	 * @param newPseudo
 	 */
 	//DATE à générer lors de la création du message => pas en parametre du constructeur #indépendance
-	public Message(byte[] data, Personne emetteur, Personne destinataire, Date date) {
+	public Message(byte[] data, Personne emetteur, Personne destinataire) {
 		this.data = data;
 		this.emetteur = emetteur;
 		this.destinataire = destinataire;
-		this.date = date;
+		this.date = new Date();
 		this.t=Type.DEFAULT;
 		this.newPseudo = emetteur.getPseudo();
 	}
-	public Message(String data, Personne emetteur, Personne destinataire, Date date) {
-		this(data.getBytes(), emetteur, destinataire, date);
-	}
-	public Message(Type typ, Personne emetteur, Personne destinataire, Date date) {
+	public Message(Type typ, Personne emetteur, Personne destinataire) {
 		this.data = "".getBytes();
 		this.emetteur = emetteur;
 		this.destinataire = destinataire;
-		this.date = date;
+		this.date = new Date();
 		this.t=typ;	
 		this.newPseudo = emetteur.getPseudo();
 	}
-	public Message(Personne emetteur, Personne destinataire, Date date, String newPseudo) {
+	public Message(Personne emetteur, Personne destinataire, String newPseudo) {
 		this.data = "".getBytes();
 		this.emetteur = emetteur;
 		this.destinataire = destinataire;
-		this.date = date;
+		this.date = new Date();
 		this.t=Type.SWITCH;
 		this.newPseudo = newPseudo;
 	}
@@ -66,7 +63,7 @@ public class Message implements Serializable {
 		emetteur=personne;
 		t=cat;
 		try {
-			destinataire=new Personne(InetAddress.getByName("255.255.255.255"), "all");
+			destinataire=new Personne(InetAddress.getByName("255.255.255.255"),"all", true);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -97,9 +94,8 @@ public class Message implements Serializable {
 		return t;
 	}
 	public String toHtml() {
-		// TODO Auto-generated method stub
 		if(t==Type.DEFAULT) {
-			return "<p>"+new String(data)+"</p>"; //image ??
+			return "<p>"+new String(data)+"</p>+<div class='date'>"+date.toString()+"</div>"; //image ??
 		}
 		else
 			return "";
