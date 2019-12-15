@@ -23,9 +23,17 @@ public class ServeurSocketThread extends Observable implements Runnable {
             byte[] data = new byte[len];
             if (len > 0) {
                 dis.readFully(data);
-            }            
+            }      
+            System.out.print(" \n reception thread len "+len +"contenu :"+new String(data));
+            try {
+				System.out.print("\n deserialized :" +Message.deserialize(data).toHtml());
+			} catch (ClassNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
             //bufferReception.add(Message.deserialize(data)); //a quoi sert il ce buffer ?
             try {
+            	this.setChanged();
 				this.notifyObservers(Message.deserialize(data));
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();

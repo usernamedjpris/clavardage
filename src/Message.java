@@ -18,6 +18,8 @@ A variable defined with static keyword is not serialized during serialization pr
 This variable will be loaded with current value defined in the class during deserialization.
 */
 public class Message implements Serializable {
+
+	private static final long serialVersionUID = -8338507989483169683L;
 	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE, DEFAULT}
 	byte[] data;
 	Personne emetteur;

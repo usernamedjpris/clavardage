@@ -38,9 +38,9 @@ public class VuePrincipale {
 
 	private JFrame frame;
 	private JTextField textField;
-	HashMap<String,String> conv;
+	HashMap<String,ArrayList<Message>> conv=new HashMap<>();//pseudo, liste de message
 	JList<Entry<String, Personne>> list = new JList<Entry<String, Personne>>();
-	String activePseudo;
+	Entry<String, Personne> activePseudo;
 	Application app;
 	DefaultListModel<Entry<String, Personne>> model;
 	/**
@@ -142,8 +142,8 @@ ep.setText("html code");
 				if(e.getValueIsAdjusting()) {
 				 int selected = list.getSelectedIndex();
 				 if(selected != -1) {
-				 activePseudo = (String) list.getSelectedValue().getKey();
-				 loadConversation(activePseudo);
+				 activePseudo = list.getSelectedValue();
+				 loadConversation(activePseudo.getKey());
 				 System.out.print(activePseudo);
 				 }
 				}
@@ -151,8 +151,9 @@ ep.setText("html code");
 			}};
 		    list.addListSelectionListener(listSelectionListener);
 			list.setSelectedIndex(0);
-			activePseudo = (String) list.getSelectedValue().getKey();
-		
+			activePseudo = list.getSelectedValue();
+			conv.put(activePseudo.getKey(), new ArrayList<>());
+			
 		frame.getContentPane().add(list, BorderLayout.WEST);
 		
 		JPanel panel = new JPanel();
@@ -171,7 +172,7 @@ ep.setText("html code");
 						tosend = textField.getText();
 						if(!tosend.equals("")) {
 						try {
-							Message m =new Message(tosend.getBytes(), app.getPersonne(), app.getPersonneOfPseudo(activePseudo));
+							Message m =new Message(tosend.getBytes(), app.getPersonne(), activePseudo.getValue());
 							Reseau.getReseau().sendData(m);
 						} catch (IOException e1) {
 							JOptionPane.showMessageDialog(frame, "Erreur réseau... :'( ", "ErrorBox: " + "📛", JOptionPane.ERROR_MESSAGE);	
@@ -196,14 +197,25 @@ ep.setText("html code");
 
 	public void createConversation(Personne toPersonne) {
 		ArrayList<Message> hist=BD.getBD().getHistorique(BD.getBD().getIdPersonne(toPersonne.getPseudo()));
-		String html="";
+		/*String html="";
 		for(Message m:hist) //max de chargement historiques messages possible
-			html+=m.toHtml();
-		conv.put(toPersonne.getPseudo(), html);
+			html+=m.toHtml();*/
+		conv.put(toPersonne.getPseudo(), hist);
 	}
 	public void update(Personne emetteur, Message message) {
 		//R: save des messsages dans la BD à l'envoie et à la réception par AA
-		conv.put(emetteur.getPseudo(), message.toHtml());
+		
+		//RQ: en vrai: sur CONNECTION  model add user
+		//sur clic pseudo liste de gauche, maj conv !
+		ArrayList<Message> l=conv.get(emetteur.getPseudo());
+		if(l != null)
+		l.add(message);
+		else {
+			l= new ArrayList<>();
+			l.add(message);
+			conv.put(emetteur.getPseudo(),l);
+		}
+		System.out.print(message.toHtml());
 		//if list active user 
 		//maj Jpanel en add le message
 		//sinon change la jList en gras/rouge 

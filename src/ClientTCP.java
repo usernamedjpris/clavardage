@@ -8,7 +8,7 @@ public class ClientTCP {
 	
     public void sendMessage (Message m) throws IOException{ //String data, Personne dest, Personne emmet
         //Initier la connexion
-        Socket s = new Socket ("127.0.0.1",1025); //127.0.0.1 == localhost
+        Socket s = new Socket ("127.0.0.1",1028); //127.0.0.1 == localhost
         //Set up OUTput streams
         OutputStream os = s.getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);
@@ -18,12 +18,19 @@ public class ClientTCP {
         /////////PrintWriter out = new PrintWriter(os,true);
        // Message message = new Message(data, emmet, dest, date);
         //System.out.println("-> envoi : "+data+emmet.getPseudo()+" -> "+dest.getPseudo());
-        byte[] byteMessage = Message.serialize(m);
-        int len = byteMessage.length;
-        dos.writeInt(len);
-        if (len > 0) {
-            dos.write(byteMessage, 0, len);
-        }
+        try {
+			byte[] byteMessage = Message.serialize(m);
+			
+			int len = byteMessage.length;
+			System.out.print("Message get : "+new String(byteMessage)+"len :"+len);
+			dos.writeInt(len);
+			if (len > 0) {
+			    dos.write(byteMessage, 0, len);
+			    dos.flush();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         /////////out.write(Message.serialize(message));
         /////////out.flush();
         //Clore la connexion

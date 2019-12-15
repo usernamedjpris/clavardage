@@ -50,7 +50,7 @@ public class Application implements Observer {
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
 		Reseau.getReseau().getActiveUsers(user.getPersonne());
 		//conv=new HashMap<String,ConversationGui>;
-		model.addElement(new SimpleEntry<>("Jérémie (connecté)", new Personne(null, mac,true)));
+		model.addElement(new SimpleEntry<>("Jérémie (connecté)", new Personne(InetAddress.getLocalHost(), mac,true)));
 		model.addElement(new SimpleEntry<>("Rémi (déconnecté)", new Personne(null, mac, false )));
 		main=new VuePrincipale(this,model);
 		/* javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -113,6 +113,8 @@ public void update(Observable o, Object arg) {
 		  if (arg instanceof Message) {  
 	           Message message = (Message) arg;  
 	           if(message.getType()==Message.Type.DEFAULT) {
+	        	   System.out.print("HERE def ! \n ");
+	        	   System.out.print("Pseudo :"+message.getEmetteur().getPseudo()+"\n");
 	        	   main.update(message.getEmetteur(),message);
 		           maBD.addData(message,maBD.getIdPersonne(message.getEmetteur().getPseudo())); //SAVE BD LE MESSAGE RECU
 	           }
@@ -149,10 +151,7 @@ public void update(Observable o, Object arg) {
 	           else
 	        	   System.out.print("WARNING unknow message type !");
 	        	   
-	        }  
+	        }
 	}
-	//pseudo affiché => pseudo disponible #faire un  getTalkedWith de la BD et un WHOISALIVE pour savoir qui est connecté
-	public Personne getPersonneOfPseudo(String pseudo) {
-		return model.get(model.indexOf(pseudo)).getValue();
-	}
+	
 }

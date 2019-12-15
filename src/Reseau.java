@@ -4,7 +4,8 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
+//https://www.baeldung.com/java-observer-pattern
+//PropertyChangeListener better (java 11 )
 public class Reseau extends Observable implements Observer {
 	ArrayList <Message> bufferReception;
 	ServeurTCP reception;
@@ -49,6 +50,7 @@ public class Reseau extends Observable implements Observer {
 	
 	public void sendData(Message message) {
 		try {
+			System.out.print("INSIDE RESEAU !");
 			envoi.sendMessage(message);
 		} catch (IOException e) {
 			//warning graphique envoi fail 
@@ -64,6 +66,8 @@ public class Reseau extends Observable implements Observer {
 		this.sendDataBroadcast(message);
 	}
 	public void update(Observable o, Object arg) {
+		System.out.print("\n I am notified ! (2nd)");
+		this.setChanged();
 		notifyObservers(arg);
 	}
 }
