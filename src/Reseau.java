@@ -9,19 +9,17 @@ import java.util.Observer;
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
 public class Reseau extends Observable implements Observer {
-	//ArrayList <Message> bufferReception;
 	//private PropertyChangeSupport support;
 	ServeurTCP reception;
 	ClientTCP envoi;
-	//ArrayList <Message> bufferEnvoi;
-	BroadcastClient clientUDP;
+	ClientUDP clientUDP;
 	ServeurUDP serveurUDP;
 	static Reseau theNetwork;
 	/**
 	 * @param reception
 	 * @param envoi
 	 * @param clientUDP
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private Reseau() throws IOException {
 		this.reception = new ServeurTCP();
@@ -39,14 +37,14 @@ public class Reseau extends Observable implements Observer {
 		Thread tu = new Thread(serveurUDP);
         tu.start();
 		this.envoi = new ClientTCP();
-		this.clientUDP = new BroadcastClient();
+		this.clientUDP = new ClientUDP();
 	}
 
 
 	public static Reseau getReseau() throws IOException {
 		if (theNetwork == null) {
 			theNetwork = new Reseau();
-		} 
+		}
 		return theNetwork;
 	}
 	public void exit_properly() {
@@ -55,23 +53,30 @@ public class Reseau extends Observable implements Observer {
 	}
 	public void sendData(Message message) {
 		try {
-			System.out.print("INSIDE RESEAU !");
+			System.out.print("INSIDE RESEAU sendData [TCP] !\n");
 			envoi.sendMessage(message);
 		} catch (IOException e) {
-			//warning graphique envoi fail 
+			//warning graphique envoi fail
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void sendDataBroadcast(Message message) throws SocketException, IOException {
 		clientUDP.broadcast(message);
 	}
+
+	public void sendUDP(Message message) throws SocketException, IOException {
+		System.out.print("INSIDE RESEAU sendUDP !\n");
+		clientUDP.send(message);
+	}
+
 	public void getActiveUsers(Personne emmet) throws SocketException, IOException{
 		Message message = new Message(Message.Type.WHOISALIVE, emmet);
 		this.sendDataBroadcast(message);
 	}
+
 	public void update(Observable o, Object arg) {
-		System.out.print("\n I am notified ! (2nd)");
+		System.out.print("\n Reseau is notified ! (2nd)\n");
 		this.setChanged();
 		notifyObservers(arg);
 	}
