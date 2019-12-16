@@ -1,13 +1,16 @@
 
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
 public class Reseau extends Observable implements Observer {
 	ArrayList <Message> bufferReception;
+	//private PropertyChangeSupport support;
 	ServeurTCP reception;
 	ClientTCP envoi;
 	ArrayList <Message> bufferEnvoi;
