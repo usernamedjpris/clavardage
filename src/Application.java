@@ -50,14 +50,19 @@ public class Application implements Observer {
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
 		Reseau.getReseau().getActiveUsers(user.getPersonne());
 		//conv=new HashMap<String,ConversationGui>;
-		model.addElement(new SimpleEntry<>("Jérémie (connecté)", new Personne(InetAddress.getLocalHost(), mac,true)));
-		model.addElement(new SimpleEntry<>("Rémi (déconnecté)", new Personne(null, mac, false )));
+		Personne jeje = new Personne(InetAddress.getLocalHost(), mac,true); 
+		Personne remi = new Personne(null, mac, false );
+		model.addElement(new SimpleEntry<>("Jérémie (connecté)", jeje));
+		model.addElement(new SimpleEntry<>("Rémi (déconnecté)", remi));
 		main=new VuePrincipale(this,model);
+		
 		/* javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 createAndShowGUI();
             }
         });*/
+		//test UDP
+		Reseau.getReseau().sendUDP(new Message("bonsoir".getBytes(),jeje,jeje));
 	}
 	String getPseudo() {
 		return user.getPseudo();

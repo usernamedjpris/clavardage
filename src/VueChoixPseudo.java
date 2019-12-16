@@ -67,7 +67,6 @@ public class VueChoixPseudo  implements ActionListener{
 		JLabel lblvide11 = new JLabel("");
 		JLabel lblvide12 = new JLabel("");
 		JLabel lblvide13 = new JLabel("");
-		JLabel lblvide14 = new JLabel("");
 
 
 		frame.getContentPane().add(lblvide1);
