@@ -9,11 +9,11 @@ import java.util.Observer;
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
 public class Reseau extends Observable implements Observer {
-	ArrayList <Message> bufferReception;
+	//ArrayList <Message> bufferReception;
 	//private PropertyChangeSupport support;
 	ServeurTCP reception;
 	ClientTCP envoi;
-	ArrayList <Message> bufferEnvoi;
+	//ArrayList <Message> bufferEnvoi;
 	BroadcastClient clientUDP;
 	ServeurUDP serveurUDP;
 	static Reseau theNetwork;
@@ -40,7 +40,6 @@ public class Reseau extends Observable implements Observer {
         tu.start();
 		this.envoi = new ClientTCP();
 		this.clientUDP = new BroadcastClient();
-		this.bufferReception = new ArrayList <Message>();
 	}
 
 
@@ -50,7 +49,10 @@ public class Reseau extends Observable implements Observer {
 		} 
 		return theNetwork;
 	}
-	
+	public void exit_properly() {
+		 reception.closeServeur();
+		 serveurUDP.closeServeur();
+	}
 	public void sendData(Message message) {
 		try {
 			System.out.print("INSIDE RESEAU !");

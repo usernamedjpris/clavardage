@@ -6,7 +6,7 @@ import java.net.SocketException;
 import java.util.Observable;
 
 public class ServeurUDP extends Observable implements Runnable{
-	public final static int port = 8534;
+	public final static int port = 8535;
 	final static int taille = 1024;
 	static byte buffer[] = new byte[taille];
 	DatagramSocket socket = null;

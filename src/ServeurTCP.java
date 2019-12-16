@@ -29,7 +29,7 @@ public class ServeurTCP extends Observable implements Observer, Runnable {
 	@Override
     public void run() {
 		try {
-			ssoc = new ServerSocket(1028);
+			ssoc = new ServerSocket(1030);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}        

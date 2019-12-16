@@ -110,6 +110,11 @@ public class Application implements Observer {
 	@Override
 public void update(Observable o, Object arg) {
 		//try convert arg to message 
+		/* si  IMAGE to write file :
+		 * byte[] encoded = key.getEncoded();
+FileOutputStream output = new FileOutputStream(new File("target-file"));
+IOUtils.write(encoded, output); 
+		 */
 		  if (arg instanceof Message) {  
 	           Message message = (Message) arg;  
 	           if(message.getType()==Message.Type.DEFAULT) {
@@ -152,6 +157,13 @@ public void update(Observable o, Object arg) {
 	        	   System.out.print("WARNING unknow message type !");
 	        	   
 	        }
+	}
+	public void close() {
+		try {
+			Reseau.getReseau().exit_properly();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }
