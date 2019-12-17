@@ -189,14 +189,16 @@ public class VuePrincipale {
 			public void actionPerformed(ActionEvent e) {
 					JOptionPane.showMessageDialog(frame, "Au revoir ! ", "👋", JOptionPane.INFORMATION_MESSAGE);
 					//System.exit(0); //too crude
-					app.close();
+					//app.close();
 				            Container frame = btnDeco.getParent();
 				            do 
 				              frame = frame.getParent(); 
 				            while (!(frame instanceof JFrame));                                      
 				            ((JFrame) frame).dispose();
+				    		System.exit(0);
 				        }
 				    });
+
 	}
 	private void initialize() {
 		frame = new JFrame();

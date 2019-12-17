@@ -2,41 +2,39 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.SocketException;
 import java.util.Observable;
-import java.util.Observer;
 
 public class ServeurUDP extends Observable implements Runnable{
-	ServerSocket ssoc = null;
-	public final static int port = 1515;
+	public final static int port = 1516;
 	final static int taille = 1024;
-	static byte buffer[] = new byte[taille];
 	DatagramSocket socket = null;
 	boolean on=true;
 
-	@Override
+	/*@Override
 	public void update(Observable o, Object arg) {
 		System.out.print("\n ServeurUDP is notified ! (1st)");
 		this.setChanged();
 		notifyObservers(arg);
-	}
+	}*/
 
 	public void closeServeur() {
-        try {
-        	if(ssoc != null) {
-        	on=false;
-			ssoc.close();
-			System.out.print("Collected socket UDP ! (closed)");
-        	}
-		} catch (IOException e) {
-			e.printStackTrace();
+	   try {
+		if(socket != null) {
+		on=false;
+		socket.close();
+		System.out.print("Collected socket UDP ! (closed)");
 		}
+	   }catch (Exception e) {
+	   e.printStackTrace();
+	   }
 	}
 
 	@Override
 	public void run() {
+		Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+				closeServeur();
+		    }});
 
 		try {
 			socket = new DatagramSocket(port);
@@ -45,10 +43,22 @@ public class ServeurUDP extends Observable implements Runnable{
 		}
 		while(on)
 		{
+			byte[] buffer = new byte[taille];
 			DatagramPacket data = new DatagramPacket(buffer, buffer.length);
+
 			try {
 				socket.receive(data);
-				notifyObservers(Message.deserialize(data.getData()));
+				byte[] myObject = new byte[data.getLength()];
+
+				for(int i = 0; i < data.getLength(); i++)
+				{
+				     myObject[i] = buffer[i];
+				}
+				System.out.print("\n notify others !");
+				System.out.print("\n Size : "+data.getLength());
+				System.out.print("object :"+new String(myObject));
+				setChanged();
+				notifyObservers(Message.deserialize(myObject));
 			} catch (IOException e1) {
 				if(on)
 				e1.printStackTrace();

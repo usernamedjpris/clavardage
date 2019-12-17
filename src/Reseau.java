@@ -24,20 +24,17 @@ public class Reseau extends Observable implements Observer {
 	private Reseau() throws IOException {
 		this.reception = new ServeurTCP();
 		this.reception.addObserver(this);
-		Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
-		     reception.closeServeur();
-		    }});
+		
 		Thread tr = new Thread(reception);
         tr.start();
 		this.serveurUDP = new ServeurUDP();
 		this.serveurUDP.addObserver(this);
-		Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
-		     serveurUDP.closeServeur();
-		    }});
 		Thread tu = new Thread(serveurUDP);
         tu.start();
+        
 		this.envoi = new ClientTCP();
 		this.clientUDP = new ClientUDP();
+		///ADD HOOK clientUDP destroy => sendBroadcast deconnexion
 	}
 
 
@@ -46,10 +43,6 @@ public class Reseau extends Observable implements Observer {
 			theNetwork = new Reseau();
 		}
 		return theNetwork;
-	}
-	public void exit_properly() {
-		 reception.closeServeur();
-		 serveurUDP.closeServeur();
 	}
 	public void sendData(Message message) {
 		try {
@@ -62,11 +55,11 @@ public class Reseau extends Observable implements Observer {
 	}
 
 	public void sendDataBroadcast(Message message) throws SocketException, IOException {
+		System.out.print("INSIDE RESEAU sendUDP !\n");
 		clientUDP.broadcast(message);
 	}
 
 	public void sendUDP(Message message) throws SocketException, IOException {
-		System.out.print("INSIDE RESEAU sendUDP !\n");
 		clientUDP.send(message);
 	}
 

@@ -27,6 +27,10 @@ public class ServeurTCP extends Observable implements Observer, Runnable {
 	}
 	@Override
     public void run() {
+		Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+         closeServeur();
+		    }});
+		
 		try {
 			ssoc = new ServerSocket(1030);
 		} catch (IOException e) {

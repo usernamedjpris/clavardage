@@ -48,7 +48,7 @@ public class Application implements Observer {
 	    String mac=sb.toString();
 	    System.out.print(mac);
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
-		Reseau.getReseau().getActiveUsers(user.getPersonne());
+		
 		//conv=new HashMap<String,ConversationGui>;
 		Personne jeje = new Personne(InetAddress.getLocalHost(), mac,true); 
 		Personne remi = new Personne(null, mac, false );
@@ -62,6 +62,7 @@ public class Application implements Observer {
             }
         });*/
 		//test UDP
+		Reseau.getReseau().getActiveUsers(user.getPersonne());
 		Reseau.getReseau().sendUDP(new Message("bonsoir".getBytes(),jeje,jeje));
 	}
 	String getPseudo() {
@@ -162,13 +163,6 @@ IOUtils.write(encoded, output);
 	        	   System.out.print("WARNING unknow message type !");
 	        	   
 	        }
-	}
-	public void close() {
-		try {
-			Reseau.getReseau().exit_properly();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 }
