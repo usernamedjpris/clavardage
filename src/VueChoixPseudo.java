@@ -1,4 +1,5 @@
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 
@@ -16,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.Color;
+import java.awt.Dimension;
 
 
 public class VueChoixPseudo  implements ActionListener{
@@ -48,67 +50,34 @@ public class VueChoixPseudo  implements ActionListener{
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 683, 321);
+		frame.setBounds(100, 100, 500, 100);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new GridLayout(6, 3));
-		
-		JLabel lblvide1 = new JLabel("");
-		JLabel lblvide2 = new JLabel("");
-		JLabel lblvide3 = new JLabel("");
-		JLabel lblvide4 = new JLabel("");
-		JLabel lblvide5 = new JLabel("");
-		JLabel lblvide6 = new JLabel("");
-		JLabel lblvide7 = new JLabel("");
-		JLabel lblvide9 = new JLabel("");
-		JLabel lblvide10 = new JLabel("");
-		JLabel lblvide11 = new JLabel("");
-		JLabel lblvide12 = new JLabel("");
-		JLabel lblvide13 = new JLabel("");
+		frame.getContentPane().setLayout(new FlowLayout());
+		//frame.getContentPane().setLayout(new GridLayout(6, 3));
 
-
-		frame.getContentPane().add(lblvide1);
-		frame.getContentPane().add(lblvide2);		
-		frame.getContentPane().add(lblvide3);
-		frame.getContentPane().add(lblvide4);
-		JLabel lblPseudoDuJour = new JLabel("Pseudo du jour :");
+		JLabel lblPseudoDuJour = new JLabel("Surnom :");
 		lblPseudoDuJour.setHorizontalAlignment(SwingConstants.CENTER);
-		lblPseudoDuJour.setFont(new Font("Courier New", Font.BOLD, 20));
+		lblPseudoDuJour.setFont(new Font("Courier New", Font.BOLD, 15));
 		frame.getContentPane().add(lblPseudoDuJour);
-		frame.getContentPane().add(lblvide5);
-		frame.getContentPane().add(lblvide6);
-		
-		JPanel panel_1 = new JPanel();
-		frame.getContentPane().add(panel_1);
-		
-		JSplitPane splitPane = new JSplitPane();
-		panel_1.add(splitPane);
-		
-		JLabel lblPseudo = new JLabel("pseudo :");
-		lblPseudo.setBackground(new Color(240, 240, 240));
-		lblPseudo.setFont(new Font("Courier New", Font.PLAIN, 17));
-		splitPane.setLeftComponent(lblPseudo);
+
 		
 		textField = new JTextField();
-		textField.setFont(new Font("Courier New", Font.BOLD | Font.ITALIC, 13));
-		splitPane.setRightComponent(textField);
-		textField.setColumns(10);
-		frame.getContentPane().add(lblvide7);
-		frame.getContentPane().add(lblvide9);
-		frame.getContentPane().add(lblvide10);
-		frame.getContentPane().add(lblvide11);
-		frame.getContentPane().add(lblvide12);
+		textField.setFont(new Font("Courier New", Font.BOLD | Font.ITALIC, 15));
+		textField.setPreferredSize(new Dimension(150,20));
+		frame.getContentPane().add(textField);
+		
 		
 		JPanel panel = new JPanel();
 		frame.getContentPane().add(panel);
 		
-		JButton btnLogin = new JButton("login");
+		JButton btnLogin = new JButton("s'identifier");
 		btnLogin.setBackground(new Color(102, 205, 170));
 		btnLogin.setForeground(Color.WHITE);
 		btnLogin.setFont(new Font("Calibri", Font.BOLD, 13));
-		btnLogin.setSize(20,50);
+		btnLogin.setPreferredSize(new Dimension(95,20));
 		panel.add(btnLogin);
 		btnLogin.addActionListener(this);
-		frame.getContentPane().add(lblvide13);
+		frame.getRootPane().setDefaultButton(btnLogin); //permet de l'appuyer en appuyant sur entree
 
 		
 	}
