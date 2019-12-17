@@ -8,6 +8,9 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,12 +51,20 @@ public class VuePrincipale {
 	DefaultListModel<Entry<String, Personne>> model;
 	JButton btnSend;
 	JButton btnDeco;
+	JEditorPane message_zone;
 
 	public VuePrincipale(Application application,DefaultListModel<Entry<String, Personne>> m) {
 		app=application;
 		model=m;
 		initialize();
 		this.frame.setVisible(true);
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				app.sendDisconnected();
+				e.getWindow().dispose();
+			}
+		});
 	}
 	private void initializeMenu() {
 		JMenuBar bar=new JMenuBar();
@@ -98,7 +109,7 @@ public class VuePrincipale {
 		frame.setJMenuBar(bar);
 	}
 	private void initializeHtmlView() {
-		JEditorPane message_zone = new JEditorPane();
+		message_zone = new JEditorPane();
 		message_zone.setContentType("text/html");
 	    message_zone.setBorder( BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    HTMLEditorKit kit = new HTMLEditorKit();
@@ -111,10 +122,9 @@ public class VuePrincipale {
 	            "<div id=textbox><p class='alignleft'>left</p><p class='alignright'>right</p></div>" +
 	            "</html>");
 	    message_zone.setEditable(false);
-		frame.getContentPane().add(message_zone, BorderLayout.CENTER);
 	}
 	private void initializeList() {
-		list.setBorder(new LineBorder(new Color(0, 0, 0), 4, true));
+		//list.setBorder(new LineBorder(new Color(0, 0, 0), 4, true));
 		list.setFont(new Font("Tahoma", Font.ITALIC, 18));
 		list.setModel(model);
 		list.setCellRenderer(new DefaultListCellRenderer() {
@@ -188,8 +198,7 @@ public class VuePrincipale {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 					JOptionPane.showMessageDialog(frame, "Au revoir ! ", "👋", JOptionPane.INFORMATION_MESSAGE);
-					//System.exit(0); //too crude
-					//app.close();
+					app.sendDisconnected();
 				            Container frame = btnDeco.getParent();
 				            do 
 				              frame = frame.getParent(); 
@@ -210,9 +219,21 @@ public class VuePrincipale {
 		initializeHtmlView();
 		initializeList();
 
-		frame.getContentPane().add(list, BorderLayout.WEST);
 		JPanel panel = new JPanel(new BorderLayout());
-		frame.getContentPane().add(panel, BorderLayout.SOUTH);
+			
+		JScrollPane ljs=new  JScrollPane(list);
+		ljs.setVisible(true);
+		//ljs.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
+		JSplitPane split_conv=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,ljs, message_zone);
+		split_conv.setDividerSize(5);
+		
+		JSplitPane split_final=new JSplitPane(JSplitPane.VERTICAL_SPLIT,split_conv, panel);
+		split_final.setDividerSize(5);
+		//frame.getContentPane().add(list, BorderLayout.WEST);
+		frame.getContentPane().add(split_final, BorderLayout.CENTER);
+		
+		
+		//frame.getContentPane().add(panel, BorderLayout.SOUTH);
 		
 		textField = new JTextArea();
 		textField.setLineWrap(true);
@@ -231,6 +252,7 @@ public class VuePrincipale {
 		JSplitPane jsp=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, btnSend, btnDeco);
 		jsp.setDividerSize(0);
 		panel.add(jsp,BorderLayout.EAST);
+		
 		initializeMenu();
 	}
 	protected void loadConversation(String pseudo) {

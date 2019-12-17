@@ -164,5 +164,9 @@ IOUtils.write(encoded, output);
 	        	   
 	        }
 	}
+	public void sendDisconnected() {
+		// TODO Auto-generated method stub
+		System.out.print("\n Deconnecté ! \n");
+	}
 	
 }
