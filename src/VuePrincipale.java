@@ -3,6 +3,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -11,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JMenu;
@@ -52,6 +55,7 @@ public class VuePrincipale {
 	JButton btnSend;
 	JButton btnDeco;
 	JEditorPane message_zone;
+	String defaultTitle=new String("Super clavardeur ! 🧙‍♂️ ‍🐱");
 
 	public VuePrincipale(Application application,DefaultListModel<Entry<String, Personne>> m) {
 		app=application;
@@ -79,13 +83,47 @@ public class VuePrincipale {
         fr.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_D, ActionEvent.ALT_MASK));
         fr.setMnemonic(KeyEvent.VK_F);
+        fr.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Desktop.getDesktop().open(app.getDownloadPath());
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+			}});
         menu.add(fr);
         JMenuItem tele = new JMenuItem("Changer le dossier de téléchargement",
                 new ImageIcon("images/icon_wheel.png"));
         tele.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_D, ActionEvent.ALT_MASK));
         tele.setMnemonic(KeyEvent.VK_F);
-        //tele.addActionListener(new ActionListener() {});
+        tele.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               JFileChooser dirChooser = new JFileChooser();
+               dirChooser.setMultiSelectionEnabled(true);
+               dirChooser.setDialogTitle("Choisir le dossier de téléchargement");
+               dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            // disable the "All files" option.
+               dirChooser.setAcceptAllFileFilterUsed(false);
+               dirChooser.setFileHidingEnabled(true);
+               int option = dirChooser.showOpenDialog(frame);
+               if(option == JFileChooser.APPROVE_OPTION){
+                 // File[] files = dirChooser.getSelectedFiles();
+            	   /* for(File file: files){
+                     fileNames += file.getName() + " ";
+                  }*/	   
+                  File dir = dirChooser.getSelectedFile();
+                  System.out.print("Directory  Selected: " + dir.getAbsolutePath());
+                  app.setDownloadPath(dir);
+               }else{
+            	   System.out.print("cancelled");
+               }
+            }
+         });
         menu.add(tele);
         JMenuItem apropos = new JMenuItem("à propos 🕴",new ImageIcon("images/icon22.png"));
         apropos.setMnemonic(KeyEvent.VK_A);
@@ -100,7 +138,7 @@ public class VuePrincipale {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//TODO
-				System.out.print("\n OK !");
+				new VueChoixPseudo(app);
 				
 			}});
         bar.add(menu);
@@ -214,7 +252,7 @@ public class VuePrincipale {
 		frame.setBounds(100, 100, 723, 324);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
-		frame.setTitle("Super clavardeur ! 🧙‍♂️ ‍🐱");
+		frame.setTitle(defaultTitle+"["+app.getPseudo()+"]");
 		frame.setIconImage(new ImageIcon("images/icon.png").getImage());
 		initializeHtmlView();
 		initializeList();
@@ -222,7 +260,6 @@ public class VuePrincipale {
 		JPanel panel = new JPanel(new BorderLayout());
 			
 		JScrollPane ljs=new  JScrollPane(list);
-		ljs.setVisible(true);
 		//ljs.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
 		JSplitPane split_conv=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,ljs, message_zone);
 		split_conv.setDividerSize(5);
@@ -291,5 +328,8 @@ public class VuePrincipale {
 	public void deconnection(Personne emetteur) {
 		// TODO Auto-generated method stub
 		
+	}
+	public void changePseudo(String uname) {
+		frame.setTitle(defaultTitle+"["+uname+"]");
 	}
 }

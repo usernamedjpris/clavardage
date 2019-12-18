@@ -1,3 +1,4 @@
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -115,7 +116,7 @@ public class BD {
 	}
 	public boolean checkUnicity() {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 	public long getIdPersonne(String string) {
 		// TODO Auto-generated method stub
@@ -130,6 +131,14 @@ public class BD {
 		
 	}
 	public void addData(Message message, long idPersonne) {
+		// TODO Auto-generated method stub
+		
+	}
+	public File getDownloadPath() {
+		// TODO Auto-generated method stub
+		return new File("D:\\JAVA\\JDK\\JDK");
+	}
+	public void setDownloadPath(File file) {
 		// TODO Auto-generated method stub
 		
 	}

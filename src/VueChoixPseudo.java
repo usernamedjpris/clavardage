@@ -5,9 +5,12 @@ import java.awt.GridLayout;
 
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -17,41 +20,25 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.Color;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 
 
 public class VueChoixPseudo  implements ActionListener{
 
-	private JFrame frame;
+	private JDialog frame;
 	private JTextField textField;
-
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					VueChoixPseudo window = new VueChoixPseudo();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the application.
-	 */
-	public VueChoixPseudo() {
+	private Application app;
+	public VueChoixPseudo(Application a) {
+		app=a;
 		initialize();
 	}
 
-	/**
-	 * Initialize the contents of the frame.
-	 */
 	private void initialize() {
-		frame = new JFrame();
+		frame = new JDialog();
+		frame.setModalityType(JDialog.DEFAULT_MODALITY_TYPE);
 		frame.setBounds(100, 100, 500, 100);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(new FlowLayout());
 		//frame.getContentPane().setLayout(new GridLayout(6, 3));
 
@@ -78,22 +65,27 @@ public class VueChoixPseudo  implements ActionListener{
 		panel.add(btnLogin);
 		btnLogin.addActionListener(this);
 		frame.getRootPane().setDefaultButton(btnLogin); //permet de l'appuyer en appuyant sur entree
+		frame.setVisible(true);
 
 		
 	}
 	public void actionPerformed(ActionEvent ae)
 	 {
 	   String uname = textField.getText();
-	   //if(uname.checkunicity() && uname != "") //check unicity
-	   //{
-	   System.out.println("ok : "+uname);
-
-	    //}
-	    //else
-	    //{
-	    //  JOptionPane.showMessageDialog(this,"Incorrect login or password",
-	    //  "Error",JOptionPane.ERROR_MESSAGE);  
-	    //}
-	  //}
+	   if(!uname.equals("") && app.checkUnicity(uname) ) //check unicity
+	   {
+		   app.setPseudoUser(uname);
+		   frame.setModalityType(JDialog.ModalityType.MODELESS);
+		  // frame.setModalityType(JDialog.);
+		   frame.dispose();
+	   }
+	    else
+	   { 
+	    	 if(uname.equals(""))
+	      JOptionPane.showMessageDialog(frame, "Ton pseudo ne peut pas être vide :'( ", "Dommage... " + "📛", JOptionPane.INFORMATION_MESSAGE);
+	    	 else
+	      JOptionPane.showMessageDialog(frame, "Ton pseudo est déjà pris désolé :'( ", "Dommage... " + "📛", JOptionPane.INFORMATION_MESSAGE);
+			
+	   }
 	 }
 }

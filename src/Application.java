@@ -1,5 +1,6 @@
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -24,6 +25,7 @@ public class Application implements Observer {
 	DefaultListModel<Map.Entry<String, Personne>> model = new DefaultListModel<>();
 	ArrayList<Personne> pActives=new ArrayList<Personne>();
 	ArrayList<String> pInactives=new ArrayList<String>();
+	File pathDownload;
 	
 	public static void main(String[] args) {
 		try {
@@ -55,6 +57,7 @@ public class Application implements Observer {
 		model.addElement(new SimpleEntry<>("Jérémie (connecté)", jeje));
 		model.addElement(new SimpleEntry<>("Rémi (déconnecté)", remi));
 		main=new VuePrincipale(this,model);
+		pathDownload=maBD.getDownloadPath();
 		
 		/* javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -167,6 +170,18 @@ IOUtils.write(encoded, output);
 	public void sendDisconnected() {
 		// TODO Auto-generated method stub
 		System.out.print("\n Deconnecté ! \n");
+	}
+	public File getDownloadPath() {
+		return pathDownload;
+	}
+	public void setDownloadPath(File file) {
+	pathDownload=file;
+	maBD.setDownloadPath(file);
+	}
+	public void setPseudoUser(String uname) {
+		main.changePseudo(uname);
+		sendPseudoSwitch(user.getPseudo(), uname, user.getId());
+		user.setPseudo(uname);
 	}
 	
 }

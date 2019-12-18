@@ -9,15 +9,8 @@ public class Utilisateur {
 		who=new Personne(ip,"anonymous",true );
 	}
 
-	public Boolean setPseudo (String nouveauPseudo) {
-		Boolean bool = true;
-		if (Application.checkUnicity(nouveauPseudo)) {
-			Application.sendPseudoSwitch(who.getPseudo(), nouveauPseudo, this.idUtilisateur);
+	public void setPseudo (String nouveauPseudo) {
 			who.setPseudo(nouveauPseudo);
-		} else {
-			bool = false;
-		}
-		return bool;
 	}
 
 	public String getPseudo() {
