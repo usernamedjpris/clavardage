@@ -54,14 +54,14 @@ public class Reseau extends Observable implements Observer {
 	}
 
 	public void sendDataBroadcast(Message message) throws SocketException, IOException {
-		System.out.print("\n Envoi de message "+message.getType().toString()+" en broadcast");
+		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast");
 		clientUDP.broadcast(message);
 	}
 
 	public void sendUDP(Message message) throws SocketException, IOException {
-		System.out.print("\n Envoi d'un message "+message.getType().toString()+" à "+message.getDestinataire().getPseudo());
+		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi d'un message "+message.getType().toString()+" à "+message.getDestinataire().getPseudo());
 		clientUDP.send(message);
-	}
+	}  
 
 	public void update(Observable o, Object arg) {
 		this.setChanged();

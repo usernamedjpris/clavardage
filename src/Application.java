@@ -54,7 +54,7 @@ public class Application implements Observer {
 		//conv=new HashMap<String,ConversationGui>;
 
 		Personne byDefault = new Personne(InetAddress.getLocalHost(), mac,true);
-		//Personne remi = new Personne(null, mac, false );*/
+		
 	    model.addElement(new SimpleEntry<>("(vous-même)", byDefault));
 		main=new VuePrincipale(this,model);
 		pathDownload=maBD.getDownloadPath();
@@ -66,6 +66,8 @@ public class Application implements Observer {
 		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user.getPersonne()));
 		//Reseau.getReseau().sendUDP(new Message("bonsoir".getBytes(),jeje,jeje));
 
+		Personne remi = new Personne(null, mac, false );
+		Personne jeje = new Personne(null, mac, false );
 		//test VuePrincipale
 		ArrayList<Message>messages = new ArrayList<Message>();
 		messages.add(new Message("hey !".getBytes(), remi, jeje));

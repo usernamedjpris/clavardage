@@ -175,7 +175,7 @@ public class VuePrincipale {
 				new_message_text += "<div class='alignright'>"+c.getHistorique().get(i).toHtml("textright")+"</div>";
 			}
 		}
-		System.out.println(new_message_text+"</div></html>");
+		//System.out.println(new_message_text+"</div></html>");
 		this.message_zone.setText(new_message_text+"</div></html>");
 	}
 	private void initializeList() {
