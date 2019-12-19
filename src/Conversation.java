@@ -21,8 +21,4 @@ public class Conversation {
 	public Personne getTo() {
 		return to;
 	}
-
-	public ArrayList<Message> getHistorique() {
-		return historique;
-	}
 }

@@ -1,7 +1,0 @@
-
-• màj COO diagram (Message, conversationGui dans VuePrincipale etc.)
-• finir class BD (avec javaDB)
-• tester (WHOISALIVE → ALIVE testé mais checké fonctionnalité message dans Application) → "deconnecté" + "connecté" sera dans la status barre.
-• tester réseau entre deux machines
-• envoyer des fichiers !
-• 15 janvier dernière séance !!!
