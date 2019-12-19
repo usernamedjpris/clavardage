@@ -26,7 +26,7 @@ public class Application implements Observer {
 	ArrayList<Personne> pActives=new ArrayList<Personne>();
 	ArrayList<String> pInactives=new ArrayList<String>();
 	File pathDownload;
-	
+
 	public static void main(String[] args) {
 		try {
 			new Application();
@@ -45,36 +45,52 @@ public class Application implements Observer {
         byte[] m=NetworkInterface.getByInetAddress(InetAddress.getLocalHost()).getHardwareAddress();
         StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < m.length; i++) {
-			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));		
+			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));
 		}
 	    String mac=sb.toString();
 	   // System.out.print(mac);
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
 	    new VueChoixPseudo(this,false);
 		//conv=new HashMap<String,ConversationGui>;
-		Personne byDefault = new Personne(InetAddress.getLocalHost(), mac,true); 
+
+		Personne byDefault = new Personne(InetAddress.getLocalHost(), mac,true);
 		//Personne remi = new Personne(null, mac, false );*/
 	    model.addElement(new SimpleEntry<>("(vous-m�me)", byDefault));
 		main=new VuePrincipale(this,model);
 		pathDownload=maBD.getDownloadPath();
-		
-		/* javax.swing.SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                createAndShowGUI();
-            }
-        });*/
+
+
 		//test UDP
 		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.CONNECTION,user.getPersonne()));
 		//getActiveUsers
 		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user.getPersonne()));
 		//Reseau.getReseau().sendUDP(new Message("bonsoir".getBytes(),jeje,jeje));
+
+		//test VuePrincipale
+		ArrayList<Message>messages = new ArrayList<Message>();
+		messages.add(new Message("hey !".getBytes(), remi, jeje));
+		messages.add(new Message("hey !".getBytes(), jeje, remi));
+		messages.add(new Message("ça marche ton affichage de la conversation ?".getBytes(), remi, jeje));
+		messages.add(new Message("yep !".getBytes(), jeje, remi));
+		messages.add(new Message("😎".getBytes(), remi, jeje));
+		messages.add(new Message("je cherche une idée pour une conversation fictive histoire de tester les fonctionnalités de notre SuperClavardeur™ par exemple (pour voir par exemple si une phrase très très longue sera bien traitée à l'affichage). Tu en aurais une ?".getBytes(), jeje, remi));
+		messages.add(new Message("non".getBytes(), remi, jeje));
+		messages.add(new Message("🥇".getBytes(), jeje, remi));
+		messages.add(new Message("🎯".getBytes(), jeje, remi));
+		messages.add(new Message("il fait 5℃".getBytes(), jeje, remi));
+		messages.add(new Message("tu fais quoi ?!?".getBytes(), remi, jeje));
+		messages.add(new Message("je teste les caractères spéciaux pour plus de fun !".getBytes(), jeje, remi));
+		messages.add(new Message("(☞ﾟヮﾟ)☞".getBytes(), remi, jeje));
+		messages.add(new Message("☜(ﾟヮﾟ☜)".getBytes(), jeje, remi));
+		Conversation c = new Conversation(remi,messages);
+		main.setHtmlView(c);
 	}
 	String getPseudo() {
 		return user.getPseudo();
 	}
 	Personne getPersonne() {
 		return user.getPersonne();
-	} 
+	}
 	void sendActiveUserPseudo(Personne to) {
 		try {
 			Reseau.getReseau().sendUDP(new Message(Message.Type.ALIVE,user.getPersonne(),to));
@@ -119,14 +135,14 @@ public class Application implements Observer {
 	}*/
 	@Override
 public void update(Observable o, Object arg) {
-		//try convert arg to message 
+		//try convert arg to message
 		/* si  IMAGE to write file :
 		 * byte[] encoded = key.getEncoded();
 FileOutputStream output = new FileOutputStream(new File("target-file"));
-IOUtils.write(encoded, output); 
+IOUtils.write(encoded, output);
 		 */
-		  if (arg instanceof Message) {  
-	           Message message = (Message) arg;  
+		  if (arg instanceof Message) {
+	           Message message = (Message) arg;
 	           System.out.print("\n R�ception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message);
@@ -150,7 +166,7 @@ IOUtils.write(encoded, output);
 	           }
 	           else if(message.getType()==Message.Type.CONNECTION) {
 	        	   pActives.add(message.getEmetteur());
-	        	   
+
 	        	  // pseudoToPerson.put(message.getEmetteur().getPseudo(), message.getEmetteur());
 	        	  int index = model.indexOf(message.getEmetteur());
 	        	  if(index <0) {
@@ -161,11 +177,11 @@ IOUtils.write(encoded, output);
 	        		  p.setConnected(true);
 	        		  p.setInetAdress(message.getEmetteur().getAdresse());
 	        	  }
-	        	  
+
 	           }
 	           else
 	        	   System.out.print("WARNING unknow message type !");
-	        	   
+
 	        }
 	}
 	public void sendDisconnected() {
@@ -192,5 +208,5 @@ IOUtils.write(encoded, output);
 	public void setPseudoUser(String uname) {
 		user.setPseudo(uname);
 	}
-	
+
 }
