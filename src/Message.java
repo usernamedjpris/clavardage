@@ -21,12 +21,12 @@ public class Message implements Serializable {
 
 	private static final long serialVersionUID = -8338507989483169683L;
 	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE, DEFAULT}
-	byte[] data;
-	Personne emetteur;
-	Personne destinataire;
-	Date date;
-	Type t;
-	String newPseudo;
+	private byte[] data;
+	private Personne emetteur;
+	private Personne destinataire;
+	private Date date;
+	private Type t;
+	private String newPseudo;
 	/**
 	 * @param data
 	 * @param emetteur
@@ -39,7 +39,7 @@ public class Message implements Serializable {
 	public Message(byte[] data, Personne emetteur, Personne destinataire) {
 		this.data = data;
 		this.emetteur = emetteur;
-		this.destinataire = destinataire;
+		this.destinataire=(destinataire);
 		this.date = new Date();
 		this.t=Type.DEFAULT;
 		this.newPseudo = emetteur.getPseudo();
@@ -47,7 +47,7 @@ public class Message implements Serializable {
 	public Message(Type typ, Personne emetteur, Personne destinataire) {
 		this.data = "".getBytes();
 		this.emetteur = emetteur;
-		this.destinataire = destinataire;
+		this.destinataire=(destinataire);
 		this.date = new Date();
 		this.t=typ;	
 		this.newPseudo = emetteur.getPseudo();
@@ -55,7 +55,7 @@ public class Message implements Serializable {
 	public Message(Personne emetteur, Personne destinataire, String newPseudo) {
 		this.data = "".getBytes();
 		this.emetteur = emetteur;
-		this.destinataire = destinataire;
+		this.destinataire=(destinataire);
 		this.date = new Date();
 		this.t=Type.SWITCH;
 		this.newPseudo = newPseudo;
@@ -65,7 +65,7 @@ public class Message implements Serializable {
 		emetteur=personne;
 		t=cat;
 		try {
-			destinataire=new Personne(InetAddress.getByName("255.255.255.255"),"all", true);
+			destinataire=(new Personne(InetAddress.getByName("255.255.255.255"),"all", true));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -101,6 +101,9 @@ public class Message implements Serializable {
 		}
 		else
 			return "";
+	}
+	public Personne getDestinataire() {
+		return destinataire;
 	}
 
 }

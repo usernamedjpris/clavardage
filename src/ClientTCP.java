@@ -22,7 +22,6 @@ public class ClientTCP {
 			byte[] byteMessage = Message.serialize(m);
 			
 			int len = byteMessage.length;
-			System.out.print("Message get : "+new String(byteMessage)+"len :"+len);
 			dos.writeInt(len);
 			if (len > 0) {
 			    dos.write(byteMessage, 0, len);

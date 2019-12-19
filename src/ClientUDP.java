@@ -20,7 +20,6 @@ public class ClientUDP {
     	DatagramSocket socket = new DatagramSocket();
         try {
         	byte[] buffer = Message.serialize(message);
-			System.out.print("Size serialized :"+buffer.length);
 			/*int len = buffer.length;
 			System.out.print("Message get : "+new String(buffer)+" len :"+len);
 			//peut-etre il existe un moyen de rajouter la longueur devant le tableau de byte plus joliement
@@ -30,7 +29,7 @@ public class ClientUDP {
 				buffer2[i] = buffer[i-1];
 			}*/
         	
-			InetAddress a=message.destinataire.getAdresse();
+			InetAddress a=message.getDestinataire().getAdresse();
 	        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, a, 1516);
 	      /*  packet.setData(buf, offset, length);
 	        packet.setAddress(iaddr);

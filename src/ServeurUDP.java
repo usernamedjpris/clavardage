@@ -54,9 +54,6 @@ public class ServeurUDP extends Observable implements Runnable{
 				{
 				     myObject[i] = buffer[i];
 				}
-				System.out.print("\n notify others !");
-				System.out.print("\n Size : "+data.getLength());
-				System.out.print("object :"+new String(myObject));
 				setChanged();
 				notifyObservers(Message.deserialize(myObject));
 			} catch (IOException e1) {

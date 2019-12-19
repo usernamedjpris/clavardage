@@ -44,9 +44,8 @@ public class Reseau extends Observable implements Observer {
 		}
 		return theNetwork;
 	}
-	public void sendData(Message message) {
+	public void sendTCP(Message message) {
 		try {
-			System.out.print("INSIDE RESEAU sendData [TCP] !\n");
 			envoi.sendMessage(message);
 		} catch (IOException e) {
 			//warning graphique envoi fail
@@ -55,21 +54,16 @@ public class Reseau extends Observable implements Observer {
 	}
 
 	public void sendDataBroadcast(Message message) throws SocketException, IOException {
-		System.out.print("INSIDE RESEAU sendUDP !\n");
+		System.out.print("\n Envoi de message "+message.getType().toString()+" en broadcast");
 		clientUDP.broadcast(message);
 	}
 
 	public void sendUDP(Message message) throws SocketException, IOException {
+		System.out.print("\n Envoi d'un message "+message.getType().toString()+" à "+message.getDestinataire().getPseudo());
 		clientUDP.send(message);
 	}
 
-	public void getActiveUsers(Personne emmet) throws SocketException, IOException{
-		Message message = new Message(Message.Type.WHOISALIVE, emmet);
-		this.sendDataBroadcast(message);
-	}
-
 	public void update(Observable o, Object arg) {
-		System.out.print("\n Reseau is notified ! (2nd)\n");
 		this.setChanged();
 		notifyObservers(arg);
 	}

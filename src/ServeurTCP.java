@@ -10,7 +10,6 @@ public class ServeurTCP extends Observable implements Observer, Runnable {
 	public ServeurTCP() {}
     
 	public void update(Observable o, Object arg) {
-		System.out.print("\n I am notified ! (1st)");
 		this.setChanged();
 		notifyObservers(arg);
 	}
@@ -40,7 +39,6 @@ public class ServeurTCP extends Observable implements Observer, Runnable {
             Socket soc = null;
 			try {
 				soc = ssoc.accept();
-				System.out.print(" \n Accepted connexion ! ");
 				ServeurSocketThread st = new ServeurSocketThread(soc);
 	            st.addObserver(this); 
 	            Thread th = new Thread(st);

@@ -48,14 +48,13 @@ public class Application implements Observer {
 			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));		
 		}
 	    String mac=sb.toString();
-	    System.out.print(mac);
+	   // System.out.print(mac);
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
-		
+	    new VueChoixPseudo(this,false);
 		//conv=new HashMap<String,ConversationGui>;
-		Personne jeje = new Personne(InetAddress.getLocalHost(), mac,true); 
-		Personne remi = new Personne(null, mac, false );
-		model.addElement(new SimpleEntry<>("Jérémie (connecté)", jeje));
-		model.addElement(new SimpleEntry<>("Rémi (déconnecté)", remi));
+		Personne byDefault = new Personne(InetAddress.getLocalHost(), mac,true); 
+		//Personne remi = new Personne(null, mac, false );*/
+	    model.addElement(new SimpleEntry<>("(vous-même)", byDefault));
 		main=new VuePrincipale(this,model);
 		pathDownload=maBD.getDownloadPath();
 		
@@ -65,18 +64,20 @@ public class Application implements Observer {
             }
         });*/
 		//test UDP
-		Reseau.getReseau().getActiveUsers(user.getPersonne());
-		Reseau.getReseau().sendUDP(new Message("bonsoir".getBytes(),jeje,jeje));
+		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.CONNECTION,user.getPersonne()));
+		//getActiveUsers
+		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user.getPersonne()));
+		//Reseau.getReseau().sendUDP(new Message("bonsoir".getBytes(),jeje,jeje));
 	}
 	String getPseudo() {
 		return user.getPseudo();
 	}
 	Personne getPersonne() {
 		return user.getPersonne();
-	}
-	void sendActiveUserPseudo() {
+	} 
+	void sendActiveUserPseudo(Personne to) {
 		try {
-			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.ALIVE,user.getPersonne()));
+			Reseau.getReseau().sendUDP(new Message(Message.Type.ALIVE,user.getPersonne(),to));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -126,9 +127,8 @@ IOUtils.write(encoded, output);
 		 */
 		  if (arg instanceof Message) {  
 	           Message message = (Message) arg;  
+	           System.out.print("\n Réception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
-	        	   System.out.print("HERE def ! \n ");
-	        	   System.out.print("Pseudo :"+message.getEmetteur().getPseudo()+"\n");
 	        	   main.update(message.getEmetteur(),message);
 		           maBD.addData(message,maBD.getIdPersonne(message.getEmetteur().getPseudo())); //SAVE BD LE MESSAGE RECU
 	           }
@@ -146,10 +146,11 @@ IOUtils.write(encoded, output);
 	        	  // pseudoToPerson.put(message.getEmetteur().getPseudo(), message.getEmetteur());
 	           }
 	           else if(message.getType()==Message.Type.WHOISALIVE) {
-	        	   sendActiveUserPseudo();
+	        	   sendActiveUserPseudo(message.getEmetteur());
 	           }
 	           else if(message.getType()==Message.Type.CONNECTION) {
 	        	   pActives.add(message.getEmetteur());
+	        	   
 	        	  // pseudoToPerson.put(message.getEmetteur().getPseudo(), message.getEmetteur());
 	        	  int index = model.indexOf(message.getEmetteur());
 	        	  if(index <0) {
@@ -168,8 +169,13 @@ IOUtils.write(encoded, output);
 	        }
 	}
 	public void sendDisconnected() {
-		// TODO Auto-generated method stub
-		System.out.print("\n Deconnecté ! \n");
+		try {
+			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user.getPersonne()));
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	public File getDownloadPath() {
 		return pathDownload;
@@ -178,9 +184,12 @@ IOUtils.write(encoded, output);
 	pathDownload=file;
 	maBD.setDownloadPath(file);
 	}
-	public void setPseudoUser(String uname) {
+	public void setPseudoUserSwitch(String uname) {
 		main.changePseudo(uname);
 		sendPseudoSwitch(user.getPseudo(), uname, user.getId());
+		user.setPseudo(uname);
+	}
+	public void setPseudoUser(String uname) {
 		user.setPseudo(uname);
 	}
 	

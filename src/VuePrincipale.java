@@ -138,7 +138,7 @@ public class VuePrincipale {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//TODO
-				new VueChoixPseudo(app);
+				new VueChoixPseudo(app,true);
 				
 			}});
         bar.add(menu);
@@ -219,7 +219,7 @@ public class VuePrincipale {
 						if(!tosend.equals("")) {
 						try {
 							Message m =new Message(tosend.getBytes(), app.getPersonne(), activePseudo.getValue());
-							Reseau.getReseau().sendData(m);
+							Reseau.getReseau().sendTCP(m);
 						} catch (IOException e1) {
 							JOptionPane.showMessageDialog(frame, "Erreur réseau... :'( ", "ErrorBox: " + "📛", JOptionPane.ERROR_MESSAGE);	
 						}
