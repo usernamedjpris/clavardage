@@ -165,8 +165,6 @@ public class VuePrincipale {
 	            "<div id=textbox><p class='alignleft'>left</p><p class='alignright'>right</p></div>" +
 	            "</html>");
 	    message_zone.setEditable(false);
-	    JScrollPane editorScrollPane = new JScrollPane(message_zone); //ne marche pas ?!?
-	    editorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 	}
 	public void setHtmlView(Conversation c) {
 		String new_message_text = "<html>"+"<center class='title'><b><font size=6>"+c.getTo().getPseudo()+"</font></b></center><div id=textbox>";
@@ -274,13 +272,19 @@ public class VuePrincipale {
 		frame.setIconImage(new ImageIcon("images/icon.png").getImage());
 		initializeHtmlView();
 		initializeList();
+		
 
+	    
 		JPanel panel = new JPanel(new BorderLayout());
 			
 		JScrollPane ljs=new  JScrollPane(list);
 		ljs.setVisible(true);
 		//ljs.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
-		JSplitPane split_conv=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,ljs, message_zone);
+		
+	    JScrollPane editorScrollPane = new JScrollPane(message_zone); 
+	    editorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+	    
+		JSplitPane split_conv=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,ljs, editorScrollPane);
 		split_conv.setDividerSize(5);
 		
 		JSplitPane split_final=new JSplitPane(JSplitPane.VERTICAL_SPLIT,split_conv, panel);
