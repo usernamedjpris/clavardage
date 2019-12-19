@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -56,7 +57,7 @@ public class VuePrincipale {
 	JButton btnDeco;
 	JEditorPane message_zone;
 	String defaultTitle=new String("Super clavardeur ! 🧙‍♂️ ‍🐱");
-
+	
 	public VuePrincipale(Application application,DefaultListModel<Entry<String, Personne>> m) {
 		app=application;
 		model=m;
@@ -147,19 +148,35 @@ public class VuePrincipale {
 		frame.setJMenuBar(bar);
 	}
 	private void initializeHtmlView() {
-		message_zone = new JEditorPane();
+		message_zone = new JEditorPane();	
 		message_zone.setContentType("text/html");
 	    message_zone.setBorder( BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    HTMLEditorKit kit = new HTMLEditorKit();
 	    message_zone.setEditorKit(kit);
 	    StyleSheet styleSheet = kit.getStyleSheet();
-	    styleSheet.addRule(".alignleft{color : rgb(0,128,25); font-weight: bold;text-align: left;}");
-	    styleSheet.addRule(".alignright{color : rgb(0,0,25); font-weight: bold;text-align: right;}");
+	    styleSheet.addRule(".title{font-family: 'Courier New', monospace; margin-bottom: 20px}");
+	    styleSheet.addRule(".alignleft{margin-right:200px; text-align: left;}");
+	    styleSheet.addRule(".date{font-family: 'Courier New', monospace; padding: 0px 7px; color:black; font-weight: none; font-size:12pt;}");
+	    styleSheet.addRule(".alignright{margin-left:200px;text-align: right;}");
+	    styleSheet.addRule(".textleft{font-family: Calibri, sans-serif; padding: 2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,250,240);");
+	    styleSheet.addRule(".textright{font-family: Calibri, sans-serif; padding:2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,240,250); }");
 	    message_zone.setText("<html>" +
 	            "<center><b><font size=6>Important Information</font></b></center>" +
 	            "<div id=textbox><p class='alignleft'>left</p><p class='alignright'>right</p></div>" +
 	            "</html>");
 	    message_zone.setEditable(false);
+	}
+	public void setHtmlView(Conversation c) {
+		String new_message_text = "<html>"+"<center class='title'><b><font size=6>"+c.getTo().getPseudo()+"</font></b></center><div id=textbox>";
+		for (int i = 0 ; i < c.getHistorique().size() ; i++) {
+			if (c.getTo().getPseudo().equals(c.getHistorique().get(i).getEmetteur().getPseudo()/*au lieu de comparer ce pseudo comparer id utilisateur ?*/)){
+				new_message_text += "<div class='alignleft'>"+c.getHistorique().get(i).toHtml("textleft")+"</div>";
+			} else {
+				new_message_text += "<div class='alignright'>"+c.getHistorique().get(i).toHtml("textright")+"</div>";
+			}
+		}
+		System.out.println(new_message_text+"</div></html>");
+		this.message_zone.setText(new_message_text+"</div></html>");
 	}
 	private void initializeList() {
 		//list.setBorder(new LineBorder(new Color(0, 0, 0), 4, true));
@@ -229,7 +246,6 @@ public class VuePrincipale {
 					
 						}});
 		btnSend.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
-		
 		btnDeco= new JButton("Déconnexion 😥");
 		btnDeco.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
 		btnDeco.addActionListener(new ActionListener() {
@@ -256,12 +272,19 @@ public class VuePrincipale {
 		frame.setIconImage(new ImageIcon("images/icon.png").getImage());
 		initializeHtmlView();
 		initializeList();
+		
 
+	    
 		JPanel panel = new JPanel(new BorderLayout());
 			
 		JScrollPane ljs=new  JScrollPane(list);
+		ljs.setVisible(true);
 		//ljs.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
-		JSplitPane split_conv=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,ljs, message_zone);
+		
+	    JScrollPane editorScrollPane = new JScrollPane(message_zone); 
+	    editorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+	    
+		JSplitPane split_conv=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,ljs, editorScrollPane);
 		split_conv.setDividerSize(5);
 		
 		JSplitPane split_final=new JSplitPane(JSplitPane.VERTICAL_SPLIT,split_conv, panel);
@@ -290,13 +313,13 @@ public class VuePrincipale {
 		jsp.setDividerSize(0);
 		panel.add(jsp,BorderLayout.EAST);
 		
-		initializeMenu();
+		initializeMenu();	
+		
 	}
 	protected void loadConversation(String pseudo) {
 		// TODO Auto-generated method stub
 		
 	}
-
 	public void createConversation(Personne toPersonne) {
 		ArrayList<Message> hist=BD.getBD().getHistorique(BD.getBD().getIdPersonne(toPersonne.getPseudo()));
 		/*String html="";
@@ -317,7 +340,7 @@ public class VuePrincipale {
 			l.add(message);
 			conv.put(emetteur.getPseudo(),l);
 		}
-		System.out.print(message.toHtml());
+		System.out.print(message.toHtml("textleft")); //Message.toHtml() prend en argument si on veut placer à gauche ou à droite car change d'un utilisteur à l'autre et seule VuePricipale le sait
 		//if list active user 
 		//maj Jpanel en add le message
 		//sinon change la jList en gras/rouge 

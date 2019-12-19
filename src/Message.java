@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 /* limit serialization / when write/redef java methods : 
  * You have seen while deserializing the object the values of a and b has changed. 
@@ -95,9 +96,12 @@ public class Message implements Serializable {
 	public Type getType() {
 		return t;
 	}
-	public String toHtml() {
+	
+	public String toHtml(String side) {
 		if(t==Type.DEFAULT) {
-			return "<p>"+new String(data)+"</p>+<div class='date'>"+date.toString()+"</div>"; //image ??
+			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
+			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
+			return "<div class="+side+">"+new String(data)+"</div><div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; //image ??
 		}
 		else
 			return "";

@@ -24,7 +24,7 @@ public class ServeurSocketThread extends Observable implements Runnable {
             }      
             System.out.print(" \n reception thread len "+len +"contenu :"+new String(data));
             try {
-				System.out.print("\n deserialized :" +Message.deserialize(data).toHtml());
+				System.out.print("\n deserialized :" +Message.deserialize(data).toHtml("textleft"));//par défaut
 			} catch (ClassNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
