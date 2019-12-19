@@ -52,10 +52,10 @@ public class Application implements Observer {
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
 		
 		//conv=new HashMap<String,ConversationGui>;
-		Personne jeje = new Personne(InetAddress.getLocalHost(), mac,true); 
-		Personne remi = new Personne(null, mac, false );
-		model.addElement(new SimpleEntry<>("J�r�mie (connect�)", jeje));
-		model.addElement(new SimpleEntry<>("R�mi (d�connect�)", remi));
+		Personne jeje = new Personne(InetAddress.getLocalHost(), "jejedu31", true); 
+		Personne remi = new Personne(null, "remidu31", false );
+		model.addElement(new SimpleEntry<>("Jérémie (connecté)", jeje));
+		model.addElement(new SimpleEntry<>("Rémi (déconnecté)", remi));
 		main=new VuePrincipale(this,model);
 		pathDownload=maBD.getDownloadPath();
 		
@@ -67,6 +67,24 @@ public class Application implements Observer {
 		//test UDP
 		Reseau.getReseau().getActiveUsers(user.getPersonne());
 		Reseau.getReseau().sendUDP(new Message("bonsoir".getBytes(),jeje,jeje));
+		//test VuePrincipale
+		ArrayList<Message>messages = new ArrayList<Message>();
+		messages.add(new Message("hey !".getBytes(), remi, jeje));
+		messages.add(new Message("hey !".getBytes(), jeje, remi));
+		messages.add(new Message("ça marche ton affichage de la conversation ?".getBytes(), remi, jeje));
+		messages.add(new Message("yep !".getBytes(), jeje, remi));
+		messages.add(new Message("😎".getBytes(), remi, jeje));
+		messages.add(new Message("je cherche une idée pour une conversation fictive histoire de tester les fonctionnalités de notre SuperClavardeur™ par exemple (pour voir par exemple si une phrase très très longue sera bien traitée à l'affichage). Tu en aurais une ?".getBytes(), jeje, remi));
+		messages.add(new Message("non".getBytes(), remi, jeje));
+		messages.add(new Message("🥇".getBytes(), jeje, remi));
+		messages.add(new Message("🎯".getBytes(), jeje, remi));
+		messages.add(new Message("il fait 5℃".getBytes(), jeje, remi));
+		messages.add(new Message("tu fais quoi ?!?".getBytes(), remi, jeje));
+		messages.add(new Message("je teste les caractères spéciaux pour plus de fun !".getBytes(), jeje, remi));
+		messages.add(new Message("(☞ﾟヮﾟ)☞".getBytes(), remi, jeje));
+		messages.add(new Message("☜(ﾟヮﾟ☜)".getBytes(), jeje, remi));
+		Conversation c = new Conversation(remi,messages);
+		main.setHtmlView(c);
 	}
 	String getPseudo() {
 		return user.getPseudo();
@@ -169,7 +187,7 @@ IOUtils.write(encoded, output);
 	}
 	public void sendDisconnected() {
 		// TODO Auto-generated method stub
-		System.out.print("\n Deconnect� ! \n");
+		System.out.print("\n Deconnecté ! \n");
 	}
 	public File getDownloadPath() {
 		return pathDownload;
@@ -183,5 +201,4 @@ IOUtils.write(encoded, output);
 		sendPseudoSwitch(user.getPseudo(), uname, user.getId());
 		user.setPseudo(uname);
 	}
-	
 }
