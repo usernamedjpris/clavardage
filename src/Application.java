@@ -15,6 +15,8 @@ import java.util.Observer;
 import java.util.Vector;
 import java.util.AbstractMap.*;
 import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 //tips: ctrl +r =run (me)
 //ctrl+maj+F11=code coverage (standard)
@@ -40,22 +42,35 @@ public class Application implements Observer {
 		Reseau.getReseau().addObserver(this);
 		/*Enumeration<NetworkInterface> net= NetworkInterface.getNetworkInterfaces();//to work offline
 		for(byte m:net.nextElement().getHardwareAddress())
-		System.out.print(m);
-		NetworkInterface.getByInetAddress(new InetAddress("127.0.0.1")); */
-        byte[] m=NetworkInterface.getByInetAddress(InetAddress.getLocalHost()).getHardwareAddress();
-        StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < m.length; i++) {
-			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));
+		System.out.print(m); 
+		NetworkInterface in=NetworkInterface.getByInetAddress(InetAddress.getByName(("127.0.0.1")));
+		byte[] m=in.getHardwareAddress();*/
+		String mac="";
+		for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
+			  NetworkInterface network = (NetworkInterface) enm.nextElement();
+			  byte[] m=network.getHardwareAddress();
+			    if((null != m) && (m.length>0)){
+			    	 StringBuilder sb = new StringBuilder();
+			 		for (int i = 0; i < m.length; i++) {
+			 			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));
+			 		}
+			 	    mac=sb.toString();
+			 	    break;
+			    }
 		}
-	    String mac=sb.toString();
-	   // System.out.print(mac);
+		mac="";
+		if(mac.equals("")) {
+			JOptionPane.showMessageDialog(new JFrame(), "Hum...Il semblerait que vous n'avez pas de carte réseau, ce chat ne fonctionnera pas sans réseau :p ", "ErrorBox: " + "📛", JOptionPane.ERROR_MESSAGE);	
+		}
+		else {
+			// System.out.print(mac);
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
 	    new VueChoixPseudo(this,false);
 		//conv=new HashMap<String,ConversationGui>;
 
 		Personne byDefault = new Personne(InetAddress.getLocalHost(), mac,true);
 		
-	    model.addElement(new SimpleEntry<>("(vous-m�me)", byDefault));
+	    model.addElement(new SimpleEntry<>("(vous-m�me)", byDefault));
 		main=new VuePrincipale(this,model);
 		pathDownload=maBD.getDownloadPath();
 
@@ -86,6 +101,7 @@ public class Application implements Observer {
 		messages.add(new Message("☜(ﾟヮﾟ☜)".getBytes(), jeje, remi));
 		Conversation c = new Conversation(remi,messages);
 		main.setHtmlView(c);
+		}
 	}
 	String getPseudo() {
 		return user.getPseudo();
@@ -145,7 +161,7 @@ IOUtils.write(encoded, output);
 		 */
 		  if (arg instanceof Message) {
 	           Message message = (Message) arg;
-	           System.out.print("\n R�ception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"\n" );
+	           System.out.print("\n R�ception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message);
 		           maBD.addData(message,maBD.getIdPersonne(message.getEmetteur().getPseudo())); //SAVE BD LE MESSAGE RECU

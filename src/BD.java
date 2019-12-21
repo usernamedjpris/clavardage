@@ -46,7 +46,7 @@ public class BD {
 	}
 	public ResultSet getAllScoresAndNames() throws SQLException {
 			s=c.createStatement();
-			//naturellement les plus vieux sont priorisés sur les plus jeunes
+			//naturellement les plus vieux sont priorisï¿½s sur les plus jeunes
 			ResultSet aux= s.executeQuery("SELECT idName,idScore,idTime FROM score ORDER BY idScore DESC LIMIT 0,20");
 
       /*STEP 5: Extract data from result set
@@ -82,29 +82,30 @@ public class BD {
 		       stmt.close();
 		       
 		s.executeUpdate("INSERT INTO `score`(`idName`, `idScore`) VALUES ('"+name+"','"+score+"')");
-		//supprime le ou les (accès concurrent) dernier score
+		//supprime le ou les (accï¿½s concurrent) dernier score
 		//Limit offset,nombre de resultats
-		//(SELECT * from score) pour créer une table dérivée (sinon mysql aime pas qu'on supprime en ce servant de ce qu'on supprime comme critère
+		//(SELECT * from score) pour crï¿½er une table dï¿½rivï¿½e (sinon mysql aime pas qu'on supprime en ce servant de ce qu'on supprime comme critï¿½re
 		//1st :DELETE FROM score WHERE idScore<(SELECT idScore FROM (SELECT * from score) AS T ORDER BY idScore DESC LIMIT 20,1)
 		s.executeUpdate("DELETE FROM `score`WHERE `PrimaryKey` NOT IN ( SELECT PrimaryKey FROM (SELECT * FROM (SELECT*FROM score) AS T2 ORDER BY idScore DESC LIMIT 20) AS T)");
 
 	}
 	public int getWorstScore() throws SQLException {
 		ResultSet aux= s.executeQuery("SELECT idScore FROM score ORDER BY idScore DESC LIMIT 19,1");
-		aux.next(); // nécessaire à appeler avant de pouvoir lire la query (verif que = 1 pour qu'elle soit bien passée
+		aux.next(); // nï¿½cessaire ï¿½ appeler avant de pouvoir lire la query (verif que = 1 pour qu'elle soit bien passï¿½e
 		return Integer.parseInt(aux.getString("idScore"));
 		//System.out.print(minScore);
 	}
-    public void finalize() //dst //au cas où //NB: pas de garantie d'appel
+    public void finalize() //dst //au cas oï¿½ //NB: pas de garantie d'appel
 	     {
 	          this.deconnexion();
 	     }
 	private BD() {
-		try {
+		//TODO
+		/*try {
 			this.connexion();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	public void delIdPseudoLink(String string) {
 		// TODO Auto-generated method stub
@@ -136,7 +137,7 @@ public class BD {
 	}
 	public File getDownloadPath() {
 		// TODO Auto-generated method stub
-		return new File("D:\\JAVA\\JDK\\JDK");
+		return new File(".");
 	}
 	public void setDownloadPath(File file) {
 		// TODO Auto-generated method stub

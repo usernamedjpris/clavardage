@@ -56,7 +56,7 @@ public class VuePrincipale {
 	JButton btnSend;
 	JButton btnDeco;
 	JEditorPane message_zone;
-	String defaultTitle=new String("Super clavardeur ! 🧙‍♂️ ‍🐱");
+	String defaultTitle=new String("Super clavardeur !  ‍🐱");
 	
 	public VuePrincipale(Application application,DefaultListModel<Entry<String, Personne>> m) {
 		app=application;
@@ -82,8 +82,8 @@ public class VuePrincipale {
         JMenuItem fr = new JMenuItem("Ouvrir le dossier des fichiers reçus",
                 new ImageIcon("images/icon_open.png"));
         fr.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_D, ActionEvent.ALT_MASK));
-        fr.setMnemonic(KeyEvent.VK_F);
+                KeyEvent.VK_O, ActionEvent.ALT_MASK));
+        fr.setMnemonic(KeyEvent.VK_O);
         fr.addActionListener(new ActionListener() {
 
 			@Override
@@ -99,8 +99,8 @@ public class VuePrincipale {
         JMenuItem tele = new JMenuItem("Changer le dossier de téléchargement",
                 new ImageIcon("images/icon_wheel.png"));
         tele.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_D, ActionEvent.ALT_MASK));
-        tele.setMnemonic(KeyEvent.VK_F);
+                KeyEvent.VK_C, ActionEvent.ALT_MASK));
+        tele.setMnemonic(KeyEvent.VK_C);
         tele.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
