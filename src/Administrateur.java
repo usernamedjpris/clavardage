@@ -7,7 +7,7 @@ public class Administrateur  {
 	public Boolean ajouterCompte(String pseudo) {
 		Boolean isUnique = Application.checkUnicity(pseudo);
 		if (isUnique) {
-			bdd.setIdPseudoLink(pseudo, adresse MAC)
+			//bdd.setIdPseudoLink(pseudo, adresse MAC)
 		} 
 		return isUnique;
 	}
