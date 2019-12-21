@@ -7,7 +7,7 @@ import java.util.Observable;
 
 public class ServeurUDP extends Observable implements Runnable{
 	public final static int port = 1516;
-	final static int taille = 1024;
+	final static int taille = 2048;
 	DatagramSocket socket = null;
 	boolean on=true;
 

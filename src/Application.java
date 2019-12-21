@@ -4,6 +4,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.Authenticator.RequestorType;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -48,6 +49,7 @@ public class Application implements Observer {
 		NetworkInterface in=NetworkInterface.getByInetAddress(InetAddress.getByName(("127.0.0.1")));
 		byte[] m=in.getHardwareAddress();*/
 		String mac="";
+		InetAddress ip = InetAddress.getLocalHost();
 		for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
 			  NetworkInterface network = (NetworkInterface) enm.nextElement();
 			  byte[] m=network.getHardwareAddress();
@@ -57,6 +59,14 @@ public class Application implements Observer {
 			 			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));
 			 		}
 			 	    mac=sb.toString();
+			 	    //si getLoaclHost n'a pas marché correctement
+			 	    if(ip.isLoopbackAddress()) {
+			 	   for(Enumeration<InetAddress> ips = network.getInetAddresses(); ips.hasMoreElements();){
+			 		  InetAddress in = (InetAddress) ips.nextElement();
+			 		   if(!in.isLoopbackAddress())
+			 	    ip=in;
+			 	   }
+			 	    }
 			 	    break;
 			    }
 		}
@@ -65,8 +75,11 @@ public class Application implements Observer {
 			System.exit(0);
 		}
 		else {
-		System.out.print(mac);
-		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
+		
+		System.out.println(mac);
+		System.out.println(ip.toString());
+		//InetAddress.getLocalHost();
+	user= new Utilisateur(mac.hashCode(),ip); //fixe par poste (adresse mac by eg)
 	    new VueChoixPseudo(this,false);
 		//conv=new HashMap<String,ConversationGui>;
 
@@ -163,7 +176,7 @@ IOUtils.write(encoded, output);
 		 */
 		  if (arg instanceof Message) {
 	           Message message = (Message) arg;
-	           System.out.print("\n R�ception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"\n" );
+	           System.out.print("\n R�ception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"("+message.getEmetteur().getAdresse().toString()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message);
 		           maBD.addData(message,maBD.getIdPersonne(message.getEmetteur().getPseudo())); //SAVE BD LE MESSAGE RECU
