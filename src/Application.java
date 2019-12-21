@@ -1,5 +1,7 @@
 
 import java.awt.EventQueue;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -58,12 +60,12 @@ public class Application implements Observer {
 			 	    break;
 			    }
 		}
-		mac="";
 		if(mac.equals("")) {
-			JOptionPane.showMessageDialog(new JFrame(), "Hum...Il semblerait que vous n'avez pas de carte réseau, ce chat ne fonctionnera pas sans réseau :p ", "ErrorBox: " + "📛", JOptionPane.ERROR_MESSAGE);	
+			JOptionPane.showMessageDialog(null, "Hum...Il semblerait que vous n'avez pas de carte réseau, ce chat ne fonctionnera pas sans réseau :p ", "ErrorBox " + "📛", JOptionPane.ERROR_MESSAGE);	
+			System.exit(0);
 		}
 		else {
-			// System.out.print(mac);
+		System.out.print(mac);
 		user= new Utilisateur(mac.hashCode(),InetAddress.getLocalHost()); //fixe par poste (adresse mac by eg)
 	    new VueChoixPseudo(this,false);
 		//conv=new HashMap<String,ConversationGui>;
