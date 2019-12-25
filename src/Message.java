@@ -21,7 +21,7 @@ This variable will be loaded with current value defined in the class during dese
 public class Message implements Serializable {
 
 	private static final long serialVersionUID = -8338507989483169683L;
-	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE, DEFAULT}
+	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE, FILE, DEFAULT}
 	private byte[] data;
 	private Personne emetteur;
 	private Personne destinataire;
@@ -87,6 +87,9 @@ public class Message implements Serializable {
 	    ObjectInputStream is = new ObjectInputStream(in);
 	    return (Message) is.readObject();
 	}
+	public byte[] getData() {
+		return data;
+	}
 	public Personne getEmetteur() {
 		return emetteur;
 	}
@@ -96,7 +99,15 @@ public class Message implements Serializable {
 	public Type getType() {
 		return t;
 	}
+	public void setType(Message.Type typ) {
+		this.t = typ;
+	}
 	
+	public String getDateToString() { //pour stocker dans la bd...
+		SimpleDateFormat toStr = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
+		return toStr.format(date);
+	}
+
 	public String toHtml(String side) {
 		if(t==Type.DEFAULT) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
@@ -109,5 +120,25 @@ public class Message implements Serializable {
 	public Personne getDestinataire() {
 		return destinataire;
 	}
-
+	public static Type toType (String s) {
+		Type t;
+		if (s=="DEFAULT") {
+			t=Type.DEFAULT;
+		} else if (s=="FILE") {
+			t=Type.FILE;
+		} else if (s=="DECONNECTION") {
+			t=Type.DECONNECTION;
+		} else if (s=="SWITCH") {
+			t=Type.SWITCH;
+		} else if (s=="CONNECTION") {
+			t=Type.CONNECTION;
+		} else if (s=="WHOISALIVE") {
+			t=Type.WHOISALIVE;
+		} else if (s=="ALIVE") {
+			t=Type.ALIVE;
+		} else {
+			t=Type.DEFAULT;
+		}
+		return t;
+	}
 }

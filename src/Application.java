@@ -146,7 +146,7 @@ public class Application implements Observer {
 		BD.getBD().setIdPseudoLink(newPseudo,id);
 	}
 	static boolean checkUnicity(String pseudo) {
-		return BD.getBD().checkUnicity();
+		return BD.getBD().checkUnicity(pseudo, user);
 	}
 	void deconnexion(String pseudo) {
 		try {
@@ -179,7 +179,7 @@ IOUtils.write(encoded, output);
 	           System.out.print("\n R�ception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"("+message.getEmetteur().getAdresse().toString()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message);
-		           maBD.addData(message,maBD.getIdPersonne(message.getEmetteur().getPseudo())); //SAVE BD LE MESSAGE RECU
+		           maBD.addData(message);//,maBD.getIdPersonne(message.getEmetteur().getPseudo())); //SAVE BD LE MESSAGE RECU
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
 	        	   long id =maBD.getIdPersonne(message.getEmetteur().getPseudo());
@@ -235,7 +235,7 @@ IOUtils.write(encoded, output);
 	}
 	public void setPseudoUserSwitch(String uname) {
 		main.changePseudo(uname);
-		sendPseudoSwitch(user.getPseudo(), uname, user.getId());
+		sendPseudoSwitch(user.getPseudo(), uname, user.getIdUtilisateur());
 		user.setPseudo(uname);
 	}
 	public void setPseudoUser(String uname) {

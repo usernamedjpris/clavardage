@@ -25,9 +25,4 @@ public class Utilisateur {
 		return who;
 	}
 
-	public long getId() {
-		return this.idUtilisateur;
-	}
-
-
 }
