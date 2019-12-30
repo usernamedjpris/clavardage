@@ -22,13 +22,14 @@ public class BD {
 		try {
 			this.connexion();
 			PreparedStatement stmt;
-			String sql1 = "CREATE TABLE `message` (`pseudoEmet`	VARCHAR,`pseudoDest`	VARCHAR,`sentDate`	VARCHAR,`type`	VARCHAR,`text`	TEXT,PRIMARY KEY(`pseudoEmet`,`pseudoDest`,`sentDate`));";
+			String sql1 = "CREATE TABLE message (pseudoEmet	VARCHAR(30),pseudoDest	VARCHAR(30), sentDate	VARCHAR(30),type	    VARCHAR(30),text    	TEXT,PRIMARY KEY(pseudoEmet,pseudoDest,sentDate));";
 			stmt = c.prepareStatement(sql1);
 	        stmt.executeUpdate();
-	        String sql2 = "CREATE TABLE `identification` (`idUtilisateur` INTEGER,`pseudo`	VARCHAR);";	        
+	        String sql2 = "CREATE TABLE identification (idUtilisateur INTEGER,pseudo	VARCHAR(30));";	        
 			stmt = c.prepareStatement(sql2);
 	        stmt.executeUpdate();
-	        String sql3 = "CREATE TABLE `preference` (`downloadPath` VARCHAR); INSERT INTO preference VALUES ('');";	        
+	        String sql3 = "CREATE TABLE preference (downloadPath VARCHAR(30)); \r\n" + 
+	        		"INSERT INTO preference VALUES ('cheminpardefaut');";	        
 			stmt = c.prepareStatement(sql3);
 	        stmt.executeUpdate();
 		} catch (SQLException e) {
