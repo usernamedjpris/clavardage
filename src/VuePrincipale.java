@@ -56,7 +56,7 @@ public class VuePrincipale {
 	JButton btnSend;
 	JButton btnDeco;
 	JEditorPane message_zone;
-	String defaultTitle=new String("Super clavardeur !  ‍🐱");
+	String defaultTitle=new String("Super clavardeur !  â€�ðŸ�±");
 	
 	public VuePrincipale(Application application,DefaultListModel<Entry<String, Personne>> m) {
 		app=application;
@@ -79,7 +79,7 @@ public class VuePrincipale {
         menu.setMnemonic(KeyEvent.VK_F);
         menu.getAccessibleContext().setAccessibleDescription("Gestion des fichiers");
 // create menu item and add it to the menu
-        JMenuItem fr = new JMenuItem("Ouvrir le dossier des fichiers reçus",
+        JMenuItem fr = new JMenuItem("Ouvrir le dossier des fichiers reÃ§us",
                 new ImageIcon("images/icon_open.png"));
         fr.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_O, ActionEvent.ALT_MASK));
@@ -96,7 +96,7 @@ public class VuePrincipale {
 				
 			}});
         menu.add(fr);
-        JMenuItem tele = new JMenuItem("Changer le dossier de téléchargement",
+        JMenuItem tele = new JMenuItem("Changer le dossier de tÃ©lÃ©chargement",
                 new ImageIcon("images/icon_wheel.png"));
         tele.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_C, ActionEvent.ALT_MASK));
@@ -106,7 +106,7 @@ public class VuePrincipale {
             public void actionPerformed(ActionEvent e) {
                JFileChooser dirChooser = new JFileChooser();
                dirChooser.setMultiSelectionEnabled(true);
-               dirChooser.setDialogTitle("Choisir le dossier de téléchargement");
+               dirChooser.setDialogTitle("Choisir le dossier de tÃ©lÃ©chargement");
                dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             // disable the "All files" option.
                dirChooser.setAcceptAllFileFilterUsed(false);
@@ -126,7 +126,7 @@ public class VuePrincipale {
             }
          });
         menu.add(tele);
-        JMenuItem apropos = new JMenuItem("à propos 🕴",new ImageIcon("images/icon22.png"));
+        JMenuItem apropos = new JMenuItem("Ã  propos ðŸ•´",new ImageIcon("images/icon22.png"));
         apropos.setMnemonic(KeyEvent.VK_A);
         menu.add(apropos);
         JMenuItem swip = new JMenuItem("Pseudo");
@@ -227,7 +227,7 @@ public class VuePrincipale {
 			conv.put(activePseudo.getKey(), new ArrayList<>());
 	}
 	private void initializeButtons() {
-		btnSend = new JButton("Send ! 😎");
+		btnSend = new JButton("Send ! ðŸ˜Ž");
 		btnSend.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -238,20 +238,20 @@ public class VuePrincipale {
 							Message m =new Message(tosend.getBytes(), app.getPersonne(), activePseudo.getValue());
 							Reseau.getReseau().sendTCP(m);
 						} catch (IOException e1) {
-							JOptionPane.showMessageDialog(frame, "Erreur réseau... :'( ", "ErrorBox: " + "📛", JOptionPane.ERROR_MESSAGE);	
+							JOptionPane.showMessageDialog(frame, "Erreur rÃ©seau... :'( ", "ErrorBox: " + "ðŸ“›", JOptionPane.ERROR_MESSAGE);	
 						}
 						}
 						else
-							JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide désolé :p ", "InfoBox: " + "🙄", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide dÃ©solÃ© :p ", "InfoBox: " + "ðŸ™„", JOptionPane.INFORMATION_MESSAGE);
 					
 						}});
 		btnSend.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
-		btnDeco= new JButton("Déconnexion 😥");
+		btnDeco= new JButton("DÃ©connexion ðŸ˜¥");
 		btnDeco.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
 		btnDeco.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-					JOptionPane.showMessageDialog(frame, "Au revoir ! ", "👋", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame, "Au revoir ! ", "ðŸ‘‹", JOptionPane.INFORMATION_MESSAGE);
 					app.sendDisconnected();
 				            Container frame = btnDeco.getParent();
 				            do 
@@ -321,14 +321,15 @@ public class VuePrincipale {
 		
 	}
 	public void createConversation(Personne toPersonne) {
-		ArrayList<Message> hist=BD.getBD().getHistorique(BD.getBD().getIdPersonne(toPersonne.getPseudo()));
+	//	ArrayList<Message> hist=BD.getBD().getHistorique(BD.getBD().getIdPersonne(toPersonne.getPseudo()));
 		/*String html="";
 		for(Message m:hist) //max de chargement historiques messages possible
 			html+=m.toHtml();*/
-		conv.put(toPersonne.getPseudo(), hist);
+	//	conv.put(toPersonne.getPseudo(), hist);
+		///TODO
 	}
 	public void update(Personne emetteur, Message message) {
-		//R: save des messsages dans la BD à l'envoie et à la réception par AA
+		//R: save des messsages dans la BD Ã  l'envoie et Ã  la rÃ©ception par AA
 		
 		//RQ: en vrai: sur CONNECTION  model add user
 		//sur clic pseudo liste de gauche, maj conv !
@@ -340,7 +341,7 @@ public class VuePrincipale {
 			l.add(message);
 			conv.put(emetteur.getPseudo(),l);
 		}
-		System.out.print(message.toHtml("textleft")); //Message.toHtml() prend en argument si on veut placer à gauche ou à droite car change d'un utilisteur à l'autre et seule VuePricipale le sait
+		System.out.print(message.toHtml("textleft")); //Message.toHtml() prend en argument si on veut placer Ã  gauche ou Ã  droite car change d'un utilisteur Ã  l'autre et seule VuePricipale le sait
 		//if list active user 
 		//maj Jpanel en add le message
 		//sinon change la jList en gras/rouge 

@@ -11,7 +11,7 @@ public class ServeurSocketThread extends Observable implements Runnable {
 
 	@Override
     public void run() {
-        try{      
+        try{
             //Set up INput streams
             InputStream is = s.getInputStream();
             DataInputStream dis = new DataInputStream(is);
@@ -21,10 +21,10 @@ public class ServeurSocketThread extends Observable implements Runnable {
             byte[] data = new byte[len];
             if (len > 0) {
                 dis.readFully(data);
-            }      
+            }
             System.out.print(" \n reception thread len "+len +"contenu :"+new String(data));
             try {
-				System.out.print("\n deserialized :" +Message.deserialize(data).toHtml("textleft"));//par défaut
+				System.out.print("\n deserialized :" +Message.deserialize(data).toHtml("textleft"));//par dÃ©faut
 			} catch (ClassNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -41,7 +41,7 @@ public class ServeurSocketThread extends Observable implements Runnable {
             s.close();
         }
         catch (IOException e){
-            System.out.println("I03xception :)"); 
+            System.out.println("I03xception :)");
         }
     }
 }

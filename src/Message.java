@@ -8,13 +8,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-/* limit serialization / when write/redef java methods : 
- * You have seen while deserializing the object the values of a and b has changed. 
+/* limit serialization / when write/redef java methods :
+ * You have seen while deserializing the object the values of a and b has changed.
  * The reason being a was marked as transient and b was static.
-In case of transient variables:- 
+In case of transient variables:-
 A variable defined with transient keyword is not serialized during serialization process.
 This variable will be initialized with default value during deserialization. (e.g: for objects it is null, for int it is 0).
-In case of static Variables:- 
+In case of static Variables:-
 A variable defined with static keyword is not serialized during serialization process.
 This variable will be loaded with current value defined in the class during deserialization.
 */
@@ -36,7 +36,7 @@ public class Message implements Serializable {
 	 * @param type
 	 * @param newPseudo
 	 */
-	//DATE ‡ gÈnÈrer lors de la crÈation du message => pas en parametre du constructeur #indÈpendance
+	//DATE √† g√©n√©rer lors de la cr√©ation du message => pas en parametre du constructeur #ind√©pendance
 	public Message(byte[] data, Personne emetteur, Personne destinataire) {
 		this.data = data;
 		this.emetteur = emetteur;
@@ -50,7 +50,7 @@ public class Message implements Serializable {
 		this.emetteur = emetteur;
 		this.destinataire=(destinataire);
 		this.date = new Date();
-		this.t=typ;	
+		this.t=typ;
 		this.newPseudo = emetteur.getPseudo();
 	}
 	public Message(Personne emetteur, Personne destinataire, String newPseudo) {
@@ -102,7 +102,7 @@ public class Message implements Serializable {
 	public void setType(Message.Type typ) {
 		this.t = typ;
 	}
-	
+
 	public String getDateToString() { //pour stocker dans la bd...
 		SimpleDateFormat toStr = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
 		return toStr.format(date);

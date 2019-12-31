@@ -53,18 +53,18 @@ public class VueChoixPseudo  implements ActionListener{
 		lblPseudoDuJour.setFont(new Font("Courier New", Font.BOLD, 20));
 		frame.getContentPane().add(lblPseudoDuJour);
 
-		
+
 		textField = new JTextField();
 		textField.setFont(new Font("Courier New", Font.BOLD | Font.ITALIC, 20));
 		textField.setPreferredSize(new Dimension(220,25));
 		frame.getContentPane().add(textField);
-		
-		
+
+
 		JPanel panel = new JPanel();
 		frame.getContentPane().add(panel);
-		
-		
-		
+
+
+
 		JButton btnLogin = new JButton("s'identifier");
 		btnLogin.setBackground(new Color(102, 205, 170));
 		btnLogin.setForeground(Color.WHITE);
@@ -72,7 +72,7 @@ public class VueChoixPseudo  implements ActionListener{
 		btnLogin.setPreferredSize(new Dimension(205,25));
 		panel.add(btnLogin);
 		btnLogin.addActionListener(this);
-		
+
 		if(!inApp) {
 			//frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			/*JButton btnCan = new JButton(" annuler");
@@ -86,31 +86,31 @@ public class VueChoixPseudo  implements ActionListener{
 				public void actionPerformed(ActionEvent arg0) {
 					System.exit(0);
 				}
-				
+
 			});*/
 			frame.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
-					/*JLabel j=new JLabel("Vous devez entrer un pseudo valide pour vous connecter ou cliquer sur annuler 👨‍🏫 ");
+					/*JLabel j=new JLabel("Vous devez entrer un pseudo valide pour vous connecter ou cliquer sur annuler ????? ");
 					j.setFont(new Font("Courier New", Font.PLAIN, 12));
-					JOptionPane.showMessageDialog(frame,j, "InfoBox: " + "😇", JOptionPane.INFORMATION_MESSAGE);*/
+					JOptionPane.showMessageDialog(frame,j, "InfoBox: " + "??", JOptionPane.INFORMATION_MESSAGE);*/
 					System.exit(0);
 				}
 			});
 		}
-		
+
 		frame.getRootPane().setDefaultButton(btnLogin); //permet de l'appuyer en appuyant sur entree
 		frame.setVisible(true);
 		frame.setAlwaysOnTop(true);
 
-		
+
 	}
 	public void actionPerformed(ActionEvent ae)
 	 {
 	   String uname = textField.getText();
 	   if(!uname.equals("") && app.checkUnicity(uname) ) //check unicity
 	   {
-		   
+
 		if(inApp)
 		   app.setPseudoUserSwitch(uname);
 		   else
@@ -120,12 +120,12 @@ public class VueChoixPseudo  implements ActionListener{
 		   frame.dispose();
 	   }
 	    else
-	   { 
+	   {
 	    	 if(uname.equals(""))
-	      JOptionPane.showMessageDialog(frame, "Ton pseudo ne peut pas être vide :'( ", "Dommage... " + "📛", JOptionPane.INFORMATION_MESSAGE);
+	      JOptionPane.showMessageDialog(frame, "Ton pseudo ne peut pas être vide :'( ", "Dommage... " + "🙈", JOptionPane.INFORMATION_MESSAGE);
 	    	 else
-	      JOptionPane.showMessageDialog(frame, "Ton pseudo est déjà pris désolé :'( ", "Dommage... " + "📛", JOptionPane.INFORMATION_MESSAGE);
-			
+	      JOptionPane.showMessageDialog(frame, "Ton pseudo est déjà  pris désolé :'( ", "Dommage... " + "🙈", JOptionPane.INFORMATION_MESSAGE);
+
 	   }
 	 }
 }

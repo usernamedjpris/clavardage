@@ -17,7 +17,7 @@ public class BD {
 	String login="root";
 	Connection c=null;
 	java.sql.Statement s=null;
-	
+
 	private BD() { //creation de la bdd ?
 		try {
 			this.connexion();
@@ -25,30 +25,34 @@ public class BD {
 			String sql1 = "CREATE TABLE message (pseudoEmet	VARCHAR(30),pseudoDest	VARCHAR(30), sentDate	VARCHAR(30),type	    VARCHAR(30),text    	TEXT,PRIMARY KEY(pseudoEmet,pseudoDest,sentDate));";
 			stmt = c.prepareStatement(sql1);
 	        stmt.executeUpdate();
-	        String sql2 = "CREATE TABLE identification (idUtilisateur INTEGER,pseudo	VARCHAR(30));";	        
+	        String sql2 = "CREATE TABLE identification (idUtilisateur INTEGER,pseudo	VARCHAR(30));";
 			stmt = c.prepareStatement(sql2);
 	        stmt.executeUpdate();
-	        String sql3 = "CREATE TABLE preference (downloadPath VARCHAR(30)); \r\n" + 
-	        		"INSERT INTO preference VALUES ('cheminpardefaut');";	        
+	        String sql3 = "CREATE TABLE preference (downloadPath VARCHAR(30)); \r\n" +
+	        		"INSERT INTO preference VALUES ('cheminpardefaut');";
 			stmt = c.prepareStatement(sql3);
 	        stmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings("static-access")
 	public static BD getBD() {
 		return instance!=null?instance:(instance=new BD()).getBD();
 	}
 
 	public void connexion() throws SQLException {
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-			c=DriverManager.getConnection(url,login, mp);
+		 try {
+		     Class.forName("org.hsqldb.jdbc.JDBCDriver" );
+		 } catch (Exception e) {
+		     System.err.println("ERROR: failed to load HSQLDB JDBC driver.");
+		     e.printStackTrace();
+		     return;
+		 }
+
+		 c = DriverManager.getConnection("jdbc:hsqldb:file:testdb", "SA", "");
+		//	c=DriverManager.getConnection(url,login, mp);
 	}
 	public void deconnexion() {
 		try {
@@ -62,9 +66,9 @@ public class BD {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-    public void finalize() //dst //au cas où //NB: pas de garantie d'appel
+    public void finalize() //dst //au cas oÃ¹ //NB: pas de garantie d'appel
 	     {
 	          this.deconnexion();
 	     }
@@ -81,7 +85,7 @@ public class BD {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
+		}
 	}
 	public void setIdPseudoLink(String newPseudo, long id) {
 		try {
@@ -95,12 +99,12 @@ public class BD {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
 	}
 	public boolean checkUnicity(String pseudo, Utilisateur user) {
 		Boolean ok = false;
 		long idPersonne = 0;
-		try {			
+		try {
 			this.connexion();
 			PreparedStatement stmt;
 			String sql = "SELECT idUtilisateur FROM identification WHERE pseudo = ?";
@@ -109,7 +113,7 @@ public class BD {
 			ResultSet rs = stmt.executeQuery(sql);
 			idPersonne = rs.getLong("idUtilisateur");
 			rs.close();
-			stmt.close();		   
+			stmt.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -121,7 +125,7 @@ public class BD {
 	}
 	public long getIdPersonne(String pseudo) {
 		long idPersonne = 0;
-		try {			
+		try {
 			this.connexion();
 			PreparedStatement stmt;
 			String sql = "SELECT idUtilisateur FROM identification WHERE pseudo = ?";
@@ -130,17 +134,17 @@ public class BD {
 			ResultSet rs = stmt.executeQuery(sql);
 			idPersonne = rs.getLong("idUtilisateur");
 			rs.close();
-			stmt.close();		   
+			stmt.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return idPersonne;
-		
+
 	}
 	public Conversation getHistorique(Personne Interlocuteur, Utilisateur user) {
 		Conversation historique = new Conversation(Interlocuteur,new ArrayList<Message>());
-		try {			
+		try {
 			this.connexion();
 			PreparedStatement stmt;
 			String sql = "SELECT emet.idUtilisateur AS idEmet, pseudoEmet, text, type, dest.idUtilisateur AS idDest,pseudoDest FROM message JOIN identification AS emet ON pseudoEmet = emet.pseudo JOIN identification AS dest ON pseudoDest = dest.pseudo WHERE pseudoEmet IN(SELECT pseudo FROM identification WHERE idUtilisateur = (SELECT idUtilisateur FROM identification WHERE pseudo = ?)) OR pseudoDest IN(SELECT pseudo FROM identification WHERE idUtilisateur = (SELECT idUtilisateur FROM identification WHERE pseudo = ?)) ORDER BY sentDate;";
@@ -162,7 +166,7 @@ public class BD {
 	          	  mes = new Message(text.getBytes(), user.getPersonne(), Interlocuteur);
 	          	  mes.setType(Message.toType(typ));
 		      } else {
-		    	  mes = new Message(text.getBytes(), Interlocuteur, user.getPersonne()); 
+		    	  mes = new Message(text.getBytes(), Interlocuteur, user.getPersonne());
 		    	  mes.setType(Message.toType(typ));
 		      }
 	          messages.add(mes);
@@ -170,16 +174,16 @@ public class BD {
 		   historique.AddMessage(messages);
 	       rs.close();
 	       stmt.close();
-		   
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return historique;
 	}
-	public void getPseudoTalked(long id) { //qu'est-ce que c'est censé faire ? si c'est un "get" ça devrvait pouvoir renvoyer pas void... Non ?
+	public void getPseudoTalked(long id) { //qu'est-ce que c'est censÃ© faire ? si c'est un "get" Ã§a devrvait pouvoir renvoyer pas void... Non ?
 		// TODO Auto-generated method stub
-		
+
 	}
 	public void addData(Message message) {
 		try {
@@ -196,7 +200,7 @@ public class BD {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
 	}
 	public File getDownloadPath() {
 		String downloadPath = "";
@@ -226,7 +230,7 @@ public class BD {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}	
+	}
 }
 
 
@@ -239,7 +243,7 @@ public class BD {
 /*
  	public ResultSet getAllScoresAndNames() throws SQLException {
 			s=c.createStatement();
-			//naturellement les plus vieux sont priorisés sur les plus jeunes
+			//naturellement les plus vieux sont priorisÃ©s sur les plus jeunes
 			ResultSet aux= s.executeQuery("SELECT idName,idScore,idTime FROM score ORDER BY idScore DESC LIMIT 0,20");
 
       //STEP 5: Extract data from result set
@@ -249,18 +253,18 @@ public class BD {
         // int age = rs.getLong("age");
         // String first = rs.getString("first");
         // String last = rs.getString("last");
-			
+
 		//	return aux;
-			
+
 	}
-	
+
 	public void setScore(String name,int score) throws SQLException {
 		 PreparedStatement stmt = null;
 		   String sql = "UPDATE Employees set age=? WHERE id=?";
 		      stmt = c.prepareStatement(sql);
 		      //Bind values into the parameters.
 		      stmt.setInt(1, 35);
-		      stmt.setInt(2, 102); 
+		      stmt.setInt(2, 102);
 		      int rows = stmt.executeUpdate();
 		      ResultSet rs = stmt.executeQuery(sql);
 		      while(rs.next()){
@@ -273,18 +277,18 @@ public class BD {
 		       //STEP 6: Clean-up environment
 		       rs.close();
 		       stmt.close();
-		       
+
 		s.executeUpdate("INSERT INTO `score`(`idName`, `idScore`) VALUES ('"+name+"','"+score+"')");
-		//supprime le ou les (accès concurrent) dernier score
+		//supprime le ou les (accÃ¨s concurrent) dernier score
 		//Limit offset,nombre de resultats
-		//(SELECT * from score) pour créer une table dérivée (sinon mysql aime pas qu'on supprime en ce servant de ce qu'on supprime comme critère
+		//(SELECT * from score) pour crÃ©er une table dÃ©rivÃ©e (sinon mysql aime pas qu'on supprime en ce servant de ce qu'on supprime comme critÃ¨re
 		//1st :DELETE FROM score WHERE idScore<(SELECT idScore FROM (SELECT * from score) AS T ORDER BY idScore DESC LIMIT 20,1)
 		s.executeUpdate("DELETE FROM `score`WHERE `PrimaryKey` NOT IN ( SELECT PrimaryKey FROM (SELECT * FROM (SELECT*FROM score) AS T2 ORDER BY idScore DESC LIMIT 20) AS T)");
 
 	}
 	public int getWorstScore() throws SQLException {
 		ResultSet aux= s.executeQuery("SELECT idScore FROM score ORDER BY idScore DESC LIMIT 19,1");
-		aux.next(); // nécessaire à appeler avant de pouvoir lire la query (verif que = 1 pour qu'elle soit bien passée
+		aux.next(); // nÃ©cessaire Ã  appeler avant de pouvoir lire la query (verif que = 1 pour qu'elle soit bien passÃ©e
 		return Integer.parseInt(aux.getString("idScore"));
 		//System.out.print(minScore);
 	}*/

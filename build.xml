@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- doc:  https://ant.apache.org/manual/index.html, https://www.jmdoudoux.fr/java/dej/chap-ant.htm, https://skebir.developpez.com/tutoriels/java/ant/ -->
+<project default="run">
+
+<property name="name.application" value="clavardeur"/>
+<property name="main-class"	value="Application"/>
+<property name="src.dir"	value="src"/>
+<property name="bin.dir"	value="bin"/>
+<property name="jar.dir" 	value="exe"/>
+<property name="lib.dir" 	value="lib"/>
+<property name="doc.dir" 	value="doc"/>
+  
+<target name="clean">
+<delete dir="${bin.dir}"/>
+<delete dir="${jar.dir}"/>	
+<echo message="nettoyage termine"/>
+</target>
+
+<target name="compile" depends="clean">
+<mkdir dir="${bin.dir}"/>
+<javac includeantruntime="false" srcdir="${src.dir}" destdir="${bin.dir}" encoding="UTF-8"/>
+<echo message="compilation terminee"/>
+</target>
+
+<target name="jar" depends="compile">
+<mkdir dir="${jar.dir}"/>
+	<jar destfile="${jar.dir}/${name.application}.jar" basedir="${bin.dir}">
+	    <manifest>
+	   	<attribute name="Class-Path" value="${lib.dir}"/>
+        	<attribute name="Main-Class" value="${main-class}"/>
+	    </manifest>
+	    <zipgroupfileset  dir="${lib.dir}"/>
+	    <zipgroupfileset includes="*.jar" dir="lib"/>
+	</jar>
+<echo message="Creation du fichier Jar terminee"/>
+</target>
+
+<target name="run" depends="jar">
+<java jar="${jar.dir}/${name.application}.jar" fork="true">
+
+</java>
+</target>
+
+<target name="javadoc" description="Generate JavaDoc API docs">
+	        <delete dir="${doc.dir}" failonerror="false" />
+	        <mkdir dir="${doc.dir}" />
+	       <javadoc destdir="${doc.dir}" encoding="UTF-8">
+	           <fileset dir="."/>
+		</javadoc>
+	    </target>
+</project>
