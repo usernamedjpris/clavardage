@@ -18,3 +18,4 @@ testdb.lck
 testdb.log
 testdb.properties
 testdb.script
+*.class
