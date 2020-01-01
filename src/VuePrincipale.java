@@ -4,15 +4,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,7 +35,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
@@ -49,16 +45,16 @@ public class VuePrincipale {
 	private JFrame frame;
 	private JTextArea textField;
 	HashMap<String,ArrayList<Message>> conv=new HashMap<>();//pseudo, liste de message
-	JList<Entry<String, Personne>> list = new JList<Entry<String, Personne>>();
-	Entry<String, Personne> activePseudo;
+	JList<Personne> list = new JList<Personne>();
+	Personne activePseudo;
 	Application app;
-	DefaultListModel<Entry<String, Personne>> model;
+	DefaultListModel<Personne> model;
 	JButton btnSend;
 	JButton btnDeco;
 	JEditorPane message_zone;
-	String defaultTitle=new String("Super clavardeur !  â€�ðŸ�±");
+	String defaultTitle=new String("Super clavardeur !  :D");
 	
-	public VuePrincipale(Application application,DefaultListModel<Entry<String, Personne>> m) {
+	public VuePrincipale(Application application,DefaultListModel<Personne> m) {
 		app=application;
 		model=m;
 		initialize();
@@ -79,7 +75,7 @@ public class VuePrincipale {
         menu.setMnemonic(KeyEvent.VK_F);
         menu.getAccessibleContext().setAccessibleDescription("Gestion des fichiers");
 // create menu item and add it to the menu
-        JMenuItem fr = new JMenuItem("Ouvrir le dossier des fichiers reÃ§us",
+        JMenuItem fr = new JMenuItem("Ouvrir le dossier des fichiers reçus",
                 new ImageIcon("images/icon_open.png"));
         fr.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_O, ActionEvent.ALT_MASK));
@@ -96,7 +92,7 @@ public class VuePrincipale {
 				
 			}});
         menu.add(fr);
-        JMenuItem tele = new JMenuItem("Changer le dossier de tÃ©lÃ©chargement",
+        JMenuItem tele = new JMenuItem("Changer le dossier de téléchargement",
                 new ImageIcon("images/icon_wheel.png"));
         tele.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_C, ActionEvent.ALT_MASK));
@@ -104,9 +100,9 @@ public class VuePrincipale {
         tele.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               JFileChooser dirChooser = new JFileChooser();
+               JFileChooser dirChooser = new JFileChooser(app.getDownloadPath());
                dirChooser.setMultiSelectionEnabled(true);
-               dirChooser.setDialogTitle("Choisir le dossier de tÃ©lÃ©chargement");
+               dirChooser.setDialogTitle("Choisir le dossier de téléchargement");
                dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             // disable the "All files" option.
                dirChooser.setAcceptAllFileFilterUsed(false);
@@ -126,8 +122,14 @@ public class VuePrincipale {
             }
          });
         menu.add(tele);
-        JMenuItem apropos = new JMenuItem("Ã  propos ðŸ•´",new ImageIcon("images/icon22.png"));
+        JMenuItem apropos = new JMenuItem("A propos",new ImageIcon("images/icon22.png"));
         apropos.setMnemonic(KeyEvent.VK_A);
+        apropos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	JOptionPane.showMessageDialog(frame, "Programmeurs: Rémi Fache et Jeremie Gantet V1.0 2020", "A propos", JOptionPane.INFORMATION_MESSAGE);	
+            }
+            });
         menu.add(apropos);
         JMenuItem swip = new JMenuItem("Pseudo");
         swip.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -138,7 +140,6 @@ public class VuePrincipale {
         swip.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO
 				new VueChoixPseudo(app,true);
 				
 			}});
@@ -155,24 +156,23 @@ public class VuePrincipale {
 	    message_zone.setEditorKit(kit);
 	    StyleSheet styleSheet = kit.getStyleSheet();
 	    styleSheet.addRule(".title{font-family: 'Courier New', monospace; margin-bottom: 20px}");
-	    styleSheet.addRule(".alignleft{margin-right:200px; text-align: left;}");
+	    styleSheet.addRule(".alignleft{margin-right:200px; text-align: left;font-family: Calibri, sans-serif; padding: 2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,250,240);}");
 	    styleSheet.addRule(".date{font-family: 'Courier New', monospace; padding: 0px 7px; color:black; font-weight: none; font-size:12pt;}");
-	    styleSheet.addRule(".alignright{margin-left:200px;text-align: right;}");
-	    styleSheet.addRule(".textleft{font-family: Calibri, sans-serif; padding: 2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,250,240);");
-	    styleSheet.addRule(".textright{font-family: Calibri, sans-serif; padding:2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,240,250); }");
-	    message_zone.setText("<html>" +
+	    styleSheet.addRule(".alignright{margin-left:200px;text-align: right;font-family: Calibri, sans-serif; padding:2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,240,250);}");
+	      message_zone.setText("<html>" +
 	            "<center><b><font size=6>Important Information</font></b></center>" +
 	            "<div id=textbox><p class='alignleft'>left</p><p class='alignright'>right</p></div>" +
 	            "</html>");
 	    message_zone.setEditable(false);
 	}
 	public void setHtmlView(Conversation c) {
-		String new_message_text = "<html>"+"<center class='title'><b><font size=6>"+c.getTo().getPseudo()+"</font></b></center><div id=textbox>";
-		for (int i = 0 ; i < c.getHistorique().size() ; i++) {
-			if (c.getTo().getPseudo().equals(c.getHistorique().get(i).getEmetteur().getPseudo()/*au lieu de comparer ce pseudo comparer id utilisateur ?*/)){
-				new_message_text += "<div class='alignleft'>"+c.getHistorique().get(i).toHtml("textleft")+"</div>";
+		String to=c.getTo().getPseudo();
+		String new_message_text = "<html>"+"<center class='title'><b><font size=6>"+to+"</font></b></center><div id=textbox>";
+		for (Message m: c.getHistorique()) {
+			if (to.equals(m.getEmetteur().getPseudo())){ //check if id need lastly 
+				new_message_text += "<div class='alignleft'>"+m.toHtml()+"</div>";
 			} else {
-				new_message_text += "<div class='alignright'>"+c.getHistorique().get(i).toHtml("textright")+"</div>";
+				new_message_text += "<div class='alignright'>"+m.toHtml()+"</div>";
 			}
 		}
 		//System.out.println(new_message_text+"</div></html>");
@@ -189,10 +189,10 @@ public class VuePrincipale {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                       boolean isSelected, boolean cellHasFocus) {
                  Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                 if (value instanceof Entry<?,?>) {
-                	 Entry<String, Personne> user = (Entry<String, Personne>) value;
-                      setText(user.getKey());
-                      if (user.getValue().getConnected()) {
+                 if (value instanceof Personne) {
+                	 Personne user = (Personne) value;
+                      setText(user.getPseudo());
+                      if (user.getConnected()) {
                            setBackground(Color.GREEN);
                       } else {
                            setBackground(Color.RED);
@@ -215,7 +215,7 @@ public class VuePrincipale {
 				 int selected = list.getSelectedIndex();
 				 if(selected != -1) {
 				 activePseudo = list.getSelectedValue();
-				 loadConversation(activePseudo.getKey());
+				 loadConversation(activePseudo.getPseudo());
 				 System.out.print(activePseudo);
 				 }
 				}
@@ -224,34 +224,30 @@ public class VuePrincipale {
 		    list.addListSelectionListener(listSelectionListener);
 			list.setSelectedIndex(0);
 			activePseudo = list.getSelectedValue();
-			conv.put(activePseudo.getKey(), new ArrayList<>());
+			conv.put(activePseudo.getPseudo(), new ArrayList<>());
 	}
 	private void initializeButtons() {
-		btnSend = new JButton("Send ! ðŸ˜Ž");
+		btnSend = new JButton("Send ! ");
 		btnSend.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 				String tosend = null;
 						tosend = textField.getText();
 						if(!tosend.equals("")) {
-						try {
-							Message m =new Message(tosend.getBytes(), app.getPersonne(), activePseudo.getValue());
+							Message m =new Message(tosend.getBytes(), app.getPersonne(), activePseudo);
 							Reseau.getReseau().sendTCP(m);
-						} catch (IOException e1) {
-							JOptionPane.showMessageDialog(frame, "Erreur rÃ©seau... :'( ", "ErrorBox: " + "ðŸ“›", JOptionPane.ERROR_MESSAGE);	
-						}
-						}
+												}
 						else
-							JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide dÃ©solÃ© :p ", "InfoBox: " + "ðŸ™„", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide désolé :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
 					
 						}});
 		btnSend.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
-		btnDeco= new JButton("DÃ©connexion ðŸ˜¥");
+		btnDeco= new JButton("Déconnexion");
 		btnDeco.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
 		btnDeco.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-					JOptionPane.showMessageDialog(frame, "Au revoir ! ", "ðŸ‘‹", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(frame, "Au revoir ! ", "See you ! ", JOptionPane.INFORMATION_MESSAGE);
 					app.sendDisconnected();
 				            Container frame = btnDeco.getParent();
 				            do 
@@ -321,7 +317,7 @@ public class VuePrincipale {
 		
 	}
 	public void createConversation(Personne toPersonne) {
-	//	ArrayList<Message> hist=BD.getBD().getHistorique(BD.getBD().getIdPersonne(toPersonne.getPseudo()));
+		//ArrayList<Message> hist=BD.getBD().getHistorique() //BD.getBD().getIdPersonne(toPersonne.getPseudo()));
 		/*String html="";
 		for(Message m:hist) //max de chargement historiques messages possible
 			html+=m.toHtml();*/
@@ -341,7 +337,7 @@ public class VuePrincipale {
 			l.add(message);
 			conv.put(emetteur.getPseudo(),l);
 		}
-		System.out.print(message.toHtml("textleft")); //Message.toHtml() prend en argument si on veut placer Ã  gauche ou Ã  droite car change d'un utilisteur Ã  l'autre et seule VuePricipale le sait
+		//System.out.print(message.toHtml("textleft")); //Message.toHtml() prend en argument si on veut placer Ã  gauche ou Ã  droite car change d'un utilisteur Ã  l'autre et seule VuePricipale le sait
 		//if list active user 
 		//maj Jpanel en add le message
 		//sinon change la jList en gras/rouge 
@@ -349,11 +345,7 @@ public class VuePrincipale {
 		
 	}
 
-	public void deconnection(Personne emetteur) {
-		// TODO Auto-generated method stub
-		
-	}
 	public void changePseudo(String uname) {
-		frame.setTitle(defaultTitle+"["+uname+"]");
+		frame.setTitle(defaultTitle+" ["+uname+"]");
 	}
 }

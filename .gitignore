@@ -19,3 +19,9 @@ testdb.log
 testdb.properties
 testdb.script
 *.class
+SuperDB.lck
+SuperDB.log
+SuperDB.properties
+SuperDB.script
+.settings/org.eclipse.core.resources.prefs
+SuperDB.data

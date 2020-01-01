@@ -66,7 +66,7 @@ public class Message implements Serializable {
 		emetteur=personne;
 		t=cat;
 		try {
-			destinataire=(new Personne(InetAddress.getByName("255.255.255.255"),"all", true));
+			destinataire=(new Personne(InetAddress.getByName("255.255.255.255"),"all", true,0));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -75,6 +75,14 @@ public class Message implements Serializable {
 	public Message(Type cat, Personne personne, String newPseudo) {
 		this(cat,personne);
 		this.newPseudo=newPseudo;
+	}
+	public Message(byte[] bytes, Personne emet, Personne interlocuteur, Type typ, java.sql.Date date2) {
+		data=bytes;
+		emetteur=emet;
+		destinataire=interlocuteur;
+		date=date2;
+		t=typ;
+		newPseudo="";
 	}
 	public static byte[] serialize(Message mess) throws IOException {
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -108,37 +116,16 @@ public class Message implements Serializable {
 		return toStr.format(date);
 	}
 
-	public String toHtml(String side) {
+	public String toHtml() {
 		if(t==Type.DEFAULT) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
-			return "<div class="+side+">"+new String(data)+"</div><div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; //image ??
+			return new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; //image ??
 		}
 		else
 			return "";
 	}
 	public Personne getDestinataire() {
 		return destinataire;
-	}
-	public static Type toType (String s) {
-		Type t;
-		if (s=="DEFAULT") {
-			t=Type.DEFAULT;
-		} else if (s=="FILE") {
-			t=Type.FILE;
-		} else if (s=="DECONNECTION") {
-			t=Type.DECONNECTION;
-		} else if (s=="SWITCH") {
-			t=Type.SWITCH;
-		} else if (s=="CONNECTION") {
-			t=Type.CONNECTION;
-		} else if (s=="WHOISALIVE") {
-			t=Type.WHOISALIVE;
-		} else if (s=="ALIVE") {
-			t=Type.ALIVE;
-		} else {
-			t=Type.DEFAULT;
-		}
-		return t;
 	}
 }

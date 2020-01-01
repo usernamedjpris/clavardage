@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.JOptionPane;
+
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
 public class Reseau extends Observable implements Observer {
@@ -38,9 +40,13 @@ public class Reseau extends Observable implements Observer {
 	}
 
 
-	public static Reseau getReseau() throws IOException {
+	public static Reseau getReseau() {
 		if (theNetwork == null) {
-			theNetwork = new Reseau();
+			try {
+				theNetwork = new Reseau();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return theNetwork;
 	}
@@ -49,18 +55,27 @@ public class Reseau extends Observable implements Observer {
 			envoi.sendMessage(message);
 		} catch (IOException e) {
 			//warning graphique envoi fail
+			JOptionPane.showMessageDialog(null, "Erreur réseau à l'envoi du message :'( ", "Erreur ", JOptionPane.ERROR_MESSAGE);	
 			e.printStackTrace();
 		}
 	}
 
-	public void sendDataBroadcast(Message message) throws SocketException, IOException {
+	public void sendDataBroadcast(Message message) {
 		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast ("+message.getDestinataire().getAdresse().toString()+")");
-		clientUDP.broadcast(message);
+		try {
+			clientUDP.broadcast(message);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void sendUDP(Message message) throws SocketException, IOException {
+	public void sendUDP(Message message) {
 		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi d'un message "+message.getType().toString()+" à "+message.getDestinataire().getPseudo()+"("+message.getDestinataire().getAdresse().toString()+")");
-		clientUDP.send(message);
+		try {
+			clientUDP.send(message);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void update(Observable o, Object arg) {
