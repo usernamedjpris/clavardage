@@ -1,14 +1,12 @@
 
 import java.io.File;
-import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -39,8 +37,8 @@ public class Application implements Observer {
 			 			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));
 			 		}
 			 	    mac=sb.toString();
-			 	    //si getLoaclHost n'a pas marché correctement
-			 	    if(ip.isLoopbackAddress()) {
+			 	    //si getLoaclHost n'a pas marché correctement (on veut de l'IPV4) 
+			 	    if(ip.isLoopbackAddress() && (ip instanceof Inet4Address)) {
 			 	   for(Enumeration<InetAddress> ips = network.getInetAddresses(); ips.hasMoreElements();){
 			 		  InetAddress in = (InetAddress) ips.nextElement();
 			 		   if(!in.isLoopbackAddress())
@@ -58,8 +56,8 @@ public class Application implements Observer {
 	}
 	void tests() {
 
-		Personne remi = new Personne(null, "lol1", false,1 );
-		Personne jeje = new Personne(null, "lol2", false,2 );
+		Personne remi = new Personne(null, "lol1", false,1L );
+		Personne jeje = new Personne(null, "lol2", false,2L );
 		//test VuePrincipale
 		ArrayList<Message>messages = new ArrayList<Message>();
 		messages.add(new Message("hey !".getBytes(), remi, jeje));
@@ -76,8 +74,8 @@ public class Application implements Observer {
 		messages.add(new Message("je teste les caractères spéciaux pour plus de fun !".getBytes(), jeje, remi));
 		messages.add(new Message("(☞ﾟヮﾟ)☞".getBytes(), remi, jeje));
 		messages.add(new Message("☜(ﾟヮﾟ☜)".getBytes(), jeje, remi));
-		Conversation c = new Conversation(remi,messages);
-		main.setHtmlView(c);
+		//Conversation c = new Conversation(remi,messages);
+		//main.setHtmlView(c);*/
 	}
 	
 	Application(){
@@ -86,7 +84,8 @@ public class Application implements Observer {
 		try {
 			ip = InetAddress.getLocalHost();
 		String mac= findMac(ip);
-		user= new Personne(ip, "moi",true,mac.hashCode()); //fixe par poste (adresse mac by eg)
+		//System.out.print("ip: "+ip.toString());
+		user= new Personne(ip, "moi",true,new Long(mac.hashCode())); //fixe par poste (adresse mac by eg)
 	     Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user));
 	     //on obtient les pseudos des gens sur le réseaux avant de demander à l'user d'entrer son pseudo
 	     //+actualisation des connexions/deconnexions en continu
@@ -104,7 +103,7 @@ public class Application implements Observer {
 			e.printStackTrace();
 		}
 
-		tests();
+		//tests();
 	}
 	String getPseudo() {
 		return user.getPseudo();
@@ -115,7 +114,6 @@ public class Application implements Observer {
 	void sendActiveUserPseudo(Personne to) {
 			Reseau.getReseau().sendUDP(new Message(Message.Type.ALIVE,user,to));
 	}
-	@SuppressWarnings("unchecked")
 	boolean checkUnicity(String pseudo) {
 		for(Object i : model.toArray()) {
 			Personne v=(Personne) i;
@@ -147,10 +145,11 @@ IOUtils.write(encoded, output);
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
 	        	   long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
-	        	   maBD.delIdPseudoLink(message.getEmetteur().getPseudo());
-	       		   maBD.setIdPseudoLink(message.getNewPseudo(),id);
+	        	  /* maBD.delIdPseudoLink(message.getEmetteur().getPseudo());
+	       		   maBD.setIdPseudoLink(message.getNewPseudo(),id);*/
 	       		 int index = model.indexOf(message.getEmetteur());
 	       		 model.get(index).setPseudo(message.getNewPseudo());
+	       		 main.updateList();
 	           }
 	           else if(message.getType()==Message.Type.DECONNECTION) {
 	        	   int index = model.indexOf(message.getEmetteur());

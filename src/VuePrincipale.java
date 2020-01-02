@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -35,6 +34,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
@@ -44,9 +44,10 @@ public class VuePrincipale {
 
 	private JFrame frame;
 	private JTextArea textField;
-	HashMap<String,ArrayList<Message>> conv=new HashMap<>();//pseudo, liste de message
+	HashMap<Long,ArrayList<Message>> conv=new HashMap<>();//id, liste de message
+	HashMap<Long,Boolean> unread=new HashMap<>();//id, lu ou pas
 	JList<Personne> list = new JList<Personne>();
-	Personne activePseudo;
+	Personne activeUser;
 	Application app;
 	DefaultListModel<Personne> model;
 	JButton btnSend;
@@ -159,24 +160,25 @@ public class VuePrincipale {
 	    styleSheet.addRule(".alignleft{margin-right:200px; text-align: left;font-family: Calibri, sans-serif; padding: 2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,250,240);}");
 	    styleSheet.addRule(".date{font-family: 'Courier New', monospace; padding: 0px 7px; color:black; font-weight: none; font-size:12pt;}");
 	    styleSheet.addRule(".alignright{margin-left:200px;text-align: right;font-family: Calibri, sans-serif; padding:2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,240,250);}");
-	      message_zone.setText("<html>" +
+	      /*message_zone.setText("<html>" +
 	            "<center><b><font size=6>Important Information</font></b></center>" +
 	            "<div id=textbox><p class='alignleft'>left</p><p class='alignright'>right</p></div>" +
-	            "</html>");
+	            "</html>");*/
 	    message_zone.setEditable(false);
 	}
-	public void setHtmlView(Conversation c) {
-		String to=c.getTo().getPseudo();
-		String new_message_text = "<html>"+"<center class='title'><b><font size=6>"+to+"</font></b></center><div id=textbox>";
-		for (Message m: c.getHistorique()) {
-			if (to.equals(m.getEmetteur().getPseudo())){ //check if id need lastly 
-				new_message_text += "<div class='alignleft'>"+m.toHtml()+"</div>";
+	public void setHtmlView(ArrayList<Message> m) {
+		Long to=activeUser.getId();
+		String new_message_text = "<html>";//Embetant à switch : +"<center class='title'><b><font size=6>"+activeUser.getPseudo()+"</font></b></center><div id=textbox>";
+		for (Message i: m) {
+			if (to==i.getEmetteur().getId()){ 
+				new_message_text += "<div class='alignleft'>"+i.toHtml()+"</div>";
 			} else {
-				new_message_text += "<div class='alignright'>"+m.toHtml()+"</div>";
+				new_message_text += "<div class='alignright'>"+i.toHtml()+"</div>";
 			}
 		}
 		//System.out.println(new_message_text+"</div></html>");
-		this.message_zone.setText(new_message_text+"</div></html>");
+		this.message_zone.setText(new_message_text);
+
 	}
 	private void initializeList() {
 		//list.setBorder(new LineBorder(new Color(0, 0, 0), 4, true));
@@ -184,7 +186,6 @@ public class VuePrincipale {
 		list.setModel(model);
 		list.setCellRenderer(new DefaultListCellRenderer() {
 			private static final long serialVersionUID = 1L;
-			@SuppressWarnings("unchecked")
 			@Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                       boolean isSelected, boolean cellHasFocus) {
@@ -192,11 +193,16 @@ public class VuePrincipale {
                  if (value instanceof Personne) {
                 	 Personne user = (Personne) value;
                       setText(user.getPseudo());
+                      if(unread.get(user.getId())!=null)
+                      this.setFont(new Font(Font.SANS_SERIF,  Font.BOLD, 15));
+                      else
+                      this.setFont(new Font(Font.SANS_SERIF,  Font.PLAIN, 15));
                       if (user.getConnected()) {
                            setBackground(Color.GREEN);
                       } else {
                            setBackground(Color.RED);
                       }
+                      this.setBorder(new EmptyBorder(0, 0, 0, 10));
                       if (isSelected) {
                            setBackground(getBackground().darker());
                       }
@@ -214,17 +220,18 @@ public class VuePrincipale {
 				if(e.getValueIsAdjusting()) {
 				 int selected = list.getSelectedIndex();
 				 if(selected != -1) {
-				 activePseudo = list.getSelectedValue();
-				 loadConversation(activePseudo.getPseudo());
-				 System.out.print(activePseudo);
+				 activeUser = list.getSelectedValue();
+				 loadConversation(activeUser.getId());
+				 System.out.print(activeUser);
 				 }
 				}
 				
 			}};
 		    list.addListSelectionListener(listSelectionListener);
 			list.setSelectedIndex(0);
-			activePseudo = list.getSelectedValue();
-			conv.put(activePseudo.getPseudo(), new ArrayList<>());
+			activeUser = list.getSelectedValue();
+			loadConversation(activeUser.getId());
+			//conv.put(activeUser.getId(), new ArrayList<>());
 	}
 	private void initializeButtons() {
 		btnSend = new JButton("Send ! ");
@@ -234,7 +241,7 @@ public class VuePrincipale {
 				String tosend = null;
 						tosend = textField.getText();
 						if(!tosend.equals("")) {
-							Message m =new Message(tosend.getBytes(), app.getPersonne(), activePseudo);
+							Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
 							Reseau.getReseau().sendTCP(m);
 												}
 						else
@@ -264,7 +271,7 @@ public class VuePrincipale {
 		frame.setBounds(100, 100, 723, 324);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
-		frame.setTitle(defaultTitle+"["+app.getPseudo()+"]");
+		changePseudo(app.getPseudo());
 		frame.setIconImage(new ImageIcon("images/icon.png").getImage());
 		initializeHtmlView();
 		initializeList();
@@ -312,40 +319,43 @@ public class VuePrincipale {
 		initializeMenu();	
 		
 	}
-	protected void loadConversation(String pseudo) {
-		// TODO Auto-generated method stub
-		
-	}
-	public void createConversation(Personne toPersonne) {
-		//ArrayList<Message> hist=BD.getBD().getHistorique() //BD.getBD().getIdPersonne(toPersonne.getPseudo()));
-		/*String html="";
-		for(Message m:hist) //max de chargement historiques messages possible
-			html+=m.toHtml();*/
-	//	conv.put(toPersonne.getPseudo(), hist);
-		///TODO
+	protected void loadConversation(Long id) {
+		ArrayList<Message> c=conv.get(id);
+		if(c != null) {
+			setHtmlView(c);
+		}else {
+		ArrayList<Message> hist=BD.getBD().getHistorique(app.getPersonne(),activeUser);
+		conv.put(activeUser.getId(), hist);
+		}
 	}
 	public void update(Personne emetteur, Message message) {
-		//R: save des messsages dans la BD Ã  l'envoie et Ã  la rÃ©ception par AA
-		
-		//RQ: en vrai: sur CONNECTION  model add user
-		//sur clic pseudo liste de gauche, maj conv !
-		ArrayList<Message> l=conv.get(emetteur.getPseudo());
+		//R: save des messsages dans la BD à  l'envoie et à  la réception par app
+		ArrayList<Message> l=conv.get(emetteur.getId());
 		if(l != null)
 		l.add(message);
 		else {
 			l= new ArrayList<>();
 			l.add(message);
-			conv.put(emetteur.getPseudo(),l);
+			conv.put(emetteur.getId(),l);
 		}
-		//System.out.print(message.toHtml("textleft")); //Message.toHtml() prend en argument si on veut placer Ã  gauche ou Ã  droite car change d'un utilisteur Ã  l'autre et seule VuePricipale le sait
-		//if list active user 
-		//maj Jpanel en add le message
-		//sinon change la jList en gras/rouge 
-		//quand switch de conv => aff conv.get(Pseudo)
+		//si on à la conversation affichée à l'écran:
+		if(emetteur.getId()==activeUser.getId())
+		{
+		message_zone.setText(message_zone.getText()+"<div class='alignleft'>"+message.toHtml()+"</div>");
+		}
+		else
+		{
+			unread.put(emetteur.getId(), true);
+			updateList();
+		}
 		
 	}
 
 	public void changePseudo(String uname) {
 		frame.setTitle(defaultTitle+" ["+uname+"]");
+	}
+	public void updateList() {
+		list.repaint();
+		
 	}
 }

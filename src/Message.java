@@ -66,7 +66,7 @@ public class Message implements Serializable {
 		emetteur=personne;
 		t=cat;
 		try {
-			destinataire=(new Personne(InetAddress.getByName("255.255.255.255"),"all", true,0));
+			destinataire=(new Personne(InetAddress.getByName("255.255.255.255"),"all", true,0L));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

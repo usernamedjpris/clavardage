@@ -144,15 +144,17 @@ static BD instance = null;
 	}
 	
 	//id car les pseudos peuvent changer, voire s'inverser, ne rendant pas fiable de savoir qui a envoyé à qui
-	public ArrayList<Message> getHistorique(Personne Interlocuteur,Personne user, long userID) {
+	public ArrayList<Message> getHistorique(Personne user, Personne Interlocuteur) {
 		ArrayList<Message> messages = new ArrayList<Message>();
 				try {
 			PreparedStatement stmt;
+			//TODO : rewrite SQL statement to take ID and no more pseudo
 			String sql = "SELECT emet.idUtilisateur AS idEmet, pseudoEmet, text, type, dest.idUtilisateur AS idDest,pseudoDest FROM message JOIN identification AS emet ON pseudoEmet = emet.pseudo JOIN identification AS dest ON pseudoDest = dest.pseudo WHERE pseudoEmet IN(SELECT pseudo FROM identification WHERE idUtilisateur = (SELECT idUtilisateur FROM identification WHERE pseudo = ?)) OR pseudoDest IN(SELECT pseudo FROM identification WHERE idUtilisateur = (SELECT idUtilisateur FROM identification WHERE pseudo = ?)) ORDER BY sentDate;";
 			stmt = c.prepareStatement(sql);
 			stmt.setNString(1, Interlocuteur.getPseudo());
 			stmt.setNString(2, Interlocuteur.getPseudo());
 			ResultSet rs = stmt.executeQuery();
+			Long idUser=user.getId();
 			while (rs.next()) {
 				Message mes;
 				// Retrieve by column name
@@ -160,7 +162,7 @@ static BD instance = null;
 				Date date = rs.getDate("sentDate"); 
 				String text = rs.getString("text");
 				Message.Type typ = Message.Type.valueOf(rs.getString("type"));
-				if (idEmet == userID) {// emetteur = moi
+				if (idEmet == idUser) {// emetteur = moi
 					mes = new Message(text.getBytes(), user, Interlocuteur,typ, date);
 				} else {
 					mes = new Message(text.getBytes(), Interlocuteur, user,typ, date);
