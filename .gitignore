@@ -25,3 +25,4 @@ SuperDB.properties
 SuperDB.script
 .settings/org.eclipse.core.resources.prefs
 SuperDB.data
+SuperDB.lobs

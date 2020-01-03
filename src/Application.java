@@ -84,8 +84,8 @@ public class Application implements Observer {
 		try {
 			ip = InetAddress.getLocalHost();
 		String mac= findMac(ip);
-		//System.out.print("ip: "+ip.toString());
-		user= new Personne(ip, "moi",true,new Long(mac.hashCode())); //fixe par poste (adresse mac by eg)
+		System.out.print("ip: "+ip.toString()+" id: "+mac.hashCode());
+		user= new Personne(ip, "moi",true,(long)mac.hashCode()); //fixe par poste (adresse mac by eg)
 	     Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user));
 	     //on obtient les pseudos des gens sur le réseaux avant de demander à l'user d'entrer son pseudo
 	     //+actualisation des connexions/deconnexions en continu
@@ -94,7 +94,7 @@ public class Application implements Observer {
 	    new VueChoixPseudo(this,false);
 	    Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.CONNECTION,user));
 	    model.addElement(user);
-	    maBD.setIdPseudoLink(user.getPseudo(), user.getId());
+	   // maBD.setIdPseudoLink(user.getPseudo(), user.getId());
 		pathDownload=maBD.getDownloadPath();
 		main=new VuePrincipale(this,model);
 		} catch (UnknownHostException e) {
@@ -136,15 +136,16 @@ IOUtils.write(encoded, output);
 		 */
 		  if (arg instanceof Message) {
 	           Message message = (Message) arg;
-	         //do not reply to yourself ^^
-        	   if(message.getEmetteur().getId()!= user.getId()) {
+	         //do not reply to yourself broadcast ^^ //possibilité de se parler à soi-même pratique pour les tests
+	           System.out.print("\n id emetteur "+message.getEmetteur().getId()+" id user: "+user.getId());
+        	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"("+message.getEmetteur().getAdresse().toString()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message);
 		           maBD.addData(message); //SAVE BD LE MESSAGE RECU
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
-	        	   long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
+	        	  // long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
 	        	  /* maBD.delIdPseudoLink(message.getEmetteur().getPseudo());
 	       		   maBD.setIdPseudoLink(message.getNewPseudo(),id);*/
 	       		 int index = model.indexOf(message.getEmetteur());

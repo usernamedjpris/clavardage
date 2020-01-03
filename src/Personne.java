@@ -16,6 +16,7 @@ public class Personne implements Serializable{
 		this.adresse=adresse;
 		this.pseudo = pseudo;
 		connected=c;
+		this.id=id;
 	}
 	public boolean getConnected() {return connected;}
 	public String getPseudo() {

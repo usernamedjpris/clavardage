@@ -241,8 +241,8 @@ public class VuePrincipale {
 				String tosend = null;
 						tosend = textField.getText();
 						if(!tosend.equals("")) {
-							Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
-							Reseau.getReseau().sendTCP(m);
+							sendMessage(tosend);
+							textField.setText("");
 												}
 						else
 							JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide désolé :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
@@ -265,6 +265,13 @@ public class VuePrincipale {
 				        }
 				    });
 
+	}
+	protected void sendMessage(String tosend) {
+		// TODO Auto-generated method stub
+		Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
+		Reseau.getReseau().sendTCP(m);
+		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignright'>"+m.toHtml()+"</div>");
+		
 	}
 	private void initialize() {
 		frame = new JFrame();
@@ -325,8 +332,10 @@ public class VuePrincipale {
 			setHtmlView(c);
 		}else {
 		ArrayList<Message> hist=BD.getBD().getHistorique(app.getPersonne(),activeUser);
+		this.setHtmlView(hist);
 		conv.put(activeUser.getId(), hist);
 		}
+		
 	}
 	public void update(Personne emetteur, Message message) {
 		//R: save des messsages dans la BD à  l'envoie et à  la réception par app
@@ -339,9 +348,10 @@ public class VuePrincipale {
 			conv.put(emetteur.getId(),l);
 		}
 		//si on à la conversation affichée à l'écran:
+		System.out.print(" id1 :"+emetteur.getId() +" id2: "+ activeUser.getId()+" "+ message.toHtml());
 		if(emetteur.getId()==activeUser.getId())
 		{
-		message_zone.setText(message_zone.getText()+"<div class='alignleft'>"+message.toHtml()+"</div>");
+		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignleft'>"+message.toHtml()+"</div>");
 		}
 		else
 		{

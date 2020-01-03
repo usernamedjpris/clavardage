@@ -1,4 +1,5 @@
 import java.io.File;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -146,7 +147,7 @@ static BD instance = null;
 	//id car les pseudos peuvent changer, voire s'inverser, ne rendant pas fiable de savoir qui a envoyé à qui
 	public ArrayList<Message> getHistorique(Personne user, Personne Interlocuteur) {
 		ArrayList<Message> messages = new ArrayList<Message>();
-				try {
+		/*		try {
 			PreparedStatement stmt;
 			//TODO : rewrite SQL statement to take ID and no more pseudo
 			String sql = "SELECT emet.idUtilisateur AS idEmet, pseudoEmet, text, type, dest.idUtilisateur AS idDest,pseudoDest FROM message JOIN identification AS emet ON pseudoEmet = emet.pseudo JOIN identification AS dest ON pseudoDest = dest.pseudo WHERE pseudoEmet IN(SELECT pseudo FROM identification WHERE idUtilisateur = (SELECT idUtilisateur FROM identification WHERE pseudo = ?)) OR pseudoDest IN(SELECT pseudo FROM identification WHERE idUtilisateur = (SELECT idUtilisateur FROM identification WHERE pseudo = ?)) ORDER BY sentDate;";
@@ -174,7 +175,7 @@ static BD instance = null;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		}*/
 		return messages;
 	}
 
@@ -193,8 +194,11 @@ static BD instance = null;
 			stmt.setNString(2, message.getDestinataire().getPseudo());
 			stmt.setNString(3, message.getDateToString());
 			stmt.setNString(4, message.getType().toString());
-			stmt.setNString(5, message.getData().toString());
-			stmt.executeQuery();
+			//stmt.setNString(5, message.getData());
+			Blob b=c.createBlob();
+			b.setBytes(1, message.getData());
+			stmt.setBlob(5,b);
+			stmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
