@@ -1,12 +1,18 @@
 
+import java.awt.Adjustable;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -15,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -29,6 +36,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
@@ -54,6 +62,8 @@ public class VuePrincipale {
 	JButton btnDeco;
 	JEditorPane message_zone;
 	String defaultTitle=new String("Super clavardeur !  :D");
+	private Object mutex = new Object();
+	protected boolean selected=false;
 	
 	public VuePrincipale(Application application,DefaultListModel<Personne> m) {
 		app=application;
@@ -235,18 +245,16 @@ public class VuePrincipale {
 	}
 	private void initializeButtons() {
 		btnSend = new JButton("Send ! ");
+		// play is a jButton but can be any component in the window
+		btnSend.getInputMap(btnSend.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, java.awt.event.InputEvent.SHIFT_DOWN_MASK ), "play");
+		btnSend.getActionMap().put("play", new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			clearMessage();
+		}});
 		btnSend.addActionListener(new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-				String tosend = null;
-						tosend = textField.getText();
-						if(!tosend.equals("")) {
-							sendMessage(tosend);
-							textField.setText("");
-												}
-						else
-							JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide désolé :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
-					
+			clearMessage();		
 						}});
 		btnSend.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
 		btnDeco= new JButton("Déconnexion");
@@ -266,36 +274,59 @@ public class VuePrincipale {
 				    });
 
 	}
+	private void clearMessage() {
+			String tosend = null;
+			tosend = textField.getText();
+			if(!tosend.equals("")) {
+				sendMessage(tosend);
+				textField.setText("");
+									}
+			else
+				JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide désolé :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
+		
+		}
 	protected void sendMessage(String tosend) {
-		// TODO Auto-generated method stub
 		Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
 		Reseau.getReseau().sendTCP(m);
+		 synchronized (mutex) {
 		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignright'>"+m.toHtml()+"</div>");
+		this.scrollToBottom();
+		 }
 		
+	}
+	//Bottom then release
+	private void scrollToBottom() {
+		//jScrollBar.setValue(jScrollBar.getMaximum() );
+		message_zone.setCaretPosition(message_zone.getDocument().getLength());
 	}
 	private void initialize() {
 		frame = new JFrame();
-		frame.setBounds(100, 100, 723, 324);
+		frame.setBounds(100, 100, 750, 500);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		changePseudo(app.getPseudo());
 		frame.setIconImage(new ImageIcon("images/icon.png").getImage());
 		initializeHtmlView();
 		initializeList();
-		
-
-	    
 		JPanel panel = new JPanel(new BorderLayout());
-			
 		JScrollPane ljs=new  JScrollPane(list);
 		ljs.setVisible(true);
 		//ljs.setVerticalScrollBarPolicy (ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
 		
 	    JScrollPane editorScrollPane = new JScrollPane(message_zone); 
-	    editorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-	    
+
+	  /* autoScroll=new AdjustmentListener() {  
+	        public void adjustmentValueChanged(AdjustmentEvent e) {  
+	            e.getAdjustable().setValue(e.getAdjustable().getMaximum());  
+	        }
+	    };*/
+	   // editorScrollPane.getVerticalScrollBar().addAdjustmentListener(autoScroll);
+
+
+
 		JSplitPane split_conv=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,ljs, editorScrollPane);
 		split_conv.setDividerSize(5);
+		split_conv.setPreferredSize(new Dimension(750,350));
 		
 		JSplitPane split_final=new JSplitPane(JSplitPane.VERTICAL_SPLIT,split_conv, panel);
 		split_final.setDividerSize(5);
@@ -322,6 +353,7 @@ public class VuePrincipale {
 		JSplitPane jsp=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, btnSend, btnDeco);
 		jsp.setDividerSize(0);
 		panel.add(jsp,BorderLayout.EAST);
+		panel.setSize(600, 25);
 		
 		initializeMenu();	
 		
@@ -348,10 +380,12 @@ public class VuePrincipale {
 			conv.put(emetteur.getId(),l);
 		}
 		//si on à la conversation affichée à l'écran:
-		System.out.print(" id1 :"+emetteur.getId() +" id2: "+ activeUser.getId()+" "+ message.toHtml());
 		if(emetteur.getId()==activeUser.getId())
 		{
+			 synchronized (mutex) {
 		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignleft'>"+message.toHtml()+"</div>");
+		this.scrollToBottom();
+			 }
 		}
 		else
 		{

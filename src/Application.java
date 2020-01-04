@@ -136,8 +136,7 @@ IOUtils.write(encoded, output);
 		 */
 		  if (arg instanceof Message) {
 	           Message message = (Message) arg;
-	         //do not reply to yourself broadcast ^^ //possibilité de se parler à soi-même pratique pour les tests
-	           System.out.print("\n id emetteur "+message.getEmetteur().getId()+" id user: "+user.getId());
+	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même pratique pour les tests
         	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"("+message.getEmetteur().getAdresse().toString()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
