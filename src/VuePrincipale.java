@@ -1,5 +1,4 @@
 
-import java.awt.Adjustable;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -9,15 +8,15 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -27,6 +26,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -36,7 +36,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
@@ -59,6 +58,7 @@ public class VuePrincipale {
 	Application app;
 	DefaultListModel<Personne> model;
 	JButton btnSend;
+	JButton btnFile;
 	JButton btnDeco;
 	JEditorPane message_zone;
 	String defaultTitle=new String("Super clavardeur !  :D");
@@ -243,10 +243,41 @@ public class VuePrincipale {
 			loadConversation(activeUser.getId());
 			//conv.put(activeUser.getId(), new ArrayList<>());
 	}
+	@SuppressWarnings("serial")
 	private void initializeButtons() {
+		btnFile = new JButton("send file ! ");
+		btnFile.setFont(new Font("Arial Unicode MS", Font.BOLD, 18));
+		ActionListener a=new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser dirChooser = new JFileChooser();
+	               dirChooser.setMultiSelectionEnabled(true);
+	               dirChooser.setDialogTitle("Choisir le(s) fichiers(s) à envoyer");
+	               dirChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+	               int option = dirChooser.showOpenDialog(frame);
+	               if(option == JFileChooser.APPROVE_OPTION){   
+	                  File f = dirChooser.getSelectedFile();
+	                  System.out.print("file Selected: " + f.getAbsolutePath());
+	      	          byte[] data;
+					try {
+						data = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
+		                sendMessage(data,f.getName());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+	               }else{
+	            	   System.out.print("cancelled");
+	               }
+							}};
+		btnFile.addActionListener(a);
+		btnFile.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, java.awt.event.InputEvent.SHIFT_DOWN_MASK ), "file");
+		btnFile.getActionMap().put("file", new AbstractAction() {
+		public void actionPerformed(ActionEvent e) {
+			a.actionPerformed(e);
+		}});
 		btnSend = new JButton("Send ! ");
 		// play is a jButton but can be any component in the window
-		btnSend.getInputMap(btnSend.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, java.awt.event.InputEvent.SHIFT_DOWN_MASK ), "play");
+		btnSend.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, java.awt.event.InputEvent.SHIFT_DOWN_MASK ), "play");
 		btnSend.getActionMap().put("play", new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			clearMessage();
@@ -273,31 +304,6 @@ public class VuePrincipale {
 				        }
 				    });
 
-	}
-	private void clearMessage() {
-			String tosend = null;
-			tosend = textField.getText();
-			if(!tosend.equals("")) {
-				sendMessage(tosend);
-				textField.setText("");
-									}
-			else
-				JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide désolé :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
-		
-		}
-	protected void sendMessage(String tosend) {
-		Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
-		Reseau.getReseau().sendTCP(m);
-		 synchronized (mutex) {
-		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignright'>"+m.toHtml()+"</div>");
-		this.scrollToBottom();
-		 }
-		
-	}
-	//Bottom then release
-	private void scrollToBottom() {
-		//jScrollBar.setValue(jScrollBar.getMaximum() );
-		message_zone.setCaretPosition(message_zone.getDocument().getLength());
 	}
 	private void initialize() {
 		frame = new JFrame();
@@ -350,14 +356,59 @@ public class VuePrincipale {
 		//textField.setColumns(10);
 		
 		initializeButtons();
-		JSplitPane jsp=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, btnSend, btnDeco);
+		JSplitPane jsp=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, btnFile, btnDeco);
 		jsp.setDividerSize(0);
-		panel.add(jsp,BorderLayout.EAST);
+		JSplitPane jsp2=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, btnSend, jsp);
+		jsp2.setDividerSize(0);
+		panel.add(jsp2,BorderLayout.EAST);
 		panel.setSize(600, 25);
 		
 		initializeMenu();	
 		
 	}
+	/** 
+	* @param tosend texte à envoyer à activeUser
+	 */
+	private void sendMessage(String tosend) {
+		Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
+		Reseau.getReseau().sendTCP(m);
+		 synchronized (mutex) {
+		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignright'>"+m.toHtml()+"</div>");
+		this.scrollToBottom();
+		 }
+		
+	}
+	/**
+	 * 
+	 * @param file fichier à envoyer
+	 * @param name nom du fichier
+	 */
+	private void sendMessage(byte[] file, String name) {
+		
+		Message m =new Message(file, app.getPersonne(), activeUser,name);
+		Reseau.getReseau().sendTCP(m);
+		 synchronized (mutex) {
+		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignright'>"+m.toHtml()+"</div>");
+		this.scrollToBottom();
+		 }
+	}
+	//Bottom then release
+	private void scrollToBottom() {
+		//jScrollBar.setValue(jScrollBar.getMaximum() );
+		message_zone.setCaretPosition(message_zone.getDocument().getLength());
+	}
+	private void clearMessage() {
+		String tosend = null;
+		tosend = textField.getText();
+		if(!tosend.equals("")) {
+			sendMessage(tosend);
+			textField.setText("");
+								}
+		else
+			JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide désolé :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
+	
+	}
+
 	protected void loadConversation(Long id) {
 		ArrayList<Message> c=conv.get(id);
 		if(c != null) {

@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Observable;
@@ -13,8 +14,9 @@ import java.util.Observer;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
-//tips: ctrl +r =run (me)
+//tips: ctrl +r =run (me) ctrl+F11 (standard)
 //ctrl+maj+F11=code coverage (standard)
+@SuppressWarnings("deprecation")
 public class Application implements Observer {
 	static Personne user;
 	VuePrincipale main;
@@ -78,6 +80,7 @@ public class Application implements Observer {
 		//main.setHtmlView(c);*/
 	}
 	
+	@SuppressWarnings("deprecation")
 	Application(){
 		Reseau.getReseau().addObserver(this);
 		InetAddress ip;
@@ -126,6 +129,7 @@ public class Application implements Observer {
 			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 public void update(Observable o, Object arg) {
 		//try convert arg to message
@@ -143,12 +147,17 @@ IOUtils.write(encoded, output);
 	        	   main.update(message.getEmetteur(),message);
 		           maBD.addData(message); //SAVE BD LE MESSAGE RECU
 	           }
+	           if(message.getType()==Message.Type.FILE) {
+	        	   main.update(message.getEmetteur(),message);
+	        	   Files.write(new File(maBD.getDownloadPath().getAbsolutePath()+message.getSpecialString()).toPath(), message.getData());
+		           maBD.addFile(message,message.getSpecialString()); //SAVE BD LE MESSAGE RECU
+	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
 	        	  // long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
 	        	  /* maBD.delIdPseudoLink(message.getEmetteur().getPseudo());
 	       		   maBD.setIdPseudoLink(message.getNewPseudo(),id);*/
 	       		 int index = model.indexOf(message.getEmetteur());
-	       		 model.get(index).setPseudo(message.getNewPseudo());
+	       		 model.get(index).setPseudo(message.getSpecialString());
 	       		 main.updateList();
 	           }
 	           else if(message.getType()==Message.Type.DECONNECTION) {
