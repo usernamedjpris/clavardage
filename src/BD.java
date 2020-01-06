@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 
@@ -14,36 +15,63 @@ import java.util.ArrayList;
 //http://www.hsqldb.org/doc/guide/guide.pdf
 //embded BD mode
 public class BD {
-static BD instance = null;
+	
+	static BD instance = null;
 	String mp = "";
 	String url = "jdbc:hsqldb:file:SuperDB;shutdown=true";
 	String login = "SA";
 	Connection c = null;
-
+    /**
+     * Constructeur BD
+     * <p>
+     * classe private car singleton
+     * </p>
+     * 
+     * @see BD#getBD()
+     */
 	private BD() {
 		try {
 			this.connexion();
 			// creation de la bdd si pas deja cree
 			PreparedStatement stmt;
-			
 			//cached useful if data >= 10Mo ( chargement partiel de la BD )
-			String sql1 = "CREATE CACHED TABLE IF NOT EXISTS message (" + "pseudoEmet VARCHAR(120) NOT NULL,"
-					+ "pseudoDest VARCHAR(120) NOT NULL," + "sentDate VARCHAR(60) NOT NULL,"
-					+ "type VARCHAR(60) NOT NULL," + "texte BLOB NOT NULL,"
-					+ "PRIMARY KEY(pseudoEmet,pseudoDest,sentDate))";
+			String sql0a = "DROP TABLE message";
+			stmt = c.prepareStatement(sql0a);
+			stmt.executeUpdate();
+			System.out.println("DROP TABLE message");
+			
+			String sql1 = "CREATE CACHED TABLE IF NOT EXISTS message (idEmet INTEGER NOT NULL, idDest INTEGER NOT NULL, "
+					+ "sentDate VARCHAR(60) NOT NULL, type VARCHAR(60) NOT NULL, texte BLOB NOT NULL);";
 			stmt = c.prepareStatement(sql1);
 			stmt.executeUpdate();
-			String sql2 = "CREATE TABLE IF NOT EXISTS identification (idUtilisateur INTEGER NOT NULL,pseudo	VARCHAR(120) NOT NULL);";
+			System.out.println("create TABLE message");
+			
+			String sql0 = "DROP TABLE identification";
+			stmt = c.prepareStatement(sql0);
+			stmt.executeUpdate();
+			System.out.println("DROP TABLE identification");
+			
+			String sql2 = "CREATE TABLE IF NOT EXISTS identification (idUtilisateur INTEGER NOT NULL, pseudo VARCHAR(120) NOT NULL, PRIMARY KEY(idUtilisateur));";
 			stmt = c.prepareStatement(sql2);
 			stmt.executeUpdate();
-			String sql3 = "CREATE TABLE IF NOT EXISTS preferences (iden INTEGER NOT NULL, downloadPath VARCHAR(240) NOT NULL, PRIMARY KEY(iden))";
+			System.out.println("create TABLE identification");
+			
+			String sql0b = "DROP TABLE preferences";
+			stmt = c.prepareStatement(sql0b);
+			stmt.executeUpdate();
+			System.out.println("DROP TABLE message");
+			
+			String sql3 = "CREATE TABLE IF NOT EXISTS preferences (iden INTEGER NOT NULL, downloadPath VARCHAR(240) NOT NULL, PRIMARY KEY(iden));";
 			stmt = c.prepareStatement(sql3);
 			stmt.executeUpdate();
+			System.out.println("create TABLE preference");
+			
 			//MYSQL more compatible : http://hsqldb.org/doc/guide/compatibility-chapt.html
 			Statement s0=c.createStatement();
-			s0.executeQuery("SET DATABASE SQL SYNTAX MYS TRUE");
+			s0.executeUpdate("SET DATABASE SQL SYNTAX MYS TRUE");
+			System.out.println("SQL compatible");
 			Statement s=c.createStatement();
-			s.executeQuery("INSERT IGNORE INTO preferences VALUES (1,'.')");
+			s.executeUpdate("INSERT IGNORE INTO preferences VALUES (1,'.')");		
 			
 			
 		} catch (SQLException e) {
@@ -52,10 +80,18 @@ static BD instance = null;
 	}
 
 	@SuppressWarnings("static-access")
+	/**
+	 * Décide de créer une BD en fonction de s'il en existe une déjà (classe singleton)
+	 * @see BD#c
+	 * @return BD
+	 */
 	public static BD getBD() {
 		return instance != null ? instance : (instance = new BD()).getBD();
 	}
-
+	/**
+	 * Se connecte à une base de donnée hsqldb
+	 * @throws SQLException
+	 */
 	public void connexion() throws SQLException {
 		try {
 			Class.forName("org.hsqldb.jdbc.JDBCDriver");
@@ -66,7 +102,9 @@ static BD instance = null;
 		}
 		c=DriverManager.getConnection(url,login, mp);
 	}
-
+	/**
+	 * Se déconnecte
+	 */
 	public void deconnexion() {
 		try {
 			if (c != null) {
@@ -82,7 +120,14 @@ static BD instance = null;
 	{
 		this.deconnexion();
 	}
-
+/**
+ * <p>
+ * ce lien est desormais automatiquement ecrase avec REPLACE INTO
+ * </p>
+ * @deprecated
+ * @param pseudo
+ * @see BD#setIdPseudoLink(String, long)
+ */
 	public void delIdPseudoLink(String pseudo) {
 		try {
 			PreparedStatement stmt;
@@ -94,11 +139,15 @@ static BD instance = null;
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * Attribue un id à un pseudo donné
+	 * @param newPseudo
+	 * @param id
+	 */
 	public void setIdPseudoLink(String newPseudo, long id) {
 		try {
 			PreparedStatement stmt;
-			String sql = "INSERT INTO identification VALUES (?,?)";
+			String sql = "REPLACE INTO identification (idUtilisateur, pseudo) VALUES (?, ?);";
 			stmt = c.prepareStatement(sql);
 			stmt.setLong(1, id);
 			stmt.setNString(2, newPseudo);
@@ -124,12 +173,19 @@ static BD instance = null;
 		}
 		return ok;
 	}*/
-
+	/**
+	 * Retrouve id à partir du pseudo
+	 * <p>
+	 * /!\ ne garde pas en mémoire les anciens pseudos
+	 * </p>
+	 * @param pseudo
+	 * @return id
+	 */
 	public long getIdPersonne(String pseudo) {
 		long idPersonne = 0;
 		try {
 			PreparedStatement stmt;
-			String sql = "SELECT * FROM identification WHERE pseudo = ?";
+			String sql = "SELECT idUtilisateur FROM identification WHERE pseudo = ?";
 			stmt = c.prepareStatement(sql);
 			stmt.setNString(1, pseudo);
 			ResultSet rs = stmt.executeQuery();
@@ -137,6 +193,7 @@ static BD instance = null;
 			idPersonne = rs.getLong("idUtilisateur");
 			rs.close();
 			stmt.close();
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -144,29 +201,44 @@ static BD instance = null;
 
 	}
 	
-	//id car les pseudos peuvent changer, voire s'inverser, ne rendant pas fiable de savoir qui a envoyé à qui
+	//id car les pseudos peuvent changer, voire s'inverser (le plus grave !), ne rendant pas fiable de savoir qui a envoyé à qui
+	/**
+	 * Retourne la conversation entière entre deux personnes données
+	 * @param user (mettre soi)
+	 * @param Interlocuteur
+	 * @return liste de messages
+	 */
 	public ArrayList<Message> getHistorique(Personne user, Personne Interlocuteur) {
 		ArrayList<Message> messages = new ArrayList<Message>();
-		/*		try {
+				try {
 			PreparedStatement stmt;
-			//TODO : rewrite SQL statement to take ID and no more pseudo
-			String sql = "SELECT emet.idUtilisateur AS idEmet, pseudoEmet, text, type, dest.idUtilisateur AS idDest,pseudoDest FROM message JOIN identification AS emet ON pseudoEmet = emet.pseudo JOIN identification AS dest ON pseudoDest = dest.pseudo WHERE pseudoEmet IN(SELECT pseudo FROM identification WHERE idUtilisateur = (SELECT idUtilisateur FROM identification WHERE pseudo = ?)) OR pseudoDest IN(SELECT pseudo FROM identification WHERE idUtilisateur = (SELECT idUtilisateur FROM identification WHERE pseudo = ?)) ORDER BY sentDate;";
+			String sql = "SELECT idEmet, emet.pseudo AS pseudoEmet, idDest, dest.pseudo AS pseudoDest, sentDate, type, texte FROM message "
+					+ "JOIN identification AS dest ON idDest=dest.idUtilisateur "
+					+ "JOIN identification AS emet ON idEmet=emet.idUtilisateur "
+					+ "WHERE idEmet = ? OR idDest = ? ORDER BY sentDate;";
 			stmt = c.prepareStatement(sql);
-			stmt.setNString(1, Interlocuteur.getPseudo());
-			stmt.setNString(2, Interlocuteur.getPseudo());
+			stmt.setLong(1, Interlocuteur.getId());
+			stmt.setLong(2, Interlocuteur.getId());
 			ResultSet rs = stmt.executeQuery();
 			Long idUser=user.getId();
 			while (rs.next()) {
 				Message mes;
 				// Retrieve by column name
 				long idEmet = rs.getLong("idEmet");
-				Date date = rs.getDate("sentDate"); 
-				String text = rs.getString("text");
+				java.util.Date date = Message.getStringToDate(rs.getString("sentDate")); 
+				Blob btext = rs.getBlob("texte");
+				String text = new String(btext.getBytes(1l, (int) btext.length()));
 				Message.Type typ = Message.Type.valueOf(rs.getString("type"));
+				System.out.println("GET HISTORIQUE "+Long.toString(idEmet) +" "+text+" ("+ rs.getString("sentDate")+") ["+ typ+"]");
 				if (idEmet == idUser) {// emetteur = moi
-					mes = new Message(text.getBytes(), user, Interlocuteur,typ, date);
+					/*//on peut aussi créer un nouvelle personne Interlocuteur avec infos de la bd
+					long idDest = rs.getLong("idDest");
+					String pseudo = rs.getString("pseudoDest");
+					interloc2 = new Personne(null, pseudoDest, true, idDest)
+					 */
+					mes = new Message(text.getBytes(), user, Interlocuteur, typ, date);
 				} else {
-					mes = new Message(text.getBytes(), Interlocuteur, user,typ, date);
+					mes = new Message(text.getBytes(), Interlocuteur, user, typ, date);
 				}
 				messages.add(mes);
 			}
@@ -175,23 +247,55 @@ static BD instance = null;
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}*/
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return messages;
 	}
-
+	/**
+	 * retourne la liste des personnes à qui on a déjà parlé une fois sauf à soi (donner son id) 
+	 * <p>
+	 * parlé une fois = envoyé au moins eu un message default ou file à destination de cette personne
+	 * </p>
+	 * @param id 
+	 * @return
+	 */
 	public ArrayList<String> getPseudoTalked(long id) {
-		return null; 
-		// TODO Auto-generated method stub
-
+		ArrayList<String> list = new ArrayList<String>();
+		try {
+			PreparedStatement stmt;
+			String sql = "SELECT pseudo FROM identification JOIN (SELECT DISTINCT idDest FROM message WHERE type = 'DEFAULT' OR type = 'FILE') ON idDest = idUtilisateur WHERE idUtilisateur != ?";
+			stmt = c.prepareStatement(sql);
+			stmt.setLong(1, id);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				String pseudo = rs.getString("pseudo");
+				list.add(pseudo);
+			}
+			rs.close();
+			stmt.close();
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
-
+	/**
+	 * Enregistre un nouveau message 
+	 * <p>
+	 * utilisation : cette méthode n'enregistre pas le pseudo utilisé. Pour changement de pseudo, utiliser setIdPseudoLink
+	 * </p>
+	 * @param message
+	 * @see BD#setIdPseudoLink(String, long)
+	 */
 	public void addData(Message message) {
 		try {
 			PreparedStatement stmt;
-			String sql = "INSERT INTO message VALUES (?,?,?,?,?);";
+			String sql = "INSERT INTO message VALUES (?, ?, ?, ?, ?);"; 
 			stmt = c.prepareStatement(sql);
-			stmt.setNString(1, message.getEmetteur().getPseudo());
-			stmt.setNString(2, message.getDestinataire().getPseudo());
+			stmt.setLong(1, message.getEmetteur().getId()); 
+			stmt.setLong(2, message.getDestinataire().getId());
 			stmt.setNString(3, message.getDateToString());
 			stmt.setNString(4, message.getType().toString());
 			//stmt.setNString(5, message.getData());
@@ -199,11 +303,15 @@ static BD instance = null;
 			b.setBytes(1, message.getData());
 			stmt.setBlob(5,b);
 			stmt.executeUpdate();
+			System.out.println("ADD message");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-
+	/** 
+	 * permet d'accéder à l'emplacement de tout les fichiers téléchargés 
+	 * @return chemin de téléchargement
+	 */
 	public File getDownloadPath() {
 		String downloadPath = "";
 		try {
@@ -214,9 +322,13 @@ static BD instance = null;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println(downloadPath+"\n");
 		return new File(downloadPath); //def = "."
 	}
-
+	/**
+	 * Affecte un nouveau chemin de téléchargement
+	 * @param file
+	 */
 	public void setDownloadPath(File file) {
 		try {
 			String sql = "UPDATE preferences SET downloadPath='"+file.getPath()+"'";
@@ -226,7 +338,59 @@ static BD instance = null;
 			e.printStackTrace();
 		}
 	}
+	
+	//pour tests
+	public void printMessage() {
+		try {
+			PreparedStatement stmt;
+			String sql = "SELECT * FROM message";
+			stmt = c.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				String date = rs.getString("sentDate");
+				String typ = rs.getString("type");
+				java.sql.Blob ablob = rs.getBlob("texte");
+				long emet = rs.getLong("idEmet");
+				long dest = rs.getLong("idDest");
+				String texte = new String(ablob.getBytes(1l, (int) ablob.length()));
+				System.out.println("PRINT message "+Long.toString(emet) +"->"+Long.toString(dest)+" "+texte+" ("+ date+") ["+ typ+"]");
+			}
+			rs.close();
+			stmt.close();
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	public void printIdentification() {
+		try {
+			PreparedStatement stmt;
+			String sql = "SELECT * FROM identification";
+			stmt = c.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				String pseudo = rs.getString("pseudo");
+				long idUtilisateur = rs.getLong("idUtilisateur");
+				System.out.println("PRINT identification "+Long.toString(idUtilisateur) +" : "+pseudo);
+			}
+			rs.close();
+			stmt.close();
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
 }
+
+
+
+
+
+
+
+
 
 /*
  * public ResultSet getAllScoresAndNames() throws SQLException {

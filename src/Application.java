@@ -77,8 +77,37 @@ public class Application implements Observer {
 		//Conversation c = new Conversation(remi,messages);
 		//main.setHtmlView(c);*/
 	}
-	
+	void testsBD() {
+		Personne remi = new Personne(null, "lol1", false,1L );
+		Personne jeje = new Personne(null, "lol2", false,2L );
+		maBD.getDownloadPath();
+		maBD.setDownloadPath(new File(".toto"));
+		maBD.getDownloadPath();
+		maBD.setIdPseudoLink("lol1", 1L);
+		maBD.setIdPseudoLink("lol2", 2L);
+		//maBD.printIdentification();		
+		maBD.addData(new Message("alors, ça avance ?".getBytes(), remi, jeje));
+		maBD.addData(new Message("hum".getBytes(), jeje, remi));
+		maBD.addData(new Message("arluihn !".getBytes(), remi, jeje));
+		maBD.addData(new Message("eztynetu, !!!".getBytes(), jeje, remi));
+		maBD.addData(new Message("OIEHNogthnpqrht".getBytes(), remi, jeje));
+		maBD.addData(new Message("bbq mardi ?".getBytes(), jeje, remi));
+		maBD.addData(new Message("aryha!".getBytes(), remi, jeje));
+		maBD.addData(new Message("ctzhn.".getBytes(), jeje, remi));
+		//maBD.printMessage();
+		System.out.println(Long.toString(maBD.getIdPersonne("lol1"))+"\n"); //marche !
+		ArrayList<String> pseudos = maBD.getPseudoTalked(1L);
+		for (int i=0;i<pseudos.size();i++) {
+			System.out.println(pseudos.get(i)+"\n");
+		}
+		ArrayList<Message> messages = maBD.getHistorique(jeje, remi);	
+		System.out.println("taille messages "+messages.size()+"\n");
+		for (int i=0;i<messages.size();i++) {
+			System.out.println(messages.get(i).getDateToString());
+		}
+	}
 	Application(){
+		
 		Reseau.getReseau().addObserver(this);
 		InetAddress ip;
 		try {
@@ -104,6 +133,7 @@ public class Application implements Observer {
 		}
 
 		//tests();
+		//testsBD();
 	}
 	String getPseudo() {
 		return user.getPseudo();
@@ -142,6 +172,7 @@ IOUtils.write(encoded, output);
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message);
 		           maBD.addData(message); //SAVE BD LE MESSAGE RECU
+		           maBD.printMessage();
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
 	        	  // long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
@@ -191,7 +222,7 @@ IOUtils.write(encoded, output);
 	maBD.setDownloadPath(file);
 	}
 	public void setPseudoUserSwitch(String uname) {
-		maBD.delIdPseudoLink(user.getPseudo());
+		/*maBD.delIdPseudoLink(user.getPseudo());*/
 		maBD.setIdPseudoLink(uname,user.getId());
 		int index =model.indexOf(user);
 		model.get(index).setPseudo(uname);
