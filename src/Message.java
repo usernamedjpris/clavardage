@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 /* limit serialization / when write/redef java methods :
@@ -124,7 +125,11 @@ public class Message implements Serializable {
 
 	public String getDateToString() { //pour stocker dans la bd...
 		SimpleDateFormat toStr = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
-		return toStr.format(date);
+		return toStr.format(this.date);
+	}
+	public static Date getStringToDate(String sdate) throws ParseException { //pour extraire de la bd...
+		Date ladate = new SimpleDateFormat("yyyy-M-dd hh:mm:ss").parse(sdate);
+		return ladate;
 	}
 
 	public String toHtml() {
