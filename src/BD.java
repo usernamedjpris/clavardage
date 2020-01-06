@@ -284,7 +284,7 @@ public class BD {
 	/**
 	 * Enregistre un nouveau message 
 	 * <p>
-	 * utilisation : cette méthode n'enregistre pas le pseudo utilisé. Pour changement de pseudo, utiliser setIdPseudoLink
+	 * Attention : cette méthode n'enregistre pas le pseudo utilisé. Pour changement de pseudo, utiliser setIdPseudoLink
 	 * </p>
 	 * @param message
 	 * @see BD#setIdPseudoLink(String, long)
@@ -308,8 +308,32 @@ public class BD {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Enregistre un nouveau message de type FILE
+	 * @param message
+	 * @param chemin du fichier
+	 */
+	public void addFile(Message message, String chemin) {
+		try {
+			PreparedStatement stmt;
+			String sql = "INSERT INTO message VALUES (?, ?, ?, ?, ?);"; 
+			stmt = c.prepareStatement(sql);
+			stmt.setLong(1, message.getEmetteur().getId()); 
+			stmt.setLong(2, message.getDestinataire().getId());
+			stmt.setNString(3, message.getDateToString());
+			stmt.setNString(4, message.getType().toString());
+			//stmt.setNString(5, message.getData());
+			Blob b=c.createBlob();
+			b.setBytes(1, chemin.getBytes());
+			stmt.setBlob(5,b);
+			stmt.executeUpdate();
+			System.out.println("ADD file");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	/** 
-	 * permet d'accéder à l'emplacement de tout les fichiers téléchargés 
+	 * Donne accès à l'emplacement de tout les fichiers téléchargés 
 	 * @return chemin de téléchargement
 	 */
 	public File getDownloadPath() {
