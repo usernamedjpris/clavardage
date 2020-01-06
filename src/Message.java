@@ -85,7 +85,7 @@ public class Message implements Serializable {
 	 * @param name nom du fichier
 	 */
 	public Message(byte[] bytes, Personne emet, Personne interlocuteur, String name) {
-		this(bytes,emet,interlocuteur,Message.Type.FILE,new Date());
+		this(bytes,emet,interlocuteur,Type.FILE,new Date());
 		specialString=name;
 	}
 	public Message(byte[] bytes, Personne emet, Personne interlocuteur, Type typ, Date date2) {

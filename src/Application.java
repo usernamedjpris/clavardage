@@ -1,11 +1,13 @@
 
 import java.io.File;
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Observable;
@@ -171,16 +173,29 @@ IOUtils.write(encoded, output);
 		  if (arg instanceof Message) {
 	           Message message = (Message) arg;
 	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même pratique pour les tests
-        	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT) {
+        	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"("+message.getEmetteur().getAdresse().toString()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message);
 		           maBD.addData(message); //SAVE BD LE MESSAGE RECU
-		           maBD.printMessage();
+		          // maBD.printMessage();
 	           }
 	           if(message.getType()==Message.Type.FILE) {
+	        	   System.out.print(" \n FILE reçu !");
 	        	   main.update(message.getEmetteur(),message);
-	        	   Files.write(new File(maBD.getDownloadPath().getAbsolutePath()+message.getSpecialString()).toPath(), message.getData());
+	        	   try {
+	        		   String basePath=maBD.getDownloadPath().getCanonicalPath()+"/";
+	        		   File newFile=new File(basePath+message.getSpecialString());
+	        		   int index=0;
+	        		   if(newFile.exists())
+	        		   while ((newFile = new File(basePath+"("+index+")"+message.getSpecialString())).exists()) {
+	        			    index++;
+	        			}
+	        		   Path p=newFile.toPath();
+					Files.write(p, message.getData());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 		           maBD.addFile(message,message.getSpecialString()); //SAVE BD LE MESSAGE RECU
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {

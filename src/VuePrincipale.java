@@ -277,7 +277,7 @@ public class VuePrincipale {
 		}});
 		btnSend = new JButton("Send ! ");
 		// play is a jButton but can be any component in the window
-		btnSend.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, java.awt.event.InputEvent.SHIFT_DOWN_MASK ), "play");
+		btnSend.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, java.awt.event.InputEvent.SHIFT_DOWN_MASK ), "play");
 		btnSend.getActionMap().put("play", new AbstractAction() {
 		public void actionPerformed(ActionEvent e) {
 			clearMessage();
