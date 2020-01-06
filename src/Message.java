@@ -28,14 +28,15 @@ public class Message implements Serializable {
 	private Personne destinataire;
 	private Date date;
 	private Type t;
-	private String newPseudo;
+	//pseudo || nom fichier
+	private String specialString;
 	/**
 	 * @param data
 	 * @param emetteur
 	 * @param destinataire
 	 * @param date
 	 * @param type
-	 * @param newPseudo
+	 * @param specialString
 	 */
 	//DATE à générer lors de la création du message => pas en parametre du constructeur #indépendance
 	public Message(byte[] data, Personne emetteur, Personne destinataire) {
@@ -44,7 +45,7 @@ public class Message implements Serializable {
 		this.destinataire=(destinataire);
 		this.date = new Date();
 		this.t=Type.DEFAULT;
-		this.newPseudo = emetteur.getPseudo();
+		this.specialString = emetteur.getPseudo();
 	}
 	public Message(Type typ, Personne emetteur, Personne destinataire) {
 		this.data = "".getBytes();
@@ -52,15 +53,15 @@ public class Message implements Serializable {
 		this.destinataire=(destinataire);
 		this.date = new Date();
 		this.t=typ;
-		this.newPseudo = emetteur.getPseudo();
+		this.specialString = emetteur.getPseudo();
 	}
-	public Message(Personne emetteur, Personne destinataire, String newPseudo) {
+	public Message(Personne emetteur, Personne destinataire, String specialString) {
 		this.data = "".getBytes();
 		this.emetteur = emetteur;
 		this.destinataire=(destinataire);
 		this.date = new Date();
 		this.t=Type.SWITCH;
-		this.newPseudo = newPseudo;
+		this.specialString = specialString;
 	}
 	//broadcast
 	public Message(Type cat, Personne personne) {
@@ -73,9 +74,19 @@ public class Message implements Serializable {
 		}
 		date=new Date();
 	}
-	public Message(Type cat, Personne personne, String newPseudo) {
+	public Message(Type cat, Personne personne, String specialString) {
 		this(cat,personne);
-		this.newPseudo=newPseudo;
+		this.specialString=specialString;
+	}
+	/** Envoi de fichiers
+	 * @param bytes  fichier lu en bytes
+	 * @param emet personne qui emet
+	 * @param interlocuteur personne à qui envoyer le message
+	 * @param name nom du fichier
+	 */
+	public Message(byte[] bytes, Personne emet, Personne interlocuteur, String name) {
+		this(bytes,emet,interlocuteur,Message.Type.FILE,new Date());
+		specialString=name;
 	}
 	public Message(byte[] bytes, Personne emet, Personne interlocuteur, Type typ, Date date2) {
 		data=bytes;
@@ -83,7 +94,7 @@ public class Message implements Serializable {
 		destinataire=interlocuteur;
 		date=date2;
 		t=typ;
-		newPseudo="";
+		specialString="";
 	}
 	public static byte[] serialize(Message mess) throws IOException {
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -102,8 +113,8 @@ public class Message implements Serializable {
 	public Personne getEmetteur() {
 		return emetteur;
 	}
-	public String getNewPseudo() {
-		return newPseudo;
+	public String getSpecialString() {
+		return specialString;
 	}
 	public Type getType() {
 		return t;
@@ -125,7 +136,12 @@ public class Message implements Serializable {
 		if(t==Type.DEFAULT) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
-			return new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; //image ??
+			return new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; 
+		}
+		else if(t==Type.FILE) {
+			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
+			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
+			return specialString+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
 		}
 		else
 			return "";
