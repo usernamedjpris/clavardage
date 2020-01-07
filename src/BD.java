@@ -303,7 +303,7 @@ public class BD {
 			b.setBytes(1, message.getData());
 			stmt.setBlob(5,b);
 			stmt.executeUpdate();
-			System.out.println("ADD message");
+			//System.out.println("ADD message");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

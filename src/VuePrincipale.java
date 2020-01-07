@@ -232,7 +232,7 @@ public class VuePrincipale {
 				 if(selected != -1) {
 				 activeUser = list.getSelectedValue();
 				 loadConversation(activeUser.getId());
-				 System.out.print(activeUser);
+				 System.out.print(activeUser.getPseudo());
 				 }
 				}
 				

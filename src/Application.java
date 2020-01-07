@@ -83,7 +83,7 @@ public class Application implements Observer {
 		//Conversation c = new Conversation(remi,messages);
 		//main.setHtmlView(c);*/
 	}
-	@SuppressWarnings("deprecation")
+
 	void testsBD() {
 		Personne remi = new Personne(null, "lol1", false,1L );
 		Personne jeje = new Personne(null, "lol2", false,2L );
@@ -163,7 +163,6 @@ public class Application implements Observer {
 			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user));
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 public void update(Observable o, Object arg) {
 		//try convert arg to message
@@ -212,6 +211,7 @@ IOUtils.write(encoded, output);
 	        	   int index = model.indexOf(message.getEmetteur());
 	        	   if(index >= 0) {
 	        		   model.get(index).setConnected(false);
+	        		   main.updateList();
 	        	   }
 	           }
 	           else if(message.getType()==Message.Type.ALIVE || message.getType()==Message.Type.CONNECTION) {
@@ -232,7 +232,7 @@ IOUtils.write(encoded, output);
 	           }
 
 	           else
-	        	   System.out.print("WARNING unknow message type !");
+	        	   System.out.print("WARNING unknow message type : " + message.getType().toString());
         	   }
 
 	        }

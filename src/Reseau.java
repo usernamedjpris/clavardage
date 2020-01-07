@@ -49,6 +49,7 @@ public class Reseau extends Observable implements Observer {
 	}
 	public void sendTCP(Message message) {
 		try {
+			System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast ("+message.getDestinataire().getAdresse().toString()+")");
 			envoi.sendMessage(message);
 		} catch (IOException e) {
 			//warning graphique envoi fail
