@@ -25,12 +25,12 @@ public class Application implements Observer {
 	BD maBD=BD.getBD();
 	DefaultListModel<Personne> model = new DefaultListModel<>();
 	File pathDownload;
-
+	InetAddress localIp;
 	public static void main(String[] args) {
 			new Application();
 
 	}
-	String findMac(InetAddress ip) throws SocketException {
+	String findMac() throws SocketException {
 		String mac="";
 		for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
 			  NetworkInterface network = (NetworkInterface) enm.nextElement();
@@ -42,11 +42,13 @@ public class Application implements Observer {
 			 		}
 			 	    mac=sb.toString();
 			 	    //si getLoaclHost n'a pas marché correctement (on veut de l'IPV4) 
-			 	    if(ip.isLoopbackAddress() && (ip instanceof Inet4Address)) {
-			 	   for(Enumeration<InetAddress> ips = network.getInetAddresses(); ips.hasMoreElements();){
-			 		  InetAddress in = (InetAddress) ips.nextElement();
-			 		   if(!in.isLoopbackAddress())
-			 	    ip=in;
+			 	    if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
+			 	   for(Enumeration<InetAddress> s = network.getInetAddresses(); s.hasMoreElements();){
+			 		  InetAddress in = (InetAddress) s.nextElement();
+			 		 // System.out.print(" \nlocalIP s found : " +in.toString() + " ? "+ (!in.isLoopbackAddress() && in instanceof Inet4Address));
+			 		 //System.out.print(" \nloop: " +in.toString() + " ? "+ (in.isLoopbackAddress()));
+			 		  if(!in.isLoopbackAddress() && in instanceof Inet4Address)
+			 			  localIp=in;
 			 	   }
 			 	    }
 			 	    break;
@@ -114,12 +116,12 @@ public class Application implements Observer {
 	Application(){
 		
 		Reseau.getReseau().addObserver(this);
-		InetAddress ip;
 		try {
-			ip = InetAddress.getLocalHost();
-		String mac= findMac(ip);
-		System.out.print("ip: "+ip.toString()+" id: "+mac.hashCode());
-		user= new Personne(ip, "moi",true,(long)mac.hashCode()); //fixe par poste (adresse mac by eg)
+			localIp = InetAddress.getLocalHost();
+		//System.out.print(localIp.toString() + " is local ? : "+localIp.isLoopbackAddress());
+		String mac= findMac();
+		System.out.print("ip: "+localIp.toString()+" id: "+mac.hashCode());
+		user= new Personne(localIp, "moi",true,(long)mac.hashCode()); //fixe par poste (adresse mac by eg)
 	     Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user));
 	     //on obtient les pseudos des gens sur le réseaux avant de demander à l'user d'entrer son pseudo
 	     //+actualisation des connexions/deconnexions en continu
