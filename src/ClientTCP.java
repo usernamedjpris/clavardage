@@ -8,7 +8,7 @@ public class ClientTCP {
 	
     public void sendMessage (Message m) throws IOException{ //String data, Personne dest, Personne emmet
         //Initier la connexion
-        Socket s = new Socket ("127.0.0.1",1030); //127.0.0.1 == localhost
+        Socket s = new Socket (m.getDestinataire().getAdresse(),1030); //127.0.0.1 == localhost
         //Set up OUTput streams
         OutputStream os = s.getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);

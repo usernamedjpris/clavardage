@@ -1,6 +1,7 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -41,16 +42,27 @@ public class Application implements Observer {
 			 			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));
 			 		}
 			 	    mac=sb.toString();
+			 	    //find good local ip
+					try(DatagramSocket s=new DatagramSocket())
+					{
+					    try {
+							s.connect(InetAddress.getByAddress(new byte[]{1,1,1,1}), 0);
+							localIp=s.getLocalAddress();
+						} catch (UnknownHostException e) {
+							e.printStackTrace();
+						}
+					}
 			 	    //si getLoaclHost n'a pas marché correctement (on veut de l'IPV4) 
 			 	    if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
 			 	   for(Enumeration<InetAddress> s = network.getInetAddresses(); s.hasMoreElements();){
 			 		  InetAddress in = (InetAddress) s.nextElement();
 			 		 // System.out.print(" \nlocalIP s found : " +in.toString() + " ? "+ (!in.isLoopbackAddress() && in instanceof Inet4Address));
-			 		 //System.out.print(" \nloop: " +in.toString() + " ? "+ (in.isLoopbackAddress()));
+			 		 System.out.print(" \nloop: " +in.toString() + " ? "+ (in.isLoopbackAddress()));
 			 		  if(!in.isLoopbackAddress() && in instanceof Inet4Address)
 			 			  localIp=in;
 			 	   }
 			 	    }
+			 	    
 			 	    break;
 			    }
 		}
