@@ -70,6 +70,7 @@ public class VuePrincipale {
 		model=m;
 		initialize();
 		this.frame.setVisible(true);
+		scrollToBottom();
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -192,7 +193,7 @@ public class VuePrincipale {
 	}
 	private void initializeList() {
 		//list.setBorder(new LineBorder(new Color(0, 0, 0), 4, true));
-		list.setFont(new Font("Tahoma", Font.ITALIC, 18));
+		list.setFont(new Font("Tahoma", Font.PLAIN, 28));
 		list.setModel(model);
 		list.setCellRenderer(new DefaultListCellRenderer() {
 			private static final long serialVersionUID = 1L;
@@ -204,9 +205,9 @@ public class VuePrincipale {
                 	 Personne user = (Personne) value;
                       setText(user.getPseudo());
                       if(unread.get(user.getId())!=null)
-                      this.setFont(new Font(Font.SANS_SERIF,  Font.BOLD, 15));
+                      this.setForeground(Color.WHITE);
                       else
-                      this.setFont(new Font(Font.SANS_SERIF,  Font.PLAIN, 15));
+                      this.setForeground(Color.BLACK);
                       if (user.getConnected()) {
                            setBackground(Color.GREEN);
                       } else {
@@ -232,6 +233,8 @@ public class VuePrincipale {
 				 if(selected != -1) {
 				 activeUser = list.getSelectedValue();
 				 loadConversation(activeUser.getId());
+				  scrollToBottom();
+				 unread.remove(activeUser.getId());
 				 System.out.print(activeUser.getPseudo());
 				 }
 				}
@@ -372,11 +375,7 @@ public class VuePrincipale {
 	private void sendMessage(String tosend) {
 		Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
 		Reseau.getReseau().sendTCP(m);
-		 synchronized (mutex) {
-		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignright'>"+m.toHtml()+"</div>");
-		this.scrollToBottom();
-		 }
-		
+		update(activeUser,m,true);
 	}
 	/**
 	 * 
@@ -387,10 +386,7 @@ public class VuePrincipale {
 		
 		Message m =new Message(file, app.getPersonne(), activeUser,name);
 		Reseau.getReseau().sendTCP(m);
-		 synchronized (mutex) {
-		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignright'>"+m.toHtml()+"</div>");
-		this.scrollToBottom();
-		 }
+		update(activeUser,m,true);
 	}
 	//Bottom then release
 	private void scrollToBottom() {
@@ -418,9 +414,14 @@ public class VuePrincipale {
 		this.setHtmlView(hist);
 		conv.put(activeUser.getId(), hist);
 		}
-		
 	}
-	public void update(Personne emetteur, Message message) {
+	/**
+	 * 
+	 * @param emetteur Personne qui a emit le message
+	 * @param message
+	 * @param sent true si on veut mettre à jour suite à l'envoi d'un message, false sinon
+	 */
+	public void update(Personne emetteur, Message message, boolean sent) {
 		//R: save des messsages dans la BD à  l'envoie et à  la réception par app
 		ArrayList<Message> l=conv.get(emetteur.getId());
 		if(l != null)
@@ -434,8 +435,12 @@ public class VuePrincipale {
 		if(emetteur.getId()==activeUser.getId())
 		{
 			 synchronized (mutex) {
-		this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignleft'>"+message.toHtml()+"</div>");
-		this.scrollToBottom();
+				 if(!sent)
+					 this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignleft'>"+message.toHtml()+"</div>");
+				 else
+					 this.message_zone.setText(message_zone.getText().replaceAll("</body>", "").replaceAll("</html>", "")+"<div class='alignright'>"+message.toHtml()+"</div>");
+						 
+				 this.scrollToBottom();
 			 }
 		}
 		else
@@ -443,7 +448,6 @@ public class VuePrincipale {
 			unread.put(emetteur.getId(), true);
 			updateList();
 		}
-		
 	}
 
 	public void changePseudo(String uname) {

@@ -142,6 +142,7 @@ public class Application implements Observer {
 	    new VueChoixPseudo(this,false);
 	    Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.CONNECTION,user));
 	    model.addElement(user);
+	    model.addElement(new Personne(localIp, "moi",true,(long)mac.hashCode()));
 	   // maBD.setIdPseudoLink(user.getPseudo(), user.getId());
 		pathDownload=maBD.getDownloadPath();
 		main=new VuePrincipale(this,model);
@@ -185,17 +186,17 @@ IOUtils.write(encoded, output);
 		 */
 		  if (arg instanceof Message) {
 	           Message message = (Message) arg;
-	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même pratique pour les tests
+	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
         	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"("+message.getEmetteur().getAdresse().toString()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
-	        	   main.update(message.getEmetteur(),message);
+	        	   main.update(message.getEmetteur(),message,false);
 		           maBD.addData(message); //SAVE BD LE MESSAGE RECU
 		          // maBD.printMessage();
 	           }
-	           if(message.getType()==Message.Type.FILE) {
+	           else if(message.getType()==Message.Type.FILE) {
 	        	   System.out.print(" \n FILE reçu !");
-	        	   main.update(message.getEmetteur(),message);
+	        	   main.update(message.getEmetteur(),message,false);
 	        	   try {
 	        		   String basePath=maBD.getDownloadPath().getCanonicalPath()+"/";
 	        		   File newFile=new File(basePath+message.getSpecialString());
@@ -242,7 +243,6 @@ IOUtils.write(encoded, output);
 	           else if(message.getType()==Message.Type.WHOISALIVE) {  
 	        	   sendActiveUserPseudo(message.getEmetteur());
 	           }
-
 	           else
 	        	   System.out.print("WARNING unknow message type : " + message.getType().toString());
         	   }

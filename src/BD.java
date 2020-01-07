@@ -1,7 +1,6 @@
 import java.io.File;
 import java.sql.Blob;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,41 +34,36 @@ public class BD {
 			// creation de la bdd si pas deja cree
 			PreparedStatement stmt;
 			//cached useful if data >= 10Mo ( chargement partiel de la BD )
-			String sql0a = "DROP TABLE message";
+			/*String sql0a = "DROP TABLE message";
 			stmt = c.prepareStatement(sql0a);
 			stmt.executeUpdate();
 			System.out.println("DROP TABLE message");
+			String sql0b = "DROP TABLE preferences";
+			stmt = c.prepareStatement(sql0b);
+			stmt.executeUpdate();
+			System.out.println("DROP TABLE message");			
+			String sql0 = "DROP TABLE identification";
+			stmt = c.prepareStatement(sql0);
+			stmt.executeUpdate();
+			System.out.println("DROP TABLE identification");*/
+			
 			
 			String sql1 = "CREATE CACHED TABLE IF NOT EXISTS message (idEmet INTEGER NOT NULL, idDest INTEGER NOT NULL, "
 					+ "sentDate VARCHAR(60) NOT NULL, type VARCHAR(60) NOT NULL, texte BLOB NOT NULL);";
 			stmt = c.prepareStatement(sql1);
 			stmt.executeUpdate();
-			System.out.println("create TABLE message");
-			
-			String sql0 = "DROP TABLE identification";
-			stmt = c.prepareStatement(sql0);
-			stmt.executeUpdate();
-			System.out.println("DROP TABLE identification");
-			
+
 			String sql2 = "CREATE TABLE IF NOT EXISTS identification (idUtilisateur INTEGER NOT NULL, pseudo VARCHAR(120) NOT NULL, PRIMARY KEY(idUtilisateur));";
 			stmt = c.prepareStatement(sql2);
 			stmt.executeUpdate();
-			System.out.println("create TABLE identification");
-			
-			String sql0b = "DROP TABLE preferences";
-			stmt = c.prepareStatement(sql0b);
-			stmt.executeUpdate();
-			System.out.println("DROP TABLE message");
 			
 			String sql3 = "CREATE TABLE IF NOT EXISTS preferences (iden INTEGER NOT NULL, downloadPath VARCHAR(240) NOT NULL, PRIMARY KEY(iden));";
 			stmt = c.prepareStatement(sql3);
 			stmt.executeUpdate();
-			System.out.println("create TABLE preference");
 			
 			//MYSQL more compatible : http://hsqldb.org/doc/guide/compatibility-chapt.html
 			Statement s0=c.createStatement();
 			s0.executeUpdate("SET DATABASE SQL SYNTAX MYS TRUE");
-			System.out.println("SQL compatible");
 			Statement s=c.createStatement();
 			s.executeUpdate("INSERT IGNORE INTO preferences VALUES (1,'.')");		
 			
@@ -248,7 +242,6 @@ public class BD {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return messages;
