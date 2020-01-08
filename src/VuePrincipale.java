@@ -376,6 +376,7 @@ public class VuePrincipale {
 		Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
 		Reseau.getReseau().sendTCP(m);
 		update(activeUser,m,true);
+		BD.getBD().addData(m);
 	}
 	/**
 	 * 
@@ -387,6 +388,7 @@ public class VuePrincipale {
 		Message m =new Message(file, app.getPersonne(), activeUser,name);
 		Reseau.getReseau().sendTCP(m);
 		update(activeUser,m,true);
+		BD.getBD().addData(m);
 	}
 	//Bottom then release
 	private void scrollToBottom() {
@@ -448,6 +450,7 @@ public class VuePrincipale {
 			unread.put(emetteur.getId(), true);
 			updateList();
 		}
+		//System.out.print("\n"+message_zone.getText());
 	}
 
 	public void changePseudo(String uname) {

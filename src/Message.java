@@ -22,7 +22,7 @@ This variable will be loaded with current value defined in the class during dese
 public class Message implements Serializable {
 
 	private static final long serialVersionUID = -8338507989483169683L;
-	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE, FILE, DEFAULT}
+	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE,ASKPSEUDO,REPLYPSEUDO, FILE, DEFAULT}
 	private byte[] data;
 	private Personne emetteur;
 	private Personne destinataire;

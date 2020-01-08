@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
@@ -28,6 +29,8 @@ public class Application implements Observer {
 	File pathDownload;
 	InetAddress localIp;
 	Boolean initialized=false;
+	private String pseudoWaiting="";
+	private boolean answerPseudo;
 	public static void main(String[] args) {
 			new Application();
 
@@ -167,12 +170,24 @@ public class Application implements Observer {
 			Reseau.getReseau().sendUDP(new Message(Message.Type.ALIVE,user,to));
 	}
 	boolean checkUnicity(String pseudo) {
+		answerPseudo=true;
+		pseudoWaiting=pseudo;
+		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.ASKPSEUDO,user,pseudo));
+		try {
+			TimeUnit.SECONDS.sleep(3);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		if(answerPseudo) {
 		for(Object i : model.toArray()) {
 			Personne v=(Personne) i;
 			if((v.getConnected() && v.getPseudo().equals(pseudo)))
 				return false;
 		}
 			return true;
+		}
+		else
+			return false;
 		}
 	void deconnexion(String pseudo) {
 			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user));
@@ -186,8 +201,8 @@ public void update(Observable o, Object arg) {
 FileOutputStream output = new FileOutputStream(new File("target-file"));
 IOUtils.write(encoded, output);
 		 */
-		//on ne repond pas tant que l'on n'est pas initialis� (avec un pseudo)
-		  if (arg instanceof Message && initialized) {
+		//on ne repond pas tant que l'on n'est pas initialis� (avec un pseudo)
+		  if (arg instanceof Message) {
 	           Message message = (Message) arg;
 	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
         	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
@@ -217,9 +232,8 @@ IOUtils.write(encoded, output);
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
 	        	  // long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
-	        	  /* maBD.delIdPseudoLink(message.getEmetteur().getPseudo());
-	       		   maBD.setIdPseudoLink(message.getNewPseudo(),id);*/
-	        	   ///TODO link BD
+	        	  /* maBD.delIdPseudoLink(message.getEmetteur().getPseudo());*/
+	       		   maBD.setIdPseudoLink(message.getSpecialString(),message.getEmetteur().getId());
 	        	   for(Object ob: model.toArray()) {
 	        		   Personne p =(Personne)ob;
 	        		   if(p.getId()==message.getEmetteur().getId()) {
@@ -261,9 +275,16 @@ IOUtils.write(encoded, output);
 		        	  }
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 	           }
-	           else if(message.getType()==Message.Type.WHOISALIVE) {  
+	           else if(message.getType()==Message.Type.WHOISALIVE ) { 
+	        	   if(initialized)
 	        	   sendActiveUserPseudo(message.getEmetteur());
 	           }
+	           else if(message.getType()==Message.Type.ASKPSEUDO) {
+	        	   if(pseudoWaiting.equals(message.getSpecialString()));
+	        	   Reseau.getReseau().sendUDP(new Message(Message.Type.REPLYPSEUDO,user,message.getEmetteur()));
+	           }
+	           else if(message.getType()==Message.Type.REPLYPSEUDO)
+	        	   answerPseudo=false;
 	           else
 	        	   System.out.print("WARNING unknow message type : " + message.getType().toString());
         	   }
