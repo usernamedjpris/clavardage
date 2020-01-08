@@ -27,6 +27,7 @@ public class Application implements Observer {
 	DefaultListModel<Personne> model = new DefaultListModel<>();
 	File pathDownload;
 	InetAddress localIp;
+	Boolean initialized=false;
 	public static void main(String[] args) {
 			new Application();
 
@@ -140,9 +141,10 @@ public class Application implements Observer {
 	     //<=> aussi sûr que d'envoyer "qui a ce pseudo ?" et un timeout (dans les 2 cas, en cas de choix simultanés (+/- la durée d'envoi d'une trame))=> fail
 	     //=> probabilité extremement faible, limite actuelle pour garder un modele simple
 	    new VueChoixPseudo(this,false);
+	    initialized=true;
 	    Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.CONNECTION,user));
 	    model.addElement(user);
-	    model.addElement(new Personne(localIp, "moi",true,(long)mac.hashCode()));
+	   // model.addElement(new Personne(localIp, "moi",true,(long)mac.hashCode()));
 	   // maBD.setIdPseudoLink(user.getPseudo(), user.getId());
 		pathDownload=maBD.getDownloadPath();
 		main=new VuePrincipale(this,model);
@@ -184,7 +186,8 @@ public void update(Observable o, Object arg) {
 FileOutputStream output = new FileOutputStream(new File("target-file"));
 IOUtils.write(encoded, output);
 		 */
-		  if (arg instanceof Message) {
+		//on ne repond pas tant que l'on n'est pas initialis� (avec un pseudo)
+		  if (arg instanceof Message && initialized) {
 	           Message message = (Message) arg;
 	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
         	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
@@ -216,27 +219,45 @@ IOUtils.write(encoded, output);
 	        	  // long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
 	        	  /* maBD.delIdPseudoLink(message.getEmetteur().getPseudo());
 	       		   maBD.setIdPseudoLink(message.getNewPseudo(),id);*/
-	       		 int index = model.indexOf(message.getEmetteur());
-	       		 model.get(index).setPseudo(message.getSpecialString());
+	        	   ///TODO link BD
+	        	   for(Object ob: model.toArray()) {
+	        		   Personne p =(Personne)ob;
+	        		   if(p.getId()==message.getEmetteur().getId()) {
+	        			   p.setPseudo(message.getSpecialString());
+	        			   break;
+	        		   }
+	        	   }
 	       		 main.updateList();
 	           }
 	           else if(message.getType()==Message.Type.DECONNECTION) {
-	        	   int index = model.indexOf(message.getEmetteur());
-	        	   if(index >= 0) {
-	        		   model.get(index).setConnected(false);
-	        		   main.updateList();
+	        	  // int index = model.indexOf(message.getEmetteur());
+	        	   for(Object ob: model.toArray()) {
+	        		   Personne p =(Personne)ob;
+	        			   if(p.getId()==message.getEmetteur().getId()) {
+	        			   p.setConnected(false);
+	        			   break;
+	        		   }
 	        	   }
+	        	   main.updateList();
 	           }
 	           else if(message.getType()==Message.Type.ALIVE || message.getType()==Message.Type.CONNECTION) {
 	        	  	  //add sender to active user
-		        	  int index = model.indexOf(message.getEmetteur());
-		        	  if(index <0) {
+	        	   boolean found=false;
+	        	   Personne pers = null;
+	        	   for(Object ob: model.toArray()) {
+	        		   Personne p =(Personne)ob;
+	        			   if(p.getId()==message.getEmetteur().getId()) {
+	        			   found=true;
+	        			   pers=p;
+	        			   break;
+	        		   }
+	        	   }
+		        	  if(!found) {
 		        	   model.add(0, message.getEmetteur());
 		        	  }
 		        	  else {
-		        		  Personne p=model.get(index);
-		        		  p.setConnected(true);
-		        		  p.setInetAdress(message.getEmetteur().getAdresse());
+		        		  pers.setConnected(true);
+		        		  pers.setInetAdress(message.getEmetteur().getAdresse());
 		        	  }
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 	           }
