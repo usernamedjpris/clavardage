@@ -254,17 +254,18 @@ public class BD {
 	 * @param id 
 	 * @return
 	 */
-	public ArrayList<String> getPseudoTalked(long id) {
-		ArrayList<String> list = new ArrayList<String>();
+	public ArrayList<Personne> getPseudoTalked(long id) {
+		ArrayList<Personne> list = new ArrayList<Personne>();
 		try {
 			PreparedStatement stmt;
-			String sql = "SELECT pseudo FROM identification JOIN (SELECT DISTINCT idDest FROM message WHERE type = 'DEFAULT' OR type = 'FILE') ON idDest = idUtilisateur WHERE idUtilisateur != ?";
+			String sql = "SELECT pseudo, idUtilisateur FROM identification JOIN (SELECT DISTINCT idDest FROM message WHERE type = 'DEFAULT' OR type = 'FILE') ON idDest = idUtilisateur WHERE idUtilisateur != ?";
 			stmt = c.prepareStatement(sql);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String pseudo = rs.getString("pseudo");
-				list.add(pseudo);
+				Long idF = rs.getLong("idUtilisateur");
+				list.add(new Personne(null,-1,pseudo,false,idF));
 			}
 			rs.close();
 			stmt.close();

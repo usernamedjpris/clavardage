@@ -1,19 +1,50 @@
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Objects;
 
 //https://www.baeldung.com/java-broadcast-multicast
 public class ClientUDP {
-
+	
+	 List<InetAddress> broadcastList;
+	public ClientUDP() {
+		try {
+			broadcastList=listAllBroadcastAddresses();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
+	}
     public void broadcast(Message message) throws IOException, SocketException {
     	DatagramSocket socket = new DatagramSocket();
         socket.setBroadcast(true);
  
         byte[] buffer = Message.serialize(message);
-        InetAddress a=InetAddress.getByName("255.255.255.255");
+        for(InetAddress a:broadcastList) {
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length,a, 1516);
         socket.send(packet);
+        }
         socket.close();
+    }
+    List<InetAddress> listAllBroadcastAddresses() throws SocketException {
+        List<InetAddress> broadcastList = new ArrayList<>();
+        Enumeration<NetworkInterface> interfaces 
+          = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface networkInterface = interfaces.nextElement();
+     
+            if (networkInterface.isLoopback() || !networkInterface.isUp()) {
+                continue;
+            }
+     
+            networkInterface.getInterfaceAddresses().stream() 
+              .map(a -> a.getBroadcast())
+              .filter(Objects::nonNull)
+              .forEach(broadcastList::add);
+        }
+        return broadcastList;
     }
     
     public void send(Message message) throws IOException, SocketException {

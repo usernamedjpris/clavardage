@@ -5,7 +5,6 @@ import java.util.Observable;
 public class ServeurSocketThread extends Observable implements Runnable {
     Socket s;
     public ServeurSocketThread(Socket soc) {
-        super();
         this.s = soc;
     }
 

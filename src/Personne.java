@@ -5,6 +5,7 @@ public class Personne implements Serializable{
 
 	private static final long serialVersionUID = -5717914954973757973L;
 	private InetAddress adresse;
+	private int port;
 	private String pseudo;
 	private boolean connected;
 	private long id;
@@ -12,12 +13,14 @@ public class Personne implements Serializable{
 	 * @param adresse
 	 * @param pseudo
 	 */
-	public Personne(InetAddress adresse, String pseudo,boolean c, long id) {
+	public Personne(InetAddress adresse,int port, String pseudo,boolean c, long id) {
 		this.adresse=adresse;
 		this.pseudo = pseudo;
 		connected=c;
 		this.id=id;
+		this.setPort(port);
 	}
+	
 	public boolean getConnected() {return connected;}
 	public String getPseudo() {
 		return pseudo;
@@ -37,6 +40,14 @@ public class Personne implements Serializable{
 	}
 	public long getId() {
 		return id;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 
 }

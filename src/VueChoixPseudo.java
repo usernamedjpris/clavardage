@@ -22,9 +22,9 @@ public class VueChoixPseudo  implements ActionListener{
 
 	private JDialog frame;
 	private JTextField textField;
-	private Application app;
+	private ControleurApplication app;
 	private boolean inApp;
-	public VueChoixPseudo(Application a,boolean inApp) {
+	public VueChoixPseudo(ControleurApplication a,boolean inApp) {
 		app=a;
 		this.inApp=inApp;
 		initialize();

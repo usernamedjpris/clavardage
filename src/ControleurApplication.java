@@ -21,18 +21,19 @@ import javax.swing.JOptionPane;
 //tips: ctrl +r =run (me) ctrl+F11 (standard)
 //ctrl+maj+F11=code coverage (standard)
 @SuppressWarnings("deprecation")
-public class Application implements Observer {
-	static Personne user;
-	VuePrincipale main;
-	BD maBD=BD.getBD();
-	DefaultListModel<Personne> model = new DefaultListModel<>();
-	File pathDownload;
-	InetAddress localIp;
-	Boolean initialized=false;
+public class ControleurApplication implements Observer {
+	private Personne user;
+	private final int portTcp=1030; //config.ini
+	private VuePrincipale main;
+	private BD maBD=BD.getBD();
+	private DefaultListModel<Personne> model = new DefaultListModel<>();
+	private File pathDownload;
+	private InetAddress localIp;
+	private Boolean initialized=false;
 	private String pseudoWaiting="";
 	private boolean answerPseudo;
 	public static void main(String[] args) {
-			new Application();
+			new ControleurApplication();
 
 	}
 	String findMac() throws SocketException {
@@ -76,68 +77,15 @@ public class Application implements Observer {
 		}
 		return mac;
 	}
-	void tests() {
-
-		Personne remi = new Personne(null, "lol1", false,1L );
-		Personne jeje = new Personne(null, "lol2", false,2L );
-		//test VuePrincipale
-		ArrayList<Message>messages = new ArrayList<Message>();
-		messages.add(new Message("hey !".getBytes(), remi, jeje));
-		messages.add(new Message("hey !".getBytes(), jeje, remi));
-		messages.add(new Message("ça marche ton affichage de la conversation ?".getBytes(), remi, jeje));
-		messages.add(new Message("yep !".getBytes(), jeje, remi));
-		messages.add(new Message("😎".getBytes(), remi, jeje));
-		messages.add(new Message("je cherche une idée pour une conversation fictive histoire de tester les fonctionnalités de notre SuperClavardeur™ par exemple (pour voir par exemple si une phrase très très longue sera bien traitée à l'affichage). Tu en aurais une ?".getBytes(), jeje, remi));
-		messages.add(new Message("non".getBytes(), remi, jeje));
-		messages.add(new Message("🥇".getBytes(), jeje, remi));
-		messages.add(new Message("🎯".getBytes(), jeje, remi));
-		messages.add(new Message("il fait 5℃".getBytes(), jeje, remi));
-		messages.add(new Message("tu fais quoi ?!?".getBytes(), remi, jeje));
-		messages.add(new Message("je teste les caractères spéciaux pour plus de fun !".getBytes(), jeje, remi));
-		messages.add(new Message("(☞ﾟヮﾟ)☞".getBytes(), remi, jeje));
-		messages.add(new Message("☜(ﾟヮﾟ☜)".getBytes(), jeje, remi));
-		//Conversation c = new Conversation(remi,messages);
-		//main.setHtmlView(c);*/
-	}
-
-	void testsBD() {
-		Personne remi = new Personne(null, "lol1", false,1L );
-		Personne jeje = new Personne(null, "lol2", false,2L );
-		maBD.getDownloadPath();
-		maBD.setDownloadPath(new File(".toto"));
-		maBD.getDownloadPath();
-		maBD.setIdPseudoLink("lol1", 1L);
-		maBD.setIdPseudoLink("lol2", 2L);
-		//maBD.printIdentification();		
-		maBD.addData(new Message("alors, ça avance ?".getBytes(), remi, jeje));
-		maBD.addData(new Message("hum".getBytes(), jeje, remi));
-		maBD.addData(new Message("arluihn !".getBytes(), remi, jeje));
-		maBD.addData(new Message("eztynetu, !!!".getBytes(), jeje, remi));
-		maBD.addData(new Message("OIEHNogthnpqrht".getBytes(), remi, jeje));
-		maBD.addData(new Message("bbq mardi ?".getBytes(), jeje, remi));
-		maBD.addData(new Message("aryha!".getBytes(), remi, jeje));
-		maBD.addData(new Message("ctzhn.".getBytes(), jeje, remi));
-		//maBD.printMessage();
-		System.out.println(Long.toString(maBD.getIdPersonne("lol1"))+"\n"); //marche !
-		ArrayList<String> pseudos = maBD.getPseudoTalked(1L);
-		for (int i=0;i<pseudos.size();i++) {
-			System.out.println(pseudos.get(i)+"\n");
-		}
-		ArrayList<Message> messages = maBD.getHistorique(jeje, remi);	
-		System.out.println("taille messages "+messages.size()+"\n");
-		for (int i=0;i<messages.size();i++) {
-			System.out.println(messages.get(i).getDateToString());
-		}
-	}
-	Application(){
-		
+	ControleurApplication(){
+		Reseau.getReseau().init(portTcp);
 		Reseau.getReseau().addObserver(this);
 		try {
 			localIp = InetAddress.getLocalHost();
 		//System.out.print(localIp.toString() + " is local ? : "+localIp.isLoopbackAddress());
 		String mac= findMac();
 		System.out.print("ip: "+localIp.toString()+" id: "+mac.hashCode());
-		user= new Personne(localIp, "moi",true,(long)mac.hashCode()); //fixe par poste (adresse mac by eg)
+		user= new Personne(localIp, portTcp,"moi",true,(long)mac.hashCode()); //fixe par poste (adresse mac by eg)
 	     Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user));
 	     //on obtient les pseudos des gens sur le réseaux avant de demander à l'user d'entrer son pseudo
 	     //+actualisation des connexions/deconnexions en continu
@@ -167,12 +115,13 @@ public class Application implements Observer {
 		return user;
 	}
 	void sendActiveUserPseudo(Personne to) {
-			Reseau.getReseau().sendUDP(new Message(Message.Type.ALIVE,user,to));
+			Reseau.getReseau().sendUDP(new Message(Message.Type.ALIVE,null,user,to));
 	}
 	boolean checkUnicity(String pseudo) {
 		answerPseudo=true;
 		pseudoWaiting=pseudo;
-		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.ASKPSEUDO,user,pseudo));
+		user.setPseudo(pseudo);
+		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.ASKPSEUDO,user));
 		try {
 			TimeUnit.SECONDS.sleep(3);
 		} catch (InterruptedException e) {
@@ -181,7 +130,7 @@ public class Application implements Observer {
 		if(answerPseudo) {
 		for(Object i : model.toArray()) {
 			Personne v=(Personne) i;
-			if((v.getConnected() && v.getPseudo().equals(pseudo)))
+			if((v.getId()!=user.getId() && v.getConnected() && v.getPseudo().equals(pseudo)))
 				return false;
 		}
 			return true;
@@ -217,10 +166,10 @@ IOUtils.write(encoded, output);
 	        	   main.update(message.getEmetteur(),message,false);
 	        	   try {
 	        		   String basePath=maBD.getDownloadPath().getCanonicalPath()+"/";
-	        		   File newFile=new File(basePath+message.getSpecialString());
+	        		   File newFile=new File(basePath+message.getNameFile());
 	        		   int index=0;
 	        		   if(newFile.exists())
-	        		   while ((newFile = new File(basePath+"("+index+")"+message.getSpecialString())).exists()) {
+	        		   while ((newFile = new File(basePath+"("+index+")"+message.getNameFile())).exists()) {
 	        			    index++;
 	        			}
 	        		   Path p=newFile.toPath();
@@ -228,16 +177,16 @@ IOUtils.write(encoded, output);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-		           maBD.addFile(message,message.getSpecialString()); //SAVE BD LE MESSAGE RECU
+		           maBD.addFile(message,message.getNameFile()); //SAVE BD LE MESSAGE RECU
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
 	        	  // long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
 	        	  /* maBD.delIdPseudoLink(message.getEmetteur().getPseudo());*/
-	       		   maBD.setIdPseudoLink(message.getSpecialString(),message.getEmetteur().getId());
+	       		   maBD.setIdPseudoLink(message.getEmetteur().getPseudo(),message.getEmetteur().getId());
 	        	   for(Object ob: model.toArray()) {
 	        		   Personne p =(Personne)ob;
 	        		   if(p.getId()==message.getEmetteur().getId()) {
-	        			   p.setPseudo(message.getSpecialString());
+	        			   p.setPseudo(message.getEmetteur().getPseudo());
 	        			   break;
 	        		   }
 	        	   }
@@ -280,8 +229,8 @@ IOUtils.write(encoded, output);
 	        	   sendActiveUserPseudo(message.getEmetteur());
 	           }
 	           else if(message.getType()==Message.Type.ASKPSEUDO) {
-	        	   if(pseudoWaiting.equals(message.getSpecialString()));
-	        	   Reseau.getReseau().sendUDP(new Message(Message.Type.REPLYPSEUDO,user,message.getEmetteur()));
+	        	   if(pseudoWaiting.equals(message.getEmetteur().getPseudo()));
+	        	   Reseau.getReseau().sendUDP(new Message(Message.Type.REPLYPSEUDO,null,user,message.getEmetteur()));
 	           }
 	           else if(message.getType()==Message.Type.REPLYPSEUDO)
 	        	   answerPseudo=false;
@@ -304,15 +253,37 @@ IOUtils.write(encoded, output);
 	public void setPseudoUserSwitch(String uname) {
 		/*maBD.delIdPseudoLink(user.getPseudo());*/
 		maBD.setIdPseudoLink(uname,user.getId());
-		int index =model.indexOf(user);
-		model.get(index).setPseudo(uname);
 		main.changePseudo(uname);
 		user.setPseudo(uname);
-		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.SWITCH,user,uname));
+		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.SWITCH,user));
 	
 	}
 	public void setPseudoUser(String uname) {
 		user.setPseudo(uname);
+	}
+	/** 
+	* @param tosend texte à envoyer à activeUser
+	 */
+	public void sendMessage(String tosend, Personne to) {
+		Message m =new Message(Message.Type.DEFAULT,tosend.getBytes(), user, to);
+		Reseau.getReseau().sendTCP(m);
+		main.update(to,m,true);
+		maBD.addData(m);
+	}
+	/**
+	 * 
+	 * @param file fichier à envoyer
+	 * @param name nom du fichier
+	 */
+	public void sendMessage(byte[] file, String name, Personne to) {
+		
+		Message m =new Message(file, user, to,name);
+		Reseau.getReseau().sendTCP(m);
+		main.update(to,m,true);
+		maBD.addData(m);
+	}
+	public ArrayList<Message> getHistorique(Personne to) {
+			return maBD.getHistorique(user,to);
 	}
 
 }

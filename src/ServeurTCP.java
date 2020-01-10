@@ -4,10 +4,12 @@ import java.util.Observer;
 import java.io.*;
 
 
+@SuppressWarnings("deprecation")
 public class ServeurTCP extends Observable implements Observer, Runnable {
 	ServerSocket ssoc = null;
 	boolean on=true;
-	public ServeurTCP() {}
+	private int port;
+	public ServeurTCP(int port) {this.port=port;}
     
 	public void update(Observable o, Object arg) {
 		this.setChanged();
@@ -31,7 +33,7 @@ public class ServeurTCP extends Observable implements Observer, Runnable {
 		    }});
 		
 		try {
-			ssoc = new ServerSocket(1030);
+			ssoc = new ServerSocket(port);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}        

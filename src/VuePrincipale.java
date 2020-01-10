@@ -13,9 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,21 +49,21 @@ public class VuePrincipale {
 
 	private JFrame frame;
 	private JTextArea textField;
-	HashMap<Long,ArrayList<Message>> conv=new HashMap<>();//id, liste de message
-	HashMap<Long,Boolean> unread=new HashMap<>();//id, lu ou pas
-	JList<Personne> list = new JList<Personne>();
-	Personne activeUser;
-	Application app;
-	DefaultListModel<Personne> model;
-	JButton btnSend;
-	JButton btnFile;
-	JButton btnDeco;
-	JEditorPane message_zone;
-	String defaultTitle=new String("Super clavardeur !  :D");
+	private HashMap<Long,ArrayList<Message>> conv=new HashMap<>();//id, liste de message
+	private HashMap<Long,Boolean> unread=new HashMap<>();//id, lu ou pas
+	private JList<Personne> list = new JList<Personne>();
+	private Personne activeUser;
+	private ControleurApplication app;
+	private DefaultListModel<Personne> model;
+	private JButton btnSend;
+	private JButton btnFile;
+	private JButton btnDeco;
+	private JEditorPane message_zone;
+	private String defaultTitle=new String("Super clavardeur !  :D");
 	private Object mutex = new Object();
 	protected boolean selected=false;
 	
-	public VuePrincipale(Application application,DefaultListModel<Personne> m) {
+	public VuePrincipale(ControleurApplication application,DefaultListModel<Personne> m) {
 		app=application;
 		model=m;
 		initialize();
@@ -264,7 +262,7 @@ public class VuePrincipale {
 	      	          byte[] data;
 					try {
 						data = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
-		                sendMessage(data,f.getName());
+		                app.sendMessage(data,f.getName(),activeUser);
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -369,27 +367,7 @@ public class VuePrincipale {
 		initializeMenu();	
 		
 	}
-	/** 
-	* @param tosend texte à envoyer à activeUser
-	 */
-	private void sendMessage(String tosend) {
-		Message m =new Message(tosend.getBytes(), app.getPersonne(), activeUser);
-		Reseau.getReseau().sendTCP(m);
-		update(activeUser,m,true);
-		BD.getBD().addData(m);
-	}
-	/**
-	 * 
-	 * @param file fichier à envoyer
-	 * @param name nom du fichier
-	 */
-	private void sendMessage(byte[] file, String name) {
-		
-		Message m =new Message(file, app.getPersonne(), activeUser,name);
-		Reseau.getReseau().sendTCP(m);
-		update(activeUser,m,true);
-		BD.getBD().addData(m);
-	}
+
 	//Bottom then release
 	private void scrollToBottom() {
 		//jScrollBar.setValue(jScrollBar.getMaximum() );
@@ -399,9 +377,13 @@ public class VuePrincipale {
 		String tosend = null;
 		tosend = textField.getText();
 		if(!tosend.equals("")) {
-			sendMessage(tosend);
+			if(activeUser.getConnected()) {
+			app.sendMessage(tosend,activeUser);
 			textField.setText("");
-								}
+			}else
+			JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message à un utilisateur non connecté :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
+			
+		}
 		else
 			JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message vide désolé :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
 	
@@ -412,7 +394,7 @@ public class VuePrincipale {
 		if(c != null) {
 			setHtmlView(c);
 		}else {
-		ArrayList<Message> hist=BD.getBD().getHistorique(app.getPersonne(),activeUser);
+		ArrayList<Message> hist=app.getHistorique(activeUser);
 		this.setHtmlView(hist);
 		conv.put(activeUser.getId(), hist);
 		}

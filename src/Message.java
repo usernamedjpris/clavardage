@@ -28,55 +28,34 @@ public class Message implements Serializable {
 	private Personne destinataire;
 	private Date date;
 	private Type t;
-	//pseudo || nom fichier
-	private String specialString;
+	private String nameFile;
 	/**
-	 * @param data
+	 * Message à une personne TCP ou UDP (si réponse broadcast)
+	 * @param cat type de message entre ALIVE, REPLYPSEUDO, DEFAULT
+	 * @param data texte si DEFAULT, null sinon
 	 * @param emetteur
 	 * @param destinataire
-	 * @param date
-	 * @param type
-	 * @param specialString
 	 */
-	//DATE à générer lors de la création du message => pas en parametre du constructeur #indépendance
-	public Message(byte[] data, Personne emetteur, Personne destinataire) {
+	public Message(Type cat,byte[] data, Personne emetteur, Personne destinataire) {
 		this.data = data;
 		this.emetteur = emetteur;
 		this.destinataire=(destinataire);
 		this.date = new Date();
-		this.t=Type.DEFAULT;
-		this.specialString = emetteur.getPseudo();
+		this.t=cat;
+		this.nameFile = "";
 	}
-	public Message(Type typ, Personne emetteur, Personne destinataire) {
-		this.data = "".getBytes();
-		this.emetteur = emetteur;
-		this.destinataire=(destinataire);
-		this.date = new Date();
-		this.t=typ;
-		this.specialString = emetteur.getPseudo();
-	}
-	public Message(Personne emetteur, Personne destinataire, String specialString) {
-		this.data = "".getBytes();
-		this.emetteur = emetteur;
-		this.destinataire=(destinataire);
-		this.date = new Date();
-		this.t=Type.SWITCH;
-		this.specialString = specialString;
-	}
-	//broadcast
+	/**
+	 * Broadcast Message UDP
+	 * @param cat type entre SWITCH, CONNEXION, DECONNEXION, WHOISALIVE, ASKPSEUDO
+	 * @param personne c-a-d l'emetteur
+	 * <br> rq pour SWITCH le nouveau pseudo est dans l'emetteur( check les id et maj en reception)
+	 * <br> idem pour ASKPSEUDO
+	 */
 	public Message(Type cat, Personne personne) {
+		destinataire=null;
 		emetteur=personne;
 		t=cat;
-		try {
-			destinataire=(new Personne(InetAddress.getByName("255.255.255.255"),"all", true,0L));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
 		date=new Date();
-	}
-	public Message(Type cat, Personne personne, String specialString) {
-		this(cat,personne);
-		this.specialString=specialString;
 	}
 	/** Envoi de fichiers
 	 * @param bytes  fichier lu en bytes
@@ -86,15 +65,23 @@ public class Message implements Serializable {
 	 */
 	public Message(byte[] bytes, Personne emet, Personne interlocuteur, String name) {
 		this(bytes,emet,interlocuteur,Type.FILE,new Date());
-		specialString=name;
+		nameFile=name;
 	}
+	/**
+	 * Pour recréer les messages déjà envoyés (BD)
+	 * @param bytes
+	 * @param emet
+	 * @param interlocuteur
+	 * @param typ
+	 * @param date2, date d'envoi
+	 */
 	public Message(byte[] bytes, Personne emet, Personne interlocuteur, Type typ, Date date2) {
 		data=bytes;
 		emetteur=emet;
 		destinataire=interlocuteur;
 		date=date2;
 		t=typ;
-		specialString="";
+		nameFile="";
 	}
 	public static byte[] serialize(Message mess) throws IOException {
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -113,8 +100,8 @@ public class Message implements Serializable {
 	public Personne getEmetteur() {
 		return emetteur;
 	}
-	public String getSpecialString() {
-		return specialString;
+	public String getNameFile() {
+		return nameFile;
 	}
 	public Type getType() {
 		return t;
@@ -141,7 +128,7 @@ public class Message implements Serializable {
 		else if(t==Type.FILE) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
-			return specialString+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
+			return nameFile+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
 		}
 		else
 			return "";

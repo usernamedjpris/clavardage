@@ -7,6 +7,7 @@ import javax.swing.JOptionPane;
 
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
+@SuppressWarnings("deprecation")
 public class Reseau extends Observable implements Observer {
 	//private PropertyChangeSupport support;
 	ServeurTCP reception;
@@ -20,8 +21,12 @@ public class Reseau extends Observable implements Observer {
 	 * @param clientUDP
 	 * @throws IOException
 	 */
-	private Reseau() throws IOException {
-		this.reception = new ServeurTCP();
+	
+	private Reseau() {
+	}
+
+	void init(int port) {
+		this.reception = new ServeurTCP(port);
 		this.reception.addObserver(this);
 
 		Thread tr = new Thread(reception);
@@ -33,17 +38,11 @@ public class Reseau extends Observable implements Observer {
 
 		this.envoi = new ClientTCP();
 		this.clientUDP = new ClientUDP();
-		///ADD HOOK clientUDP destroy => sendBroadcast deconnexion
 	}
-
 
 	public static Reseau getReseau() {
 		if (theNetwork == null) {
-			try {
 				theNetwork = new Reseau();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 		return theNetwork;
 	}
@@ -59,7 +58,7 @@ public class Reseau extends Observable implements Observer {
 	}
 
 	public void sendDataBroadcast(Message message) {
-		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast ("+message.getDestinataire().getAdresse().toString()+")");
+		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast ");
 		try {
 			clientUDP.broadcast(message);
 		} catch (IOException e) {
