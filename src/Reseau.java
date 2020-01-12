@@ -1,5 +1,6 @@
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -24,20 +25,20 @@ public class Reseau extends Observable implements Observer {
 	
 	private Reseau() {
 	}
-
-	void init(int port) {
-		this.reception = new ServeurTCP(port);
+	///TODO connexion à la classe gestion servlet
+	void init(int portTCP, int portUDP, InetAddress ipServer, int portServer) {
+		this.reception = new ServeurTCP(portTCP);
 		this.reception.addObserver(this);
 
 		Thread tr = new Thread(reception);
         tr.start();
-		this.serveurUDP = new ServeurUDP();
+		this.serveurUDP = new ServeurUDP(portUDP);
 		this.serveurUDP.addObserver(this);
 		Thread tu = new Thread(serveurUDP);
         tu.start();
 
-		this.envoi = new ClientTCP();
-		this.clientUDP = new ClientUDP();
+		this.envoi = new ClientTCP();//on get auto adresse +port dans personne destinataire (get from serveur/UDP #discovery part)
+		this.clientUDP = new ClientUDP(portUDP);//port nécessaire pour broadcast, #same config UDP everywhere
 	}
 
 	public static Reseau getReseau() {

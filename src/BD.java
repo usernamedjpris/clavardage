@@ -121,7 +121,6 @@ public class BD {
  * @deprecated
  * @param pseudo
  * @see BD#setIdPseudoLink(String, long)
- */
 	public void delIdPseudoLink(String pseudo) {
 		try {
 			PreparedStatement stmt;
@@ -132,7 +131,7 @@ public class BD {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 	/**
 	 * Attribue un id à un pseudo donné
 	 * @param newPseudo
@@ -206,13 +205,12 @@ public class BD {
 		ArrayList<Message> messages = new ArrayList<Message>();
 				try {
 			PreparedStatement stmt;
-			String sql = "SELECT idEmet, emet.pseudo AS pseudoEmet, idDest, dest.pseudo AS pseudoDest, sentDate, type, texte FROM message "
-					+ "JOIN identification AS dest ON idDest=dest.idUtilisateur "
-					+ "JOIN identification AS emet ON idEmet=emet.idUtilisateur "
-					+ "WHERE idEmet = ? OR idDest = ? ORDER BY sentDate;";
+			String sql = "SELECT * FROM message WHERE ((idEmet = ? AND idDest = ?) OR (idEmet = ? AND idDest = ?)) ORDER BY sentDate;";
 			stmt = c.prepareStatement(sql);
-			stmt.setLong(1, Interlocuteur.getId());
+			stmt.setLong(1, user.getId());
 			stmt.setLong(2, Interlocuteur.getId());
+			stmt.setLong(3, Interlocuteur.getId());
+			stmt.setLong(4, user.getId());
 			ResultSet rs = stmt.executeQuery();
 			Long idUser=user.getId();
 			while (rs.next()) {
@@ -225,14 +223,15 @@ public class BD {
 				Message.Type typ = Message.Type.valueOf(rs.getString("type"));
 				System.out.println("GET HISTORIQUE "+Long.toString(idEmet) +" "+text+" ("+ rs.getString("sentDate")+") ["+ typ+"]");
 				if (idEmet == idUser) {// emetteur = moi
-					/*//on peut aussi créer un nouvelle personne Interlocuteur avec infos de la bd
-					long idDest = rs.getLong("idDest");
-					String pseudo = rs.getString("pseudoDest");
-					interloc2 = new Personne(null, pseudoDest, true, idDest)
-					 */
-					mes = new Message(text.getBytes(), user, Interlocuteur, typ, date);
+					if(typ == Message.Type.FILE)
+					mes = new Message("".getBytes(), user, Interlocuteur, typ, date,text );
+					else
+					mes = new Message(text.getBytes(), user, Interlocuteur, typ, date, "");
 				} else {
-					mes = new Message(text.getBytes(), Interlocuteur, user, typ, date);
+					if(typ == Message.Type.FILE)
+						mes = new Message("".getBytes(), user, Interlocuteur, typ, date,text );
+						else
+						mes = new Message(text.getBytes(), user, Interlocuteur, typ, date, "");
 				}
 				messages.add(mes);
 			}
@@ -305,9 +304,9 @@ public class BD {
 	/**
 	 * Enregistre un nouveau message de type FILE
 	 * @param message
-	 * @param chemin du fichier
+	 * 
 	 */
-	public void addFile(Message message, String chemin) {
+	public void addFile(Message message) {
 		try {
 			PreparedStatement stmt;
 			String sql = "INSERT INTO message VALUES (?, ?, ?, ?, ?);"; 
@@ -318,10 +317,9 @@ public class BD {
 			stmt.setNString(4, message.getType().toString());
 			//stmt.setNString(5, message.getData());
 			Blob b=c.createBlob();
-			b.setBytes(1, chemin.getBytes());
+			b.setBytes(1, message.getNameFile().getBytes());
 			stmt.setBlob(5,b);
 			stmt.executeUpdate();
-			System.out.println("ADD file");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

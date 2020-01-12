@@ -1,10 +1,12 @@
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -64,8 +66,7 @@ public class Message implements Serializable {
 	 * @param name nom du fichier
 	 */
 	public Message(byte[] bytes, Personne emet, Personne interlocuteur, String name) {
-		this(bytes,emet,interlocuteur,Type.FILE,new Date());
-		nameFile=name;
+		this(bytes,emet,interlocuteur,Type.FILE,new Date(),name);
 	}
 	/**
 	 * Pour recréer les messages déjà envoyés (BD)
@@ -73,15 +74,16 @@ public class Message implements Serializable {
 	 * @param emet
 	 * @param interlocuteur
 	 * @param typ
-	 * @param date2, date d'envoi
+	 * @param date2 date d'envoi
+	 * @param name nom du fichier
 	 */
-	public Message(byte[] bytes, Personne emet, Personne interlocuteur, Type typ, Date date2) {
+	public Message(byte[] bytes, Personne emet, Personne interlocuteur, Type typ, Date date2,String name) {
 		data=bytes;
 		emetteur=emet;
 		destinataire=interlocuteur;
 		date=date2;
 		t=typ;
-		nameFile="";
+		nameFile=name;
 	}
 	public static byte[] serialize(Message mess) throws IOException {
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -123,17 +125,29 @@ public class Message implements Serializable {
 		if(t==Type.DEFAULT) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
-			return new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; 
+			try
+		    {
+				String url=new String(data);
+		        new URL(url).toURI();
+		        return "<a href=\""+url +"\">"+ url+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; 
+		    } catch (Exception exception)
+		    {
+		    	return new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
+		    }		 
 		}
 		else if(t==Type.FILE) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
-			return nameFile+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
+			System.out.print("<a href='"+nameFile +"'>"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>");
+			return  "<a href=\""+nameFile +"\">"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
 		}
 		else
 			return "";
 	}
 	public Personne getDestinataire() {
 		return destinataire;
+	}
+	public void setNameFile(String name) {
+		nameFile=name;
 	}
 }

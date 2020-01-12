@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- doc:  https://ant.apache.org/manual/index.html, https://www.jmdoudoux.fr/java/dej/chap-ant.htm, https://skebir.developpez.com/tutoriels/java/ant/ -->
+<!-- https://mkyong.com/ant/ant-how-to-create-a-jar-file-with-external-libraries/ -->
 <project default="run">
 
 <property name="name.application" value="clavardeur"/>
@@ -7,6 +8,7 @@
 <property name="src.dir"	value="src"/>
 <property name="bin.dir"	value="bin"/>
 <property name="jar.dir" 	value="exe"/>
+<property name="dist.lib.dir" 	value="exe/lib"/>
 <property name="lib.dir" 	value="lib"/>
 <property name="doc.dir" 	value="doc"/>
   
@@ -16,9 +18,18 @@
 <echo message="nettoyage termine"/>
 </target>
 
+<!-- external libraries classpath, we don't need sources and javadoc -->
+<path id="classpath">
+	<fileset dir="${basedir}/">
+		<include name="${lib.dir}/*.jar" />
+		<exclude name="${lib.dir}/*sources.jar"/>
+		<exclude name="${lib.dir}/*javadoc.jar"/>
+	</fileset>
+</path>
+
 <target name="compile" depends="clean">
 <mkdir dir="${bin.dir}"/>
-<javac includeantruntime="false" srcdir="${src.dir}" destdir="${bin.dir}" encoding="UTF-8"/>
+<javac includeantruntime="false" srcdir="${src.dir}" destdir="${bin.dir}" encoding="UTF-8" classpathref="classpath"/>
 <echo message="compilation terminee"/>
 </target>
 
@@ -37,7 +48,45 @@
 
 <target name="run" depends="jar">
 <java jar="${jar.dir}/${name.application}.jar" fork="true">
+</java>
+</target>
 
+<!-- alt to put lib, in a lib folder next to jar (not inside :p -->
+<!-- constructs the external libraries classpath name -->
+<pathconvert property="classpath.name" pathsep=" ">
+	<path refid="classpath" />
+	<mapper>
+		<chainedmapper>
+			<flattenmapper />
+			<globmapper from="*.jar" to="lib/*.jar" />
+		</chainedmapper>
+	</mapper>
+</pathconvert>
+
+<target name="copy-dependencies">
+	<copy todir="${dist.lib.dir}">
+		<fileset dir="${lib.dir}" includes="**/*.jar" excludes="**/*sources.jar, **/*javadoc.jar" />
+	</copy>
+</target>
+
+<!-- jar it, and declares the ext libraries in manifest.mf file -->
+<target name="jarmulti" depends="compile, copy-dependencies" description="output to JAR, with manifest for lib in lib/ next to jar">
+
+	<echo message="classpath.name : ${classpath.name} " />
+
+	<mkdir dir="${jar.dir}" />
+	<mkdir dir="${dist.lib.dir}" />
+
+	<jar jarfile="${jar.dir}/${name.application}.jar" basedir="${bin.dir}">
+		<manifest>
+			<attribute name="Main-Class" value="${main-class}" />
+			<attribute name="Class-Path" value="${classpath.name}" />
+		</manifest>
+	</jar>
+</target>
+
+<target name="runmulti" depends="jarmulti">
+<java jar="${jar.dir}/${name.application}.jar" fork="true">
 </java>
 </target>
 

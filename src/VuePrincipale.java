@@ -13,6 +13,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -40,6 +42,8 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
@@ -161,19 +165,44 @@ public class VuePrincipale {
 	private void initializeHtmlView() {
 		message_zone = new JEditorPane();	
 		message_zone.setContentType("text/html");
+		//message_zone.setOpaque(false);//so we dont see white background
 	    message_zone.setBorder( BorderFactory.createEmptyBorder(10, 10, 10, 10));
 	    HTMLEditorKit kit = new HTMLEditorKit();
 	    message_zone.setEditorKit(kit);
 	    StyleSheet styleSheet = kit.getStyleSheet();
 	    styleSheet.addRule(".title{font-family: 'Courier New', monospace; margin-bottom: 20px}");
-	    styleSheet.addRule(".alignleft{margin-right:200px; text-align: left;font-family: Calibri, sans-serif; padding: 2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,250,240);}");
+	    styleSheet.addRule(".alignleft{margin-right:200px; text-align: left;font-family: Calibri, sans-serif; padding: 2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(0,255,255);}");
 	    styleSheet.addRule(".date{font-family: 'Courier New', monospace; padding: 0px 7px; color:black; font-weight: none; font-size:12pt;}");
-	    styleSheet.addRule(".alignright{margin-left:200px;text-align: right;font-family: Calibri, sans-serif; padding:2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(240,240,250);}");
+	    styleSheet.addRule(".alignright{margin-left:200px;text-align: right;font-family: Calibri, sans-serif; padding:2px 7px 5px 7px; font-size:17pt; font-weight:bold; background-color:rgb(0,155,255);}");
 	      /*message_zone.setText("<html>" +
 	            "<center><b><font size=6>Important Information</font></b></center>" +
 	            "<div id=textbox><p class='alignleft'>left</p><p class='alignright'>right</p></div>" +
 	            "</html>");*/
 	    message_zone.setEditable(false);
+	    message_zone.addHyperlinkListener(new HyperlinkListener() {
+            @Override
+            public void hyperlinkUpdate(HyperlinkEvent hle) {
+                if (HyperlinkEvent.EventType.ACTIVATED.equals(hle.getEventType())) {
+                   // System.out.println( " url found : ( descri ) "+hle.getDescription());
+                    Desktop desktop = Desktop.getDesktop();
+                    try {
+                    		//file 
+                        	desktop.open(new File(hle.getDescription())); 	
+                    } catch (java.lang.IllegalArgumentException e) {
+                        try {
+							desktop.browse(new URI(hle.getDescription()));
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						} catch (URISyntaxException e1) {
+							e1.printStackTrace();
+						}
+                    } catch (IOException e) {
+						e.printStackTrace();
+					}
+                }
+            }
+        });
+
 	}
 	public void setHtmlView(ArrayList<Message> m) {
 		Long to=activeUser.getId();
@@ -257,15 +286,16 @@ public class VuePrincipale {
 	               dirChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	               int option = dirChooser.showOpenDialog(frame);
 	               if(option == JFileChooser.APPROVE_OPTION){   
-	                  File f = dirChooser.getSelectedFile();
+	               for(File f : dirChooser.getSelectedFiles()) {
 	                  System.out.print("file Selected: " + f.getAbsolutePath());
 	      	          byte[] data;
 					try {
 						data = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
-		                app.sendMessage(data,f.getName(),activeUser);
+		                app.sendMessage(data,f,activeUser);
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
+	               }
 	               }else{
 	            	   System.out.print("cancelled");
 	               }

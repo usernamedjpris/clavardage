@@ -18,12 +18,15 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
+import org.ini4j.InvalidFileFormatException;
+import org.ini4j.Wini;
+
 //tips: ctrl +r =run (me) ctrl+F11 (standard)
 //ctrl+maj+F11=code coverage (standard)
+//ObjectAid UML (retro URL)
 @SuppressWarnings("deprecation")
 public class ControleurApplication implements Observer {
 	private Personne user;
-	private final int portTcp=1030; //config.ini
 	private VuePrincipale main;
 	private BD maBD=BD.getBD();
 	private DefaultListModel<Personne> model = new DefaultListModel<>();
@@ -32,12 +35,14 @@ public class ControleurApplication implements Observer {
 	private Boolean initialized=false;
 	private String pseudoWaiting="";
 	private boolean answerPseudo;
+	Wini ini;
 	public static void main(String[] args) {
 			new ControleurApplication();
 
 	}
-	String findMac() throws SocketException {
+	String findIpAndMac() throws SocketException, UnknownHostException {
 		String mac="";
+		localIp = InetAddress.getLocalHost();
 		for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
 			  NetworkInterface network = (NetworkInterface) enm.nextElement();
 			  byte[] m=network.getHardwareAddress();
@@ -77,36 +82,70 @@ public class ControleurApplication implements Observer {
 		}
 		return mac;
 	}
-	ControleurApplication(){
-		Reseau.getReseau().init(portTcp);
+	void init() {
+		InetAddress ipServer=null;
+		InetAddress ipForceLocal=null;
+		boolean forceUseIp=false;
+		try {
+			ini = new Wini(new File("config.ini"));
+		} catch (InvalidFileFormatException e2) {
+			e2.printStackTrace();
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+		int portTcp =ini.get("IP", "TCPport", int.class);
+		int portUDP =ini.get("IP", "UDPport", int.class);
+		int portServer =ini.get("IP", "publicServerPort",int.class);
+		pathDownload=new File(ini.get("DOWNLOAD", "path",String.class));
+				try {
+					ipServer =InetAddress.getByName(ini.get("IP", "publicServerIp", String.class));
+				} catch (UnknownHostException e1) {
+					JOptionPane.showMessageDialog(null, " L'adresse IP fournie pour le serveur public dans config.ini n'est pas au format correct,"+
+				" vérifiez votre saisie ou supprimez ce champs", "Web Server", JOptionPane.ERROR_MESSAGE);	
+					System.exit(0);
+				}
+				try {
+					String s=ini.get("IP", "doNotUseAutoIpAndUseThisOne", String.class);
+					if(!s.equals("")) {
+						forceUseIp=true;
+						ipForceLocal =InetAddress.getByName(s);
+					}
+				} catch (UnknownHostException e1) {
+					JOptionPane.showMessageDialog(null, " L'adresse IP fournie avec le flag doNotUseAutoIpAndUseThisOne dans config.ini n'est pas au format correct,"+
+				" vérifiez votre saisie ou supprimez ce champs", "Web Server", JOptionPane.ERROR_MESSAGE);	
+					System.exit(0);
+				}
+		//System.out.print("data :" +portTcp+" "+portUDP+" "+portServer+" "+ini.get("IP", "publicServerIp", String.class)+" "+ini.get("IP", "doNotUseAutoIpAndUseThisOne", String.class));
+		Reseau.getReseau().init(portTcp,portUDP,ipServer,portServer);
 		Reseau.getReseau().addObserver(this);
 		try {
-			localIp = InetAddress.getLocalHost();
-		//System.out.print(localIp.toString() + " is local ? : "+localIp.isLoopbackAddress());
-		String mac= findMac();
+		String mac= findIpAndMac();
+		if(forceUseIp)
+			localIp=ipForceLocal;
+		
 		System.out.print("ip: "+localIp.toString()+" id: "+mac.hashCode());
 		user= new Personne(localIp, portTcp,"moi",true,(long)mac.hashCode()); //fixe par poste (adresse mac by eg)
-	     Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user));
-	     //on obtient les pseudos des gens sur le réseaux avant de demander à l'user d'entrer son pseudo
-	     //+actualisation des connexions/deconnexions en continu
-	     //<=> aussi sûr que d'envoyer "qui a ce pseudo ?" et un timeout (dans les 2 cas, en cas de choix simultanés (+/- la durée d'envoi d'une trame))=> fail
-	     //=> probabilité extremement faible, limite actuelle pour garder un modele simple
-	    new VueChoixPseudo(this,false);
-	    initialized=true;
-	    Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.CONNECTION,user));
-	    model.addElement(user);
-	   // model.addElement(new Personne(localIp, "moi",true,(long)mac.hashCode()));
-	   // maBD.setIdPseudoLink(user.getPseudo(), user.getId());
-		pathDownload=maBD.getDownloadPath();
-		main=new VuePrincipale(this,model);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+	}
+	ControleurApplication(){
+		init();
 
-		//tests();
-		//testsBD();
+	     Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user));
+	    new VueChoixPseudo(this,false);
+	    initialized=true;
+	    Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.CONNECTION,user));
+	    model.addElement(user);
+	    //on récupère les gens avec qui on a déjà parlé #offline reading
+	   for(Personne p: maBD.getPseudoTalked(user.getId())) {
+		   model.addElement(p);
+	   }
+	   
+		main=new VuePrincipale(this,model);
+	
 	}
 	String getPseudo() {
 		return user.getPseudo();
@@ -162,8 +201,6 @@ IOUtils.write(encoded, output);
 		          // maBD.printMessage();
 	           }
 	           else if(message.getType()==Message.Type.FILE) {
-	        	   System.out.print(" \n FILE reçu !");
-	        	   main.update(message.getEmetteur(),message,false);
 	        	   try {
 	        		   String basePath=maBD.getDownloadPath().getCanonicalPath()+"/";
 	        		   File newFile=new File(basePath+message.getNameFile());
@@ -174,10 +211,13 @@ IOUtils.write(encoded, output);
 	        			}
 	        		   Path p=newFile.toPath();
 					Files.write(p, message.getData());
+		        	 message.setNameFile(newFile.getAbsolutePath());
+		        	 System.out.print(message.getNameFile());
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-		           maBD.addFile(message,message.getNameFile()); //SAVE BD LE MESSAGE RECU
+	        	   main.update(message.getEmetteur(),message,false);
+		           maBD.addFile(message); //SAVE BD LE MESSAGE RECU
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
 	        	  // long id=maBD.getIdPersonne(message.getEmetteur().getPseudo());
@@ -221,15 +261,18 @@ IOUtils.write(encoded, output);
 		        	  else {
 		        		  pers.setConnected(true);
 		        		  pers.setInetAdress(message.getEmetteur().getAdresse());
+		        		  pers.setPort(message.getEmetteur().getPort());
 		        	  }
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
+		        	  if(initialized)
+		        	  main.updateList();
 	           }
 	           else if(message.getType()==Message.Type.WHOISALIVE ) { 
 	        	   if(initialized)
 	        	   sendActiveUserPseudo(message.getEmetteur());
 	           }
 	           else if(message.getType()==Message.Type.ASKPSEUDO) {
-	        	   if(pseudoWaiting.equals(message.getEmetteur().getPseudo()));
+	        	   if(pseudoWaiting.equals(message.getEmetteur().getPseudo()))
 	        	   Reseau.getReseau().sendUDP(new Message(Message.Type.REPLYPSEUDO,null,user,message.getEmetteur()));
 	           }
 	           else if(message.getType()==Message.Type.REPLYPSEUDO)
@@ -248,7 +291,13 @@ IOUtils.write(encoded, output);
 	}
 	public void setDownloadPath(File file) {
 	pathDownload=file;
-	maBD.setDownloadPath(file);
+	//maBD.setDownloadPath(file);
+	ini.put("DOWNLOAD", "path", file.getAbsolutePath());
+	try {
+		ini.store();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
 	}
 	public void setPseudoUserSwitch(String uname) {
 		/*maBD.delIdPseudoLink(user.getPseudo());*/
@@ -273,14 +322,15 @@ IOUtils.write(encoded, output);
 	/**
 	 * 
 	 * @param file fichier à envoyer
-	 * @param name nom du fichier
+	 * @param f nom du fichier
 	 */
-	public void sendMessage(byte[] file, String name, Personne to) {
+	public void sendMessage(byte[] file, File f, Personne to) {
 		
-		Message m =new Message(file, user, to,name);
+		Message m =new Message(file, user, to,f.getName());
 		Reseau.getReseau().sendTCP(m);
-		main.update(to,m,true);
-		maBD.addData(m);
+		Message m2 =new Message(file, user, to,f.getAbsolutePath());
+		main.update(to,m2,true);
+		maBD.addFile(m2); 
 	}
 	public ArrayList<Message> getHistorique(Personne to) {
 			return maBD.getHistorique(user,to);

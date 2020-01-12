@@ -6,11 +6,14 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 
+import javax.swing.JOptionPane;
+
 //https://www.baeldung.com/java-broadcast-multicast
 public class ClientUDP {
-	
+	int portUDP;
 	 List<InetAddress> broadcastList;
-	public ClientUDP() {
+	public ClientUDP(int port) {
+		portUDP=port;
 		try {
 			broadcastList=listAllBroadcastAddresses();
 		} catch (SocketException e) {
@@ -23,7 +26,7 @@ public class ClientUDP {
  
         byte[] buffer = Message.serialize(message);
         for(InetAddress a:broadcastList) {
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length,a, 1516);
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length,a, portUDP);
         socket.send(packet);
         }
         socket.close();
@@ -61,7 +64,11 @@ public class ClientUDP {
 			}*/
         	
 			InetAddress a=message.getDestinataire().getAdresse();
-	        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, a, 1516);
+	        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, a, message.getDestinataire().getPort());
+	        if(portUDP != message.getDestinataire().getPort())
+	        	JOptionPane.showMessageDialog(null, "Les autres membres du réseau utilisent le port :"+message.getDestinataire().getPort()
+	        			+" pour communiquer, or vous avez configuré l'envoi de données en broadcast(aux autres utilisateurs), sur le port :"+
+	        			portUDP+" est-ce volontaire ?", "ConfigUDP", JOptionPane.WARNING_MESSAGE);	//pas possible d'arriver là normalement
 	      /*  packet.setData(buf, offset, length);
 	        packet.setAddress(iaddr);
 	        packet.setPort(iport);*/

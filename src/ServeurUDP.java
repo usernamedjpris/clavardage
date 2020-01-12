@@ -6,7 +6,7 @@ import java.net.SocketException;
 import java.util.Observable;
 
 public class ServeurUDP extends Observable implements Runnable{
-	public final static int port = 1516;
+	private int port;
 	final static int taille = 2048;
 	DatagramSocket socket = null;
 	boolean on=true;
@@ -17,7 +17,9 @@ public class ServeurUDP extends Observable implements Runnable{
 		this.setChanged();
 		notifyObservers(arg);
 	}*/
-
+	ServeurUDP(int portUDP){
+		port=portUDP;
+	}
 	public void closeServeur() {
 	   try {
 		if(socket != null) {
