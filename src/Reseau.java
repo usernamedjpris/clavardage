@@ -49,7 +49,8 @@ public class Reseau extends Observable implements Observer {
 	}
 	public void sendTCP(Message message) {
 		try {
-			System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en tcp ("+message.getDestinataire().getAdresse().toString()+")");
+			System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en tcp ("
+		+message.getDestinataire().getAdresse().toString()+") port :"+message.getDestinataire().getPort());
 			envoi.sendMessage(message);
 		} catch (IOException e) {
 			//warning graphique envoi fail
@@ -59,8 +60,7 @@ public class Reseau extends Observable implements Observer {
 	}
 
 	public void sendDataBroadcast(Message message) {
-		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast ");
-		try {
+	try {
 			clientUDP.broadcast(message);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -68,7 +68,9 @@ public class Reseau extends Observable implements Observer {
 	}
 
 	public void sendUDP(Message message) {
-		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi d'un message "+message.getType().toString()+" à "+message.getDestinataire().getPseudo()+"("+message.getDestinataire().getAdresse().toString()+")");
+		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi d'un message "+message.getType().toString()+" à "+
+	message.getDestinataire().getPseudo()+"("+message.getDestinataire().getAdresse().toString()+") port "+
+	message.getDestinataire().getPort());
 		try {
 			clientUDP.send(message);
 		} catch (IOException e) {

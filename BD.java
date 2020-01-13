@@ -219,13 +219,19 @@ public class BD {
 				long idEmet = rs.getLong("idEmet");
 				java.util.Date date = Message.getStringToDate(rs.getString("sentDate")); 
 				Blob btext = rs.getBlob("texte");
-				byte[] data=btext.getBytes(1l, (int) btext.length());
+				String text = new String(btext.getBytes(1l, (int) btext.length()));
 				Message.Type typ = Message.Type.valueOf(rs.getString("type"));
-				System.out.println("GET HISTORIQUE "+Long.toString(idEmet) +" "+new String(data)+" ("+ rs.getString("sentDate")+") ["+ typ+"]");
+				System.out.println("GET HISTORIQUE "+Long.toString(idEmet) +" "+text+" ("+ rs.getString("sentDate")+") ["+ typ+"]");
 				if (idEmet == idUser) {// emetteur = moi
-					mes = Message.Factory.recreateMessageFromData(typ,data, user, Interlocuteur, date);
+					if(typ == Message.Type.FILE)
+					mes = new Message("".getBytes(), user, Interlocuteur, typ, date,text );
+					else
+					mes = new Message(text.getBytes(), user, Interlocuteur, typ, date, "");
 				} else {
-					mes = Message.Factory.recreateMessageFromData(typ,data,Interlocuteur,user, date);
+					if(typ == Message.Type.FILE)
+						mes = new Message("".getBytes(), user, Interlocuteur, typ, date,text );
+						else
+						mes = new Message(text.getBytes(), user, Interlocuteur, typ, date, "");
 				}
 				messages.add(mes);
 			}

@@ -134,10 +134,10 @@ public class ControleurApplication implements Observer {
 	ControleurApplication(){
 		init();
 
-	     Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.WHOISALIVE,user));
+	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
 	    new VueChoixPseudo(this,false);
 	    initialized=true;
-	    Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.CONNECTION,user));
+	    Reseau.getReseau().sendDataBroadcast(Message.Factory.userConnectedBroadcast(user));
 	    model.addElement(user);
 	    //on récupère les gens avec qui on a déjà parlé #offline reading
 	   for(Personne p: maBD.getPseudoTalked(user.getId())) {
@@ -154,13 +154,13 @@ public class ControleurApplication implements Observer {
 		return user;
 	}
 	void sendActiveUserPseudo(Personne to) {
-			Reseau.getReseau().sendUDP(new Message(Message.Type.ALIVE,null,user,to));
+			Reseau.getReseau().sendUDP(Message.Factory.userIsAlive(user, to));
 	}
 	boolean checkUnicity(String pseudo) {
 		answerPseudo=true;
 		pseudoWaiting=pseudo;
 		user.setPseudo(pseudo);
-		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.ASKPSEUDO,user));
+		Reseau.getReseau().sendDataBroadcast(Message.Factory.askPseudoOkBroadcast(user));
 		try {
 			TimeUnit.SECONDS.sleep(3);
 		} catch (InterruptedException e) {
@@ -178,7 +178,7 @@ public class ControleurApplication implements Observer {
 			return false;
 		}
 	void deconnexion(String pseudo) {
-			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user));
+			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));
 	}
 
 	@Override
@@ -194,7 +194,8 @@ IOUtils.write(encoded, output);
 	           Message message = (Message) arg;
 	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
         	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
-	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+"("+message.getEmetteur().getAdresse().toString()+"\n" );
+	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+
+	        		   "("+message.getEmetteur().getAdresse().toString()+") sur le port :"+message.getDestinataire().getPort()+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message,false);
 		           maBD.addData(message); //SAVE BD LE MESSAGE RECU
@@ -273,7 +274,7 @@ IOUtils.write(encoded, output);
 	           }
 	           else if(message.getType()==Message.Type.ASKPSEUDO) {
 	        	   if(pseudoWaiting.equals(message.getEmetteur().getPseudo()))
-	        	   Reseau.getReseau().sendUDP(new Message(Message.Type.REPLYPSEUDO,null,user,message.getEmetteur()));
+	        	   Reseau.getReseau().sendUDP(Message.Factory.usernameAlreaydTaken(user, message.getEmetteur()));
 	           }
 	           else if(message.getType()==Message.Type.REPLYPSEUDO)
 	        	   answerPseudo=false;
@@ -284,7 +285,7 @@ IOUtils.write(encoded, output);
 	        }
 	}
 	public void sendDisconnected() {
-			Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.DECONNECTION,user));
+			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));
 	}
 	public File getDownloadPath() {
 		return pathDownload;
@@ -304,7 +305,7 @@ IOUtils.write(encoded, output);
 		maBD.setIdPseudoLink(uname,user.getId());
 		main.changePseudo(uname);
 		user.setPseudo(uname);
-		Reseau.getReseau().sendDataBroadcast(new Message(Message.Type.SWITCH,user));
+		Reseau.getReseau().sendDataBroadcast(Message.Factory.switchPseudoBroadcast(user));
 	
 	}
 	public void setPseudoUser(String uname) {
@@ -314,7 +315,7 @@ IOUtils.write(encoded, output);
 	* @param tosend texte à envoyer à activeUser
 	 */
 	public void sendMessage(String tosend, Personne to) {
-		Message m =new Message(Message.Type.DEFAULT,tosend.getBytes(), user, to);
+		Message m =Message.Factory.sendText(tosend.getBytes(), user, to);
 		Reseau.getReseau().sendTCP(m);
 		main.update(to,m,true);
 		maBD.addData(m);
@@ -326,9 +327,9 @@ IOUtils.write(encoded, output);
 	 */
 	public void sendMessage(byte[] file, File f, Personne to) {
 		
-		Message m =new Message(file, user, to,f.getName());
+		Message m =Message.Factory.sendFile(file, user, to,f.getName());//new Message(file, user, to,f.getName());
 		Reseau.getReseau().sendTCP(m);
-		Message m2 =new Message(file, user, to,f.getAbsolutePath());
+		Message m2 =Message.Factory.sendFile(file, user, to,f.getAbsolutePath());
 		main.update(to,m2,true);
 		maBD.addFile(m2); 
 	}

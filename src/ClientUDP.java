@@ -21,6 +21,9 @@ public class ClientUDP {
 		}
 	}
     public void broadcast(Message message) throws IOException, SocketException {
+    	System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast "+
+    "sur le port :"+portUDP);
+		
     	DatagramSocket socket = new DatagramSocket();
         socket.setBroadcast(true);
  
