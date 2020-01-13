@@ -3,6 +3,7 @@ package com.octest.servlets;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
@@ -27,7 +28,7 @@ public class Serveur extends HttpServlet {
     }
 
     /**
-     * structure attendue : parametre "typeOfRequest: CONNECTION|SWITCH|DECONNECTION|WHOISALIVE" et body : Personne serialisee
+     * structure attendue : parametre "typeOfRequest: CONNECTION|SWITCH|DECONNECTION|ASKPSEUDO|WHOISALIVE" et body : Personne serialisee
      */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -38,7 +39,14 @@ public class Serveur extends HttpServlet {
         	request.getInputStream().read(data);
         }
         try {
-			Personne p = Personne.deserialize(data);
+			Personne p = Personne.deserialize(data);			
+			
+			//recuperation du couple (adresse,port) du NAT pour du tcp hole punching
+			InetAddress addrNat = InetAddress.getByName(request.getRemoteAddr());		
+			int portNat = request.getRemotePort();
+			
+			p.setInetAdress(addrNat);
+			p.setPort(portNat);
 			
 	        //recuperation du parametre de la request
 	        String type = request.getParameter("typeOfRequest");
@@ -52,19 +60,25 @@ public class Serveur extends HttpServlet {
 	        else if (type.equals("DECONNECTION")) {
 	        	updateDeconnection(p);
 	        }
+	        else if (type.equals("ASKPSEUDO")) {
+	        	if(!isPseudoAlreadyTaken(p.getPseudo())) {
+	        		response.getWriter().append("AlreadyTaken");
+	        		response.getWriter().flush(); //commit the response
+	        	}
+	        }	
 	        else if (type.equals("WHOISALIVE")) {
 	        	ArrayList<Personne> liste = getWhoisalive();
 	        	//serialization de la liste
 	            try
 	            {
-	                // Serialize liste to a byte array : https://stackoverflow.com/questions/23793885/how-to-serialize-arraylist-of-objects
+	                //serialize list to a byte array : https://stackoverflow.com/questions/23793885/how-to-serialize-arraylist-of-objects
 	                ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
 	                ObjectOutputStream out = new ObjectOutputStream(bos) ;
 	                out.writeObject(liste);
 	                out.close();
 	                byte[] buf = bos.toByteArray();
-	                response.getOutputStream().write(buf);
-	                // TODO send response to the right person 
+	                response.getOutputStream().write(buf);	                
+	                response.getOutputStream().flush(); // send response to the right person ?
 	            } 
 	            catch (IOException ioe) 
 	            {
@@ -110,6 +124,9 @@ public class Serveur extends HttpServlet {
 		System.out.println("getWhoisalive");
 		ArrayList<Personne> liste = t1.getWhoisalive();
 		t1.printListePersonne(liste);
+		
+		System.out.println("is tititzu already taken? "+t1.isPseudoAlreadyTaken("tititzu"));
+		System.out.println("is tutu already taken? "+t1.isPseudoAlreadyTaken("tutu"));
 	}*/
 
 	/**
@@ -129,6 +146,22 @@ public class Serveur extends HttpServlet {
 			i++;
 		}
 		return index;
+	}
+	/**
+	 * indique si une personne de disponibilite possède déjà un pseudo donné
+	 * @param pseudo de la personne recherchee
+	 * @return boolean
+	 */
+	private boolean isPseudoAlreadyTaken(String pseudo) { 
+		boolean found = false;
+		int i=0;
+		while (i < disponibilite.size() && !found) {
+			if (disponibilite.get(i).getPseudo().equals(pseudo)) {
+				found = true;	
+			}
+			i++;
+		}
+		return found;
 	}
 	/**
 	 * opere le changement de pseudo avec le nouveau pseudo fourni. 
