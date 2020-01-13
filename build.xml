@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- doc:  https://ant.apache.org/manual/index.html, https://www.jmdoudoux.fr/java/dej/chap-ant.htm, https://skebir.developpez.com/tutoriels/java/ant/ -->
 <!-- https://mkyong.com/ant/ant-how-to-create-a-jar-file-with-external-libraries/ -->
-<project default="run">
+<project default="qrun">
+
+<!-- others usefull tasks: runjar, runmultijar, javadoc -->
 
 <property name="name.application" value="clavardeur"/>
 <property name="main-class"	value="ControleurApplication"/>
@@ -46,9 +48,15 @@
 <echo message="Creation du fichier Jar terminee"/>
 </target>
 
-<target name="run" depends="jar">
+<target name="runjar" depends="jar">
 <java jar="${jar.dir}/${name.application}.jar" fork="true">
 </java>
+</target>
+
+<!-- quick run, without jar creation -->
+<target name="qrun" depends="compile">
+      <java fork = "true" failonerror = "yes" classpath="${bin.dir};${lib.dir}/*" classname = "${main-class}">
+      </java>
 </target>
 
 <!-- alt to put lib, in a lib folder next to jar (not inside :p -->
@@ -70,7 +78,7 @@
 </target>
 
 <!-- jar it, and declares the ext libraries in manifest.mf file -->
-<target name="jarmulti" depends="compile, copy-dependencies" description="output to JAR, with manifest for lib in lib/ next to jar">
+<target name="multijar" depends="compile, copy-dependencies" description="output to JAR, with manifest for lib in lib/ next to jar">
 
 	<echo message="classpath.name : ${classpath.name} " />
 
@@ -85,7 +93,7 @@
 	</jar>
 </target>
 
-<target name="runmulti" depends="jarmulti">
+<target name="runmultijar" depends="multijar">
 <java jar="${jar.dir}/${name.application}.jar" fork="true">
 </java>
 </target>

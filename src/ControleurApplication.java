@@ -195,7 +195,7 @@ IOUtils.write(encoded, output);
 	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
         	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+
-	        		   "("+message.getEmetteur().getAdresse().toString()+") sur le port :"+message.getDestinataire().getPort()+"\n" );
+	        		   "("+message.getEmetteur().getAdresse().toString()+")"+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   main.update(message.getEmetteur(),message,false);
 		           maBD.addData(message); //SAVE BD LE MESSAGE RECU
