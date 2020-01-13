@@ -15,7 +15,7 @@ public class ServeurTCP extends Observable implements Observer, Runnable {
 		this.setChanged();
 		notifyObservers(arg);
 	}
-	public void closeServeur() {
+	public void closeServeur() { 
         try {
         	if(ssoc != null) {
         	on=false;

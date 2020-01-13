@@ -114,24 +114,6 @@ public class BD {
 	{
 		this.deconnexion();
 	}
-/**
- * <p>
- * ce lien est desormais automatiquement ecrase avec REPLACE INTO
- * </p>
- * @deprecated
- * @param pseudo
- * @see BD#setIdPseudoLink(String, long)
-	public void delIdPseudoLink(String pseudo) {
-		try {
-			PreparedStatement stmt;
-			String sql = "DELETE FROM identification WHERE pseudo = ?;";
-			stmt = c.prepareStatement(sql);
-			stmt.setNString(1, pseudo);
-			stmt.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}*/
 	/**
 	 * Attribue un id à un pseudo donné
 	 * @param newPseudo

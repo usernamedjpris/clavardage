@@ -65,9 +65,6 @@ public class ClientUDP {
 			for (int i = 1 ; i < buffer2.length ; i++) {
 				buffer2[i] = buffer[i-1];
 			}*/
-        	System.out.print(("\n"+message.getEmetteur().getPseudo()+" envoi d'un message "+message.getType().toString()+" à "+
-	message.getDestinataire().getPseudo()+"("+message.getDestinataire().getAdresse().toString()+") port "+
-	message.getDestinataire().getPort()));
 			InetAddress a=message.getDestinataire().getAdresse();
 	        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, a, portUDP);
 	   

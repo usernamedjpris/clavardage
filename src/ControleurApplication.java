@@ -35,6 +35,7 @@ public class ControleurApplication implements Observer {
 	private Boolean initialized=false;
 	private String pseudoWaiting="";
 	private boolean answerPseudo;
+	private Object mutex = new Object();
 	Wini ini;
 	public static void main(String[] args) {
 			new ControleurApplication();
@@ -133,15 +134,15 @@ public class ControleurApplication implements Observer {
 	}
 	ControleurApplication(){
 		init();
-
-	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
-	    new VueChoixPseudo(this,false);
-	    initialized=true;
-	    model.addElement(user);
 	    //on récupère les gens avec qui on a déjà parlé #offline reading
 	   for(Personne p: maBD.getPseudoTalked(user.getId())) {
 		   model.addElement(p);
 	   }
+	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
+	    new VueChoixPseudo(this,false);
+	    initialized=true;
+	    Reseau.getReseau().sendDataBroadcast(Message.Factory.userConnectedBroadcast(user));
+	    model.addElement(user);
 	   
 		main=new VuePrincipale(this,model);
 	
@@ -156,9 +157,11 @@ public class ControleurApplication implements Observer {
 			Reseau.getReseau().sendUDP(Message.Factory.userIsAlive(user, to));
 	}
 	boolean checkUnicity(String pseudo) {
+		synchronized (mutex) {
 		answerPseudo=true;
 		pseudoWaiting=pseudo;
 		user.setPseudo(pseudo);
+		}
 		Reseau.getReseau().sendDataBroadcast(Message.Factory.askPseudoOkBroadcast(user));
 		try {
 			TimeUnit.SECONDS.sleep(3);
@@ -174,7 +177,9 @@ public class ControleurApplication implements Observer {
 			return true;
 		}
 		else {
+			synchronized (mutex) {
 			pseudoWaiting="";//on arrête de l'attendre (déjà attribué ou va l'être)
+			}
 			return false;
 		}
 		}
@@ -253,17 +258,14 @@ IOUtils.write(encoded, output);
 	        		   Personne p =(Personne)ob;
 	        			   if(p.getId()==message.getEmetteur().getId()) {
 	        			   found=true;
-	        			   pers=p;
+	        			   p.setConnected(true);
+			        	   p.setInetAdress(message.getEmetteur().getAdresse());
+			        	   p.setPort(message.getEmetteur().getPort());
 	        			   break;
 	        		   }
 	        	   }
 		        	  if(!found) {
 		        	   model.add(0, message.getEmetteur());
-		        	  }
-		        	  else {
-		        		  pers.setConnected(true);
-		        		  pers.setInetAdress(message.getEmetteur().getAdresse());
-		        		  pers.setPort(message.getEmetteur().getPort());
 		        	  }
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 		        	  if(initialized)
@@ -274,8 +276,10 @@ IOUtils.write(encoded, output);
 	        	   sendActiveUserPseudo(message.getEmetteur());
 	           }
 	           else if(message.getType()==Message.Type.ASKPSEUDO) {
+	        	   synchronized (mutex) {
 	        	   if(pseudoWaiting.equals(message.getEmetteur().getPseudo()))
 	        	   Reseau.getReseau().sendUDP(Message.Factory.usernameAlreaydTaken(user, message.getEmetteur()));
+	        	   }
 	           }
 	           else if(message.getType()==Message.Type.REPLYPSEUDO)
 	        	   answerPseudo=false;
@@ -311,7 +315,6 @@ IOUtils.write(encoded, output);
 	}
 	public void setPseudoUserConnexion(String uname) {
 		user.setPseudo(uname);
-	    Reseau.getReseau().sendDataBroadcast(Message.Factory.userConnectedBroadcast(user));
 	}
 	/** 
 	* @param tosend texte à envoyer à activeUser
