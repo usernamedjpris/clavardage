@@ -26,13 +26,13 @@ public class Reseau extends Observable implements Observer {
 	private Reseau() {
 	}
 	///TODO connexion à la classe gestion servlet
-	void init(int portTCP, int portUDP, InetAddress ipServer, int portServer) {
+	void init(int portTCP, int portUDP, InetAddress ipLocale, InetAddress ipServer, int portServer) {
 		this.reception = new ServeurTCP(portTCP);
 		this.reception.addObserver(this);
 
 		Thread tr = new Thread(reception);
         tr.start();
-		this.serveurUDP = new ServeurUDP(portUDP);
+		this.serveurUDP = new ServeurUDP(portUDP,ipLocale);
 		this.serveurUDP.addObserver(this);
 		Thread tu = new Thread(serveurUDP);
         tu.start();

@@ -2,6 +2,7 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Observable;
 
@@ -9,6 +10,7 @@ public class ServeurUDP extends Observable implements Runnable{
 	private int port;
 	final static int taille = 2048;
 	DatagramSocket socket = null;
+	InetAddress ipLocale;
 	boolean on=true;
 
 	/*@Override
@@ -17,8 +19,9 @@ public class ServeurUDP extends Observable implements Runnable{
 		this.setChanged();
 		notifyObservers(arg);
 	}*/
-	ServeurUDP(int portUDP){
+	ServeurUDP(int portUDP,InetAddress ip){
 		port=portUDP;
+		ipLocale=ip;
 	}
 	public void closeServeur() {
 	   try {
@@ -39,7 +42,7 @@ public class ServeurUDP extends Observable implements Runnable{
 		    }});
 
 		try {
-			socket = new DatagramSocket(port);
+			socket = new DatagramSocket(port, ipLocale);
 		} catch (SocketException e1) {
 			e1.printStackTrace();
 		}
