@@ -108,7 +108,7 @@ public class VueChoixPseudo  implements ActionListener{
 		if(inApp)
 		   app.setPseudoUserSwitch(uname);
 		   else
-		   app.setPseudoUser(uname);
+		   app.setPseudoUserConnexion(uname);
 		   frame.setModalityType(JDialog.ModalityType.MODELESS);
 		  // frame.setModalityType(JDialog.);
 		   frame.dispose();

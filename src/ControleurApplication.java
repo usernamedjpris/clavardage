@@ -137,7 +137,6 @@ public class ControleurApplication implements Observer {
 	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
 	    new VueChoixPseudo(this,false);
 	    initialized=true;
-	    Reseau.getReseau().sendDataBroadcast(Message.Factory.userConnectedBroadcast(user));
 	    model.addElement(user);
 	    //on récupère les gens avec qui on a déjà parlé #offline reading
 	   for(Personne p: maBD.getPseudoTalked(user.getId())) {
@@ -174,8 +173,10 @@ public class ControleurApplication implements Observer {
 		}
 			return true;
 		}
-		else
+		else {
+			pseudoWaiting="";//on arrête de l'attendre (déjà attribué ou va l'être)
 			return false;
+		}
 		}
 	void deconnexion(String pseudo) {
 			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));
@@ -308,8 +309,9 @@ IOUtils.write(encoded, output);
 		Reseau.getReseau().sendDataBroadcast(Message.Factory.switchPseudoBroadcast(user));
 	
 	}
-	public void setPseudoUser(String uname) {
+	public void setPseudoUserConnexion(String uname) {
 		user.setPseudo(uname);
+	    Reseau.getReseau().sendDataBroadcast(Message.Factory.userConnectedBroadcast(user));
 	}
 	/** 
 	* @param tosend texte à envoyer à activeUser

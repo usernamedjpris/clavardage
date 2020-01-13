@@ -65,16 +65,12 @@ public class ClientUDP {
 			for (int i = 1 ; i < buffer2.length ; i++) {
 				buffer2[i] = buffer[i-1];
 			}*/
-        	
+        	System.out.print(("\n"+message.getEmetteur().getPseudo()+" envoi d'un message "+message.getType().toString()+" à "+
+	message.getDestinataire().getPseudo()+"("+message.getDestinataire().getAdresse().toString()+") port "+
+	message.getDestinataire().getPort()));
 			InetAddress a=message.getDestinataire().getAdresse();
-	        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, a, message.getDestinataire().getPort());
-	        if(portUDP != message.getDestinataire().getPort())
-	        	JOptionPane.showMessageDialog(null, "Les autres membres du réseau utilisent le port :"+message.getDestinataire().getPort()
-	        			+" pour communiquer, or vous avez configuré l'envoi de données en broadcast(aux autres utilisateurs), sur le port :"+
-	        			portUDP+" est-ce volontaire ?", "ConfigUDP", JOptionPane.WARNING_MESSAGE);	//pas possible d'arriver là normalement
-	      /*  packet.setData(buf, offset, length);
-	        packet.setAddress(iaddr);
-	        packet.setPort(iport);*/
+	        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, a, portUDP);
+	   
 	        socket.send(packet);
 	        socket.close();
 		} catch (Exception e) {
