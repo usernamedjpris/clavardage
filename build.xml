@@ -13,6 +13,11 @@
 <property name="dist.lib.dir" 	value="exe/lib"/>
 <property name="lib.dir" 	value="lib"/>
 <property name="doc.dir" 	value="doc"/>
+<property name="bin-srv.dir" 	value="src_serveur/build"/>
+<property name="src-srv.dir" 	value="src_serveur/src/com/octest/servlets"/>
+<property name="content-srv.dir" value="src_serveur/WebContent"/>
+<property name="web.lib.dir" value="lib_serveur"/>
+<property name="war.dir" value="war"/>
   
 <target name="clean">
 <delete dir="${bin.dir}"/>
@@ -62,6 +67,25 @@
 <target name="relaunch" depends="compile">
       <java fork = "true" failonerror = "yes" classpath="${bin.dir};${lib.dir}/*" classname = "${main-class}">
       </java>
+</target>
+
+<target name = "war">
+<delete dir="${war.dir}"/>
+<delete dir="${bin-srv.dir}"/>
+<mkdir dir="${bin-srv.dir}"/>
+<mkdir dir="${war.dir}" />
+<javac includeantruntime="false" srcdir="${src-srv.dir}" destdir="${bin-srv.dir}" encoding="UTF-8" classpath="${web.lib.dir}"/>
+<echo message="compilation terminee"/>
+   <war destfile = "${war.dir}/${name.application}.war" webxml = "${web.dir}/WEB-INF/web.xml">
+			<classes dir="${bin-srv.dir}" />
+			<fileset dir="${content-srv.dir}">
+				<!-- Need to exclude it since webxml is an attribute of the war tag above -->
+				<exclude name="WEB-INF/web.xml" />
+			</fileset>
+      
+      <lib dir = "${web.lib.dir}">
+      </lib>
+   </war>
 </target>
 
 <!-- alt to put lib, in a lib folder next to jar (not inside :p -->
