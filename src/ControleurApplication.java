@@ -45,10 +45,10 @@ public class ControleurApplication implements Observer {
 		InetAddress localIp;
 		try {
 			localIp = InetAddress.getLocalHost();
+	 	    if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
 		for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
 			  NetworkInterface network = (NetworkInterface) enm.nextElement();
 			 	    //si getLoaclHost n'a pas marché correctement (on veut de l'IPV4) 
-			 	    if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
 			 	   for(Enumeration<InetAddress> s = network.getInetAddresses(); s.hasMoreElements();){
 			 		  InetAddress in = (InetAddress) s.nextElement();
 			 		 // System.out.print(" \nlocalIP s found : " +in.toString() + " ? "+ (!in.isLoopbackAddress() && in instanceof Inet4Address));
@@ -56,7 +56,6 @@ public class ControleurApplication implements Observer {
 			 		  if(!in.isLoopbackAddress() && in instanceof Inet4Address)
 			 			  localIp=in;
 			 	   }
-			 	    }
 			    }
 		//find good local ip last chance
 		 if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
@@ -72,12 +71,19 @@ public class ControleurApplication implements Observer {
 			e1.printStackTrace();
 		}
 		 }
+	 	    }
 		return localIp;
 		} catch (UnknownHostException e2) {
 			e2.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Hum...Il semblerait que nous ne soyons pas capables d'obtenir votre adresse ip,"
+					+"vous pouvez essayer de la fournir manuellement dans config.ini partie avancée :  \n" + 
+					"doNotUseAutoIpAndUseThisOne", "ErrorBox " + "📛", JOptionPane.ERROR_MESSAGE);	
 			System.exit(0);
 		} catch (SocketException e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Hum...Il semblerait que nous ne soyons pas capables d'obtenir votre adresse ip,"
+					+"vous pouvez essayer de la fournir manuellement dans config.ini partie avancée :  \n" + 
+					"doNotUseAutoIpAndUseThisOne", "ErrorBox " + "📛", JOptionPane.ERROR_MESSAGE);	
 			System.exit(0);
 		}
 		//on n'y arrive jamais
@@ -95,7 +101,6 @@ public class ControleurApplication implements Observer {
 			 			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));
 			 		}
 			 	    mac=sb.toString();
-			 	    System.out.print(mac);
 			 	   break;
 			    }
 		}

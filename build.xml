@@ -34,6 +34,12 @@
 	</fileset>
 </path>
 
+<path id="classpathserveur">
+	<fileset dir="${basedir}/">
+		<include name="${web.lib.dir}/*.jar" />
+	</fileset>
+</path>
+
 <target name="compile" depends="clean">
 <mkdir dir="${bin.dir}"/>
 <javac includeantruntime="false" srcdir="${src.dir}" destdir="${bin.dir}" encoding="UTF-8" classpathref="classpath"/>
@@ -74,9 +80,9 @@
 <delete dir="${bin-srv.dir}"/>
 <mkdir dir="${bin-srv.dir}"/>
 <mkdir dir="${war.dir}" />
-<javac includeantruntime="false" srcdir="${src-srv.dir}" destdir="${bin-srv.dir}" encoding="UTF-8" classpath="${web.lib.dir}"/>
+<javac includeantruntime="false" srcdir="${src-srv.dir}" destdir="${bin-srv.dir}" encoding="UTF-8" classpathref="classpathserveur"/>
 <echo message="compilation terminee"/>
-   <war destfile = "${war.dir}/${name.application}.war" webxml = "${web.dir}/WEB-INF/web.xml">
+   <war destfile = "${war.dir}/${name.application}.war" webxml = "${content-srv.dir}/WEB-INF/web.xml">
 			<classes dir="${bin-srv.dir}" />
 			<fileset dir="${content-srv.dir}">
 				<!-- Need to exclude it since webxml is an attribute of the war tag above -->
