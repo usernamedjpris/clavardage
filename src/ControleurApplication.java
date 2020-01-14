@@ -140,11 +140,10 @@ public class ControleurApplication implements Observer {
 	   }
 	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
 	    new VueChoixPseudo(this,false);
+	    main=new VuePrincipale(this,model);
 	    initialized=true;
 	    Reseau.getReseau().sendDataBroadcast(Message.Factory.userConnectedBroadcast(user));
 	    model.addElement(user);
-	   
-		main=new VuePrincipale(this,model);
 	
 	}
 	String getPseudo() {
@@ -259,6 +258,7 @@ IOUtils.write(encoded, output);
 	        			   if(p.getId()==message.getEmetteur().getId()) {
 	        			   found=true;
 	        			   p.setConnected(true);
+	        			   p.setPseudo(message.getEmetteur().getPseudo());
 			        	   p.setInetAdress(message.getEmetteur().getAdresse());
 			        	   p.setPort(message.getEmetteur().getPort());
 	        			   break;

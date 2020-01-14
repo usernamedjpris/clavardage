@@ -467,6 +467,7 @@ public class VuePrincipale {
 
 	public void changePseudo(String uname) {
 		frame.setTitle(defaultTitle+" ["+uname+"]");
+		updateList();
 	}
 	public void updateList() {
 		list.repaint();
