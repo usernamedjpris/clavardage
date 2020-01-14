@@ -27,3 +27,4 @@ SuperDB.script
 SuperDB.data
 SuperDB.lobs
 doc/debug.log
+src_serveur/WebContent/debug.log
