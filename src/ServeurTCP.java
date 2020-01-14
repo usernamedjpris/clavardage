@@ -1,20 +1,31 @@
 import java.net.*;
 import java.util.Observable;
 import java.util.Observer;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 
 
-@SuppressWarnings("deprecation")
-public class ServeurTCP extends Observable implements Observer, Runnable {
+//public class ServeurTCP extends Observable implements Observer, Runnable {
+public class ServeurTCP implements PropertyChangeListener, Runnable{
 	ServerSocket ssoc = null;
 	boolean on=true;
 	private int port;
-	public ServeurTCP(int port) {this.port=port;}
-    
-	public void update(Observable o, Object arg) {
+	private PropertyChangeSupport support;
+	
+	public ServeurTCP(int port) {
+		this.port=port;
+		support = new PropertyChangeSupport(this);
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        support.addPropertyChangeListener(pcl);
+    }
+	/*public void update(Observable o, Object arg) {
 		this.setChanged();
 		notifyObservers(arg);
-	}
+	}*/
 	public void closeServeur() { 
         try {
         	if(ssoc != null) {
@@ -42,7 +53,7 @@ public class ServeurTCP extends Observable implements Observer, Runnable {
 			try {
 				soc = ssoc.accept();
 				ServeurSocketThread st = new ServeurSocketThread(soc);
-	            st.addObserver(this); 
+	            st.addPropertyChangeListener(this); 
 	            Thread th = new Thread(st);
 	            th.start();
 			} catch (IOException e) {
@@ -50,5 +61,10 @@ public class ServeurTCP extends Observable implements Observer, Runnable {
 				e.printStackTrace();
 			}
         }
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		support.firePropertyChange("message", evt.getOldValue(), evt.getNewValue());
 	}
 }

@@ -1,4 +1,6 @@
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -25,7 +27,8 @@ import org.ini4j.Wini;
 //ctrl+maj+F11=code coverage (standard)
 //ObjectAid UML (retro URL)
 @SuppressWarnings("deprecation")
-public class ControleurApplication implements Observer {
+//public class ControleurApplication implements Observer {
+public class ControleurApplication implements PropertyChangeListener{
 	private Personne user;
 	private VuePrincipale main;
 	private BD maBD=BD.getBD();
@@ -154,7 +157,7 @@ public class ControleurApplication implements Observer {
 				}
 		//System.out.print("data :" +portTcp+" "+portUDP+" "+portServer+" "+ini.get("IP", "publicServerIp", String.class)+" "+ini.get("IP", "doNotUseAutoIpAndUseThisOne", String.class));
 		Reseau.getReseau().init(portTcp,portUDP,ipServer,portServer);
-		Reseau.getReseau().addObserver(this);
+		Reseau.getReseau().addPropertyChangeListener(this);//.addObserver(this);
 		try {
 		if(forceUseIp)
 			localIp=ipForceLocal;
@@ -226,7 +229,7 @@ public class ControleurApplication implements Observer {
 	}
 
 	@Override
-public void update(Observable o, Object arg) {
+	public void propertyChange(PropertyChangeEvent evt) {
 		//try convert arg to message
 		/* si  IMAGE to write file :
 		 * byte[] encoded = key.getEncoded();
@@ -234,8 +237,8 @@ FileOutputStream output = new FileOutputStream(new File("target-file"));
 IOUtils.write(encoded, output);
 		 */
 		//on ne repond pas tant que l'on n'est pas initialis� (avec un pseudo)
-		  if (arg instanceof Message) {
-	           Message message = (Message) arg;
+		  if (evt.getNewValue() instanceof Message) {
+	           Message message = (Message) evt.getNewValue();
 	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
         	   if(message.getEmetteur().getId()!= user.getId() || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+
@@ -247,7 +250,7 @@ IOUtils.write(encoded, output);
 	           }
 	           else if(message.getType()==Message.Type.FILE) {
 	        	   try {
-	        		   String basePath=maBD.getDownloadPath().getCanonicalPath()+"/";
+	        		   String basePath=pathDownload.getCanonicalPath()+"/";
 	        		   File newFile=new File(basePath+message.getNameFile());
 	        		   int index=0;
 	        		   if(newFile.exists())
@@ -379,5 +382,6 @@ IOUtils.write(encoded, output);
 	public ArrayList<Message> getHistorique(Personne to) {
 			return maBD.getHistorique(user,to);
 	}
+	
 
 }

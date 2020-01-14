@@ -1,16 +1,22 @@
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Observable;
 
-public class ServeurUDP extends Observable implements Runnable{
+public class ServeurUDP implements Runnable{
 	private int port;
 	final static int taille = 2048;
 	DatagramSocket socket = null;
 	boolean on=true;
-
+	private PropertyChangeSupport support;
+	
+	 public void addPropertyChangeListener(PropertyChangeListener pcl) {
+	        support.addPropertyChangeListener(pcl);
+	    }
 	/*@Override
 	public void update(Observable o, Object arg) {
 		System.out.print("\n ServeurUDP is notified ! (1st)");
@@ -19,6 +25,7 @@ public class ServeurUDP extends Observable implements Runnable{
 	}*/
 	ServeurUDP(int portUDP){
 		port=portUDP;
+		support = new PropertyChangeSupport(this);
 	}
 	public void closeServeur() {
 	   try {
@@ -56,8 +63,7 @@ public class ServeurUDP extends Observable implements Runnable{
 				{
 				     myObject[i] = buffer[i];
 				}
-				setChanged();
-				notifyObservers(Message.deserialize(myObject));
+				support.firePropertyChange("message","", Message.deserialize(myObject));
 			} catch (IOException e1) {
 				if(on)
 				e1.printStackTrace();

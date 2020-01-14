@@ -190,7 +190,7 @@ public class VuePrincipale {
                         	desktop.open(new File(hle.getDescription())); 	
                     } catch (java.lang.IllegalArgumentException e) {
                         try {
-							desktop.browse(new URI(hle.getDescription()));
+							desktop.browse(new URI(hle.getDescription().replaceAll(" ","")));
 						} catch (IOException e1) {
 							e1.printStackTrace();
 						} catch (URISyntaxException e1) {
@@ -280,6 +280,7 @@ public class VuePrincipale {
 		ActionListener a=new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(activeUser.getConnected()) {
 				JFileChooser dirChooser = new JFileChooser();
 	               dirChooser.setMultiSelectionEnabled(true);
 	               dirChooser.setDialogTitle("Choisir le(s) fichiers(s) à envoyer");
@@ -299,6 +300,8 @@ public class VuePrincipale {
 	               }else{
 	            	   System.out.print("cancelled");
 	               }
+				}else
+					JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message à un utilisateur non connecté :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
 							}};
 		btnFile.addActionListener(a);
 		btnFile.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, java.awt.event.InputEvent.SHIFT_DOWN_MASK ), "file");

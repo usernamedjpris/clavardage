@@ -1,4 +1,7 @@
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Observable;
@@ -8,13 +11,15 @@ import javax.swing.JOptionPane;
 
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
+
 @SuppressWarnings("deprecation")
-public class Reseau extends Observable implements Observer {
-	//private PropertyChangeSupport support;
-	ServeurTCP reception;
-	ClientTCP envoi;
-	ClientUDP clientUDP;
-	ServeurUDP serveurUDP;
+//public class Reseau extends Observable implements Observer {
+public class Reseau implements PropertyChangeListener {
+	private PropertyChangeSupport support;
+	private ServeurTCP reception;
+	private ClientTCP envoi;
+	private ClientUDP clientUDP;
+	private ServeurUDP serveurUDP;
 	static Reseau theNetwork;
 	/**
 	 * @param reception
@@ -22,18 +27,25 @@ public class Reseau extends Observable implements Observer {
 	 * @param clientUDP
 	 * @throws IOException
 	 */
-	
+	public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        support.addPropertyChangeListener(pcl);
+    }
+ 
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        support.removePropertyChangeListener(pcl);
+    }
 	private Reseau() {
 	}
 	///TODO connexion à la classe gestion servlet
 	void init(int portTCP, int portUDP, InetAddress ipServer, int portServer) {
+		support = new PropertyChangeSupport(this);
 		this.reception = new ServeurTCP(portTCP);
-		this.reception.addObserver(this);
+		this.reception.addPropertyChangeListener(this);
 
 		Thread tr = new Thread(reception);
         tr.start();
 		this.serveurUDP = new ServeurUDP(portUDP);
-		this.serveurUDP.addObserver(this);
+		this.serveurUDP.addPropertyChangeListener(this);
 		Thread tu = new Thread(serveurUDP);
         tu.start();
 
@@ -77,9 +89,8 @@ public class Reseau extends Observable implements Observer {
 			e.printStackTrace();
 		}
 	}
-
-	public void update(Observable o, Object arg) {
-		this.setChanged();
-		notifyObservers(arg);
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		support.firePropertyChange("message", evt.getOldValue(), evt.getNewValue());
 	}
 }

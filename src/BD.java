@@ -34,19 +34,6 @@ public class BD {
 			// creation de la bdd si pas deja cree
 			PreparedStatement stmt;
 			//cached useful if data >= 10Mo ( chargement partiel de la BD )
-			/*String sql0a = "DROP TABLE message";
-			stmt = c.prepareStatement(sql0a);
-			stmt.executeUpdate();
-			System.out.println("DROP TABLE message");
-			String sql0b = "DROP TABLE preferences";
-			stmt = c.prepareStatement(sql0b);
-			stmt.executeUpdate();
-			System.out.println("DROP TABLE message");			
-			String sql0 = "DROP TABLE identification";
-			stmt = c.prepareStatement(sql0);
-			stmt.executeUpdate();
-			System.out.println("DROP TABLE identification");*/
-			
 			
 			String sql1 = "CREATE CACHED TABLE IF NOT EXISTS message (idEmet INTEGER NOT NULL, idDest INTEGER NOT NULL, "
 					+ "sentDate VARCHAR(60) NOT NULL, type VARCHAR(60) NOT NULL, texte BLOB NOT NULL);";
@@ -300,10 +287,10 @@ public class BD {
 			e.printStackTrace();
 		}
 	}
-	/** 
+}
+	/*/** 
 	 * Donne accès à l'emplacement de tout les fichiers téléchargés 
 	 * @return chemin de téléchargement
-	 */
 	public File getDownloadPath() {
 		String downloadPath = "";
 		try {
@@ -320,7 +307,6 @@ public class BD {
 	/**
 	 * Affecte un nouveau chemin de téléchargement
 	 * @param file
-	 */
 	public void setDownloadPath(File file) {
 		try {
 			String sql = "UPDATE preferences SET downloadPath='"+file.getPath()+"'";
@@ -330,7 +316,6 @@ public class BD {
 			e.printStackTrace();
 		}
 	}
-	
 	//pour tests
 	public void printMessage() {
 		try {
@@ -375,52 +360,4 @@ public class BD {
 		
 	}
 }
-
-
-
-
-
-
-
-
-
-/*
- * public ResultSet getAllScoresAndNames() throws SQLException {
- * s=c.createStatement(); //naturellement les plus vieux sont priorisÃ©s sur les
- * plus jeunes ResultSet aux= s.
- * executeQuery("SELECT idName,idScore,idTime FROM score ORDER BY idScore DESC LIMIT 0,20"
- * );
- * 
- * //STEP 5: Extract data from result set //while(rs.next()){ //Retrieve by
- * column name // int id = rs.getLong("id"); // int age = rs.getLong("age"); //
- * String first = rs.getString("first"); // String last = rs.getString("last");
- * 
- * // return aux;
- * 
- * }
- * 
- * public void setScore(String name,int score) throws SQLException {
- * PreparedStatement stmt = null; String sql =
- * "UPDATE Employees set age=? WHERE id=?"; stmt = c.prepareStatement(sql);
- * //Bind values into the parameters. stmt.setInt(1, 35); stmt.setInt(2, 102);
- * int rows = stmt.executeUpdate(); ResultSet rs = stmt.executeQuery();
- * while(rs.next()){ //Retrieve by column name int id = rs.getInt("id"); int age
- * = rs.getInt("age"); String first = rs.getString("first"); String last =
- * rs.getString("last"); } //STEP 6: Clean-up environment rs.close();
- * stmt.close();
- * 
- * s.executeUpdate("INSERT INTO `score`(`idName`, `idScore`) VALUES ('"+name+
- * "','"+score+"')"); //supprime le ou les (accÃ¨s concurrent) dernier score
- * //Limit offset,nombre de resultats //(SELECT * from score) pour crÃ©er une
- * table dÃ©rivÃ©e (sinon mysql aime pas qu'on supprime en ce servant de ce
- * qu'on supprime comme critÃ¨re //1st :DELETE FROM score WHERE idScore<(SELECT
- * idScore FROM (SELECT * from score) AS T ORDER BY idScore DESC LIMIT 20,1) s.
- * executeUpdate("DELETE FROM `score`WHERE `PrimaryKey` NOT IN ( SELECT PrimaryKey FROM (SELECT * FROM (SELECT*FROM score) AS T2 ORDER BY idScore DESC LIMIT 20) AS T)"
- * );
- * 
- * } public int getWorstScore() throws SQLException { ResultSet aux=
- * s.executeQuery("SELECT idScore FROM score ORDER BY idScore DESC LIMIT 19,1");
- * aux.next(); // nÃ©cessaire Ã  appeler avant de pouvoir lire la query (verif
- * que = 1 pour qu'elle soit bien passÃ©e return
- * Integer.parseInt(aux.getString("idScore")); //System.out.print(minScore); }
- */
+*/

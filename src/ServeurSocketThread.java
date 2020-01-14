@@ -1,11 +1,18 @@
 import java.net.*;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
-import java.util.Observable;
 
-public class ServeurSocketThread extends Observable implements Runnable {
+//public class ServeurSocketThread extends Observable implements Runnable {
+public class ServeurSocketThread implements  Runnable {
     Socket s;
+    private PropertyChangeSupport support;
     public ServeurSocketThread(Socket soc) {
         this.s = soc;
+        support = new PropertyChangeSupport(this);
+    }
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        support.addPropertyChangeListener(pcl);
     }
 
 	@Override
@@ -21,8 +28,7 @@ public class ServeurSocketThread extends Observable implements Runnable {
             }
             
             try {
-            	this.setChanged();
-				this.notifyObservers(Message.deserialize(data));
+            	support.firePropertyChange("message","", Message.deserialize(data));
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
