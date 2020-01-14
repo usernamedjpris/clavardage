@@ -3,7 +3,7 @@
 <!-- https://mkyong.com/ant/ant-how-to-create-a-jar-file-with-external-libraries/ -->
 <project default="qrun">
 
-<!-- others usefull tasks: runjar, runmultijar, javadoc -->
+<!-- others usefull tasks: relaunch, runjar, runmultijar, javadoc -->
 
 <property name="name.application" value="clavardeur"/>
 <property name="main-class"	value="ControleurApplication"/>
@@ -55,6 +55,11 @@
 
 <!-- quick run, without jar creation -->
 <target name="qrun" depends="compile">
+      <java fork = "true" failonerror = "yes" classpath="${bin.dir};${lib.dir}/*" classname = "${main-class}">
+      </java>
+</target>
+<!-- ultra quick run, for already compiled files -->
+<target name="relaunch" depends="compile">
       <java fork = "true" failonerror = "yes" classpath="${bin.dir};${lib.dir}/*" classname = "${main-class}">
       </java>
 </target>

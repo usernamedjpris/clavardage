@@ -31,20 +31,62 @@ public class ControleurApplication implements Observer {
 	private BD maBD=BD.getBD();
 	private DefaultListModel<Personne> model = new DefaultListModel<>();
 	private File pathDownload;
-	private InetAddress localIp;
 	private Boolean initialized=false;
 	private String pseudoWaiting="";
 	private boolean answerPseudo;
 	private Object mutex = new Object();
 	Wini ini;
+	private InetAddress localIp;
 	public static void main(String[] args) {
 			new ControleurApplication();
 
 	}
-	String findIpAndMac() throws SocketException, UnknownHostException {
-		String mac="";
-		localIp = InetAddress.getLocalHost();
+	InetAddress findIp() {
+		InetAddress localIp;
+		try {
+			localIp = InetAddress.getLocalHost();
 		for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
+			  NetworkInterface network = (NetworkInterface) enm.nextElement();
+			 	    //si getLoaclHost n'a pas marché correctement (on veut de l'IPV4) 
+			 	    if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
+			 	   for(Enumeration<InetAddress> s = network.getInetAddresses(); s.hasMoreElements();){
+			 		  InetAddress in = (InetAddress) s.nextElement();
+			 		 // System.out.print(" \nlocalIP s found : " +in.toString() + " ? "+ (!in.isLoopbackAddress() && in instanceof Inet4Address));
+			 		 //System.out.print(" \nloop: " +in.toString() + " ? "+ (in.isLoopbackAddress()));
+			 		  if(!in.isLoopbackAddress() && in instanceof Inet4Address)
+			 			  localIp=in;
+			 	   }
+			 	    }
+			    }
+		//find good local ip last chance
+		 if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
+		try(DatagramSocket s=new DatagramSocket())
+		{
+		    try {
+				s.connect(InetAddress.getByAddress(new byte[]{1,1,1,1}), 0);
+				localIp=s.getLocalAddress();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+		} catch (SocketException e1) {
+			e1.printStackTrace();
+		}
+		 }
+		return localIp;
+		} catch (UnknownHostException e2) {
+			e2.printStackTrace();
+			System.exit(0);
+		} catch (SocketException e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		//on n'y arrive jamais
+		return (InetAddress) new Object();
+				
+	}
+	String findMac() throws SocketException, UnknownHostException {
+		String mac="";
+			for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
 			  NetworkInterface network = (NetworkInterface) enm.nextElement();
 			  byte[] m=network.getHardwareAddress();
 			    if((null != m) && (m.length>0)){
@@ -53,32 +95,14 @@ public class ControleurApplication implements Observer {
 			 			sb.append(String.format("%02X%s", m[i], (i < m.length - 1) ? "-" : ""));
 			 		}
 			 	    mac=sb.toString();
-			 	    //find good local ip
-					try(DatagramSocket s=new DatagramSocket())
-					{
-					    try {
-							s.connect(InetAddress.getByAddress(new byte[]{1,1,1,1}), 0);
-							localIp=s.getLocalAddress();
-						} catch (UnknownHostException e) {
-							e.printStackTrace();
-						}
-					}
-			 	    //si getLoaclHost n'a pas marché correctement (on veut de l'IPV4) 
-			 	    if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
-			 	   for(Enumeration<InetAddress> s = network.getInetAddresses(); s.hasMoreElements();){
-			 		  InetAddress in = (InetAddress) s.nextElement();
-			 		 // System.out.print(" \nlocalIP s found : " +in.toString() + " ? "+ (!in.isLoopbackAddress() && in instanceof Inet4Address));
-			 		 System.out.print(" \nloop: " +in.toString() + " ? "+ (in.isLoopbackAddress()));
-			 		  if(!in.isLoopbackAddress() && in instanceof Inet4Address)
-			 			  localIp=in;
-			 	   }
-			 	    }
-			 	    
-			 	    break;
+			 	    System.out.print(mac);
+			 	   break;
 			    }
 		}
 		if(mac.equals("")) {
-			JOptionPane.showMessageDialog(null, "Hum...Il semblerait que vous n'avez pas de carte réseau, ce chat ne fonctionnera pas sans réseau :p ", "ErrorBox " + "📛", JOptionPane.ERROR_MESSAGE);	
+			JOptionPane.showMessageDialog(null, "Hum...Il semblerait que nous ne soyons pas capables d'obtenir votre adresse mac,"
+					+"vous pouvez essayer de la fournir manuellement dans config.ini partie avancée :  \n" + 
+					"doNotUseAutoMacAndUseThisOne", "ErrorBox " + "📛", JOptionPane.ERROR_MESSAGE);	
 			System.exit(0);
 		}
 		return mac;
@@ -86,7 +110,9 @@ public class ControleurApplication implements Observer {
 	void init() {
 		InetAddress ipServer=null;
 		InetAddress ipForceLocal=null;
+		String mac =null;
 		boolean forceUseIp=false;
+		boolean forceUseMac=false;
 		try {
 			ini = new Wini(new File("config.ini"));
 		} catch (InvalidFileFormatException e2) {
@@ -106,7 +132,7 @@ public class ControleurApplication implements Observer {
 					System.exit(0);
 				}
 				try {
-					String s=ini.get("IP", "doNotUseAutoIpAndUseThisOne", String.class);
+					String s=ini.get("ADVANCED", "doNotUseAutoIpAndUseThisOne", String.class);
 					if(!s.equals("")) {
 						forceUseIp=true;
 						ipForceLocal =InetAddress.getByName(s);
@@ -116,13 +142,21 @@ public class ControleurApplication implements Observer {
 				" vérifiez votre saisie ou supprimez ce champs", "Web Server", JOptionPane.ERROR_MESSAGE);	
 					System.exit(0);
 				}
+				String mac_manuel=ini.get("ADVANCED", "doNotUseAutoMacAndUseThisOne", String.class);
+				if(!mac_manuel.equals("")) {
+					forceUseMac=true;
+					mac=mac_manuel;
+				}
 		//System.out.print("data :" +portTcp+" "+portUDP+" "+portServer+" "+ini.get("IP", "publicServerIp", String.class)+" "+ini.get("IP", "doNotUseAutoIpAndUseThisOne", String.class));
 		Reseau.getReseau().init(portTcp,portUDP,ipServer,portServer);
 		Reseau.getReseau().addObserver(this);
 		try {
-		String mac= findIpAndMac();
 		if(forceUseIp)
 			localIp=ipForceLocal;
+		else
+			localIp=findIp();
+		if(!forceUseMac)
+			mac=findMac();
 		
 		System.out.print("ip: "+localIp.toString()+" id: "+mac.hashCode());
 		user= new Personne(localIp, portTcp,"moi",true,(long)mac.hashCode()); //fixe par poste (adresse mac by eg)
@@ -252,7 +286,6 @@ IOUtils.write(encoded, output);
 	           else if(message.getType()==Message.Type.ALIVE || message.getType()==Message.Type.CONNECTION) {
 	        	  	  //add sender to active user
 	        	   boolean found=false;
-	        	   Personne pers = null;
 	        	   for(Object ob: model.toArray()) {
 	        		   Personne p =(Personne)ob;
 	        			   if(p.getId()==message.getEmetteur().getId()) {
