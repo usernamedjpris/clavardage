@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
@@ -19,16 +20,24 @@ import javax.servlet.http.HttpServletResponse;
 public class Serveur extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private ArrayList<Personne> disponibilite;
+	private Personne serveurDePresence;
     /**
      * @see HttpServlet#HttpServlet()
      */
     public Serveur() {
         super();
         disponibilite = new ArrayList<Personne>();
+        try {
+			serveurDePresence = new Personne(InetAddress.getLocalHost(), 8005, "Serveur de presence", true, 2L);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     /**
-     * structure attendue : parametre "typeOfRequest: CONNECTION|SWITCH|DECONNECTION|ASKPSEUDO|WHOISALIVE" et body : Personne serialisee
+     * doGet http
+     * structure attendue : body : Message (type, Personne serialisee) serialise
      */
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -39,7 +48,8 @@ public class Serveur extends HttpServlet {
         	request.getInputStream().read(data);
         }
         try {
-			Personne p = Personne.deserialize(data);			
+        	Message message = Message.deserialize(data);
+			Personne p = message.getEmetteur();			
 			
 			//recuperation du couple (adresse,port) du NAT pour du tcp hole punching
 			InetAddress addrNat = InetAddress.getByName(request.getRemoteAddr());		
@@ -48,25 +58,26 @@ public class Serveur extends HttpServlet {
 			p.setInetAdress(addrNat);
 			p.setPort(portNat);
 			
-	        //recuperation du parametre de la request
-	        String type = request.getParameter("typeOfRequest");
 
-	        if (type.equals("SWITCH")) {
+	        if (message.getType()==Message.Type.SWITCH) {
 	        	updateSwitch(p);
 	        }
-	        else if (type.equals("CONNECTION")) {
+	        else if (message.getType()==Message.Type.CONNECTION) {
 	        	updateConnection(p);
 	        }	        
-	        else if (type.equals("DECONNECTION")) {
+	        else if (message.getType()==Message.Type.DECONNECTION) {
 	        	updateDeconnection(p);
 	        }
-	        else if (type.equals("ASKPSEUDO")) {
-	        	if(!isPseudoAlreadyTaken(p.getPseudo())) {
-	        		response.getWriter().append("AlreadyTaken");
-	        		response.getWriter().flush(); //commit the response
+	        else if (message.getType()==Message.Type.ASKPSEUDO) {
+	        	Personne samePseudo = personneWithPseudo(p.getPseudo());
+	        	if(samePseudo!=null) {
+	        		Message messageReplied = Message.Factory.usernameAlreaydTaken(serveurDePresence, samePseudo);
+	        		byte[] buf = Message.serialize(messageReplied);
+	                response.getOutputStream().write(buf);	                
+	                response.getOutputStream().flush();  // commit response
 	        	}
 	        }	
-	        else if (type.equals("WHOISALIVE")) {
+	        else if (message.getType()==Message.Type.WHOISALIVE) {
 	        	ArrayList<Personne> liste = getWhoisalive();
 	        	//serialization de la liste
 	            try
@@ -77,8 +88,9 @@ public class Serveur extends HttpServlet {
 	                out.writeObject(liste);
 	                out.close();
 	                byte[] buf = bos.toByteArray();
+	                
 	                response.getOutputStream().write(buf);	                
-	                response.getOutputStream().flush(); // send response to the right person ?
+	                response.getOutputStream().flush();  // commit response
 	            } 
 	            catch (IOException ioe) 
 	            {
@@ -91,48 +103,11 @@ public class Serveur extends HttpServlet {
 			e.printStackTrace();
 		}
     }
-	//tests
-/*	public static void main (String[] args){
-		Serveur t1 = new Serveur();
-		t1.disponibilite.add(new Personne(null,10,"toto", true, 1L));
-		t1.disponibilite.add(new Personne(null,11,"tutu", true, 2L));
-		t1.disponibilite.add(new Personne(null,12,"tintin", true, 3L));
-		
-		System.out.println("disponibilite");
-		t1.printListePersonne(t1.disponibilite);
-		
-		System.out.println("postSwitch");
-		t1.updateSwitch(new Personne(null,10,"titi", true, 2L));
-		t1.printListePersonne(t1.disponibilite);
-		
-		System.out.println("postSwitch not found");
-		t1.updateSwitch(new Personne(null,10,"titin", true, 5L));
-		t1.printListePersonne(t1.disponibilite);
-		
-		System.out.println("postDeconnected");
-		t1.updateDeconnection(new Personne(null,10,"titi", true, 2L));
-		t1.printListePersonne(t1.disponibilite);
-		
-		System.out.println("postConnected");
-		t1.updateConnection(new Personne(null,10,"titi", true, 2L));
-		t1.printListePersonne(t1.disponibilite);
-		
-		System.out.println("postDeconnected");
-		t1.updateDeconnection(new Personne(null,10,"tititzu", true, 7L));
-		t1.printListePersonne(t1.disponibilite);
-		
-		System.out.println("getWhoisalive");
-		ArrayList<Personne> liste = t1.getWhoisalive();
-		t1.printListePersonne(liste);
-		
-		System.out.println("is tititzu already taken? "+t1.isPseudoAlreadyTaken("tititzu"));
-		System.out.println("is tutu already taken? "+t1.isPseudoAlreadyTaken("tutu"));
-	}*/
 
 	/**
-	 * indexOf mais sur l'attribut id seulement et pas sur toute la classe Personne
-	 * @param id de la personne recherchee
-	 * @return indexOf(id)
+	 * Trouve l'index de la Personne ayant l'id donné
+	 * @param id de la Personne recherchee
+	 * @return indexOf(id) ; -1 si inexistante
 	 */
 	private int findIDfromDisponibilite(long id) { 
 		boolean found = false;
@@ -140,33 +115,35 @@ public class Serveur extends HttpServlet {
 		int index = -1;
 		while (i < disponibilite.size() && !found) {
 			if (disponibilite.get(i).getId()==id) {
-				found = true;	
 				index = i;
+				found = true;					
 			}
 			i++;
 		}
 		return index;
 	}
 	/**
-	 * indique si une personne de disponibilite possède déjà un pseudo donné
+	 * Recherche parmi disponibilite une personne ayant le pseudo donné
 	 * @param pseudo de la personne recherchee
-	 * @return boolean
+	 * @return Personne avec ce pseudo si déjà pris, null sinon
 	 */
-	private boolean isPseudoAlreadyTaken(String pseudo) { 
+	private Personne personneWithPseudo(String pseudo) { 
 		boolean found = false;
+		Personne p = null;
 		int i=0;
 		while (i < disponibilite.size() && !found) {
 			if (disponibilite.get(i).getPseudo().equals(pseudo)) {
-				found = true;	
+				p = disponibilite.get(i);
+				found = true;	 
 			}
 			i++;
 		}
-		return found;
+		return p;
 	}
 	/**
 	 * opere le changement de pseudo avec le nouveau pseudo fourni. 
 	 * <p>Repère la Personne grâce à son id dans la liste ou l'ajoute si non trouvee.</p>
-	 * @param p
+	 * @param Personne p
 	 */
 	private void updateSwitch(Personne p) {
 		int index = findIDfromDisponibilite(p.getId());
@@ -180,7 +157,7 @@ public class Serveur extends HttpServlet {
 	/**
 	 * met à jour de l'état de connexion à true dans liste de disponibilité 
 	 * <p>Repère la Personne grâce à son id dans la liste ou l'ajoute si non trouvee.</p>
-	 * @param p
+	 * @param Personne p 
 	 */
 	private void updateConnection(Personne p) {
 		int index = findIDfromDisponibilite(p.getId());
@@ -195,7 +172,7 @@ public class Serveur extends HttpServlet {
 	/**
 	 * met à jour de l'état de connexion à false dans liste de disponibilité 
 	 * <p>Repère la Personne grâce à son id dans la liste ou l'ajoute si non trouvee.</p>
-	 * @param p
+	 * @param Personne p
 	 */
 	private void updateDeconnection(Personne p) {
 		int index = findIDfromDisponibilite(p.getId());
@@ -220,12 +197,5 @@ public class Serveur extends HttpServlet {
 			}			
 		}
 		return Liste;
-	}
-	
-	//pour tests
-	private void printListePersonne(ArrayList<Personne> l) {
-		for (int i=0; i< l.size();i++) {
-			System.out.println(i+" "+l.get(i).getPseudo()+" connected:"+l.get(i).getConnected()+" @dresse:"+l.get(i).getAdresse()+" port:"+l.get(i).getPort());
-		}	
 	}
 }

@@ -55,16 +55,5 @@ public class Personne implements Serializable{
 	public long getId() {
 		return id;
 	}
-	public static byte[] serialize(Personne p) throws IOException {
-	    ByteArrayOutputStream out = new ByteArrayOutputStream();
-	    ObjectOutputStream os = new ObjectOutputStream(out);
-	    os.writeObject(p);
-	    return out.toByteArray();
-	}
-	public static Personne deserialize(byte[] data) throws IOException, ClassNotFoundException {
-	    ByteArrayInputStream in = new ByteArrayInputStream(data);
-	    ObjectInputStream is = new ObjectInputStream(in);
-	    return (Personne) is.readObject();
-	}
 }
 
