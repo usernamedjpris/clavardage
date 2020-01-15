@@ -3,14 +3,26 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.Authenticator;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.ProxySelector;
 import java.net.SocketException;
+import java.net.URI;
 import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Observable;
@@ -47,7 +59,10 @@ public class ControleurApplication implements PropertyChangeListener{
 	InetAddress findIp() {
 		InetAddress localIp;
 		try {
-			localIp = InetAddress.getLocalHost();
+					DatagramSocket so=new DatagramSocket();
+					so.connect(InetAddress.getByAddress(new byte[]{1,1,1,1}), 0);
+					localIp=so.getLocalAddress();
+			//System.out.print(" adresse  ip : "+ localIp.toString());
 	 	    if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
 		for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
 			  NetworkInterface network = (NetworkInterface) enm.nextElement();
@@ -55,24 +70,14 @@ public class ControleurApplication implements PropertyChangeListener{
 			 	   for(Enumeration<InetAddress> s = network.getInetAddresses(); s.hasMoreElements();){
 			 		  InetAddress in = (InetAddress) s.nextElement();
 			 		 // System.out.print(" \nlocalIP s found : " +in.toString() + " ? "+ (!in.isLoopbackAddress() && in instanceof Inet4Address));
-			 		 //System.out.print(" \nloop: " +in.toString() + " ? "+ (in.isLoopbackAddress()));
+			 		// System.out.print(" \nloop: " +in.toString() + " ? "+ (in.isLoopbackAddress()));
 			 		  if(!in.isLoopbackAddress() && in instanceof Inet4Address)
 			 			  localIp=in;
 			 	   }
 			    }
 		//find good local ip last chance
 		 if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
-		try(DatagramSocket s=new DatagramSocket())
-		{
-		    try {
-				s.connect(InetAddress.getByAddress(new byte[]{1,1,1,1}), 0);
-				localIp=s.getLocalAddress();
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-			}
-		} catch (SocketException e1) {
-			e1.printStackTrace();
-		}
+				localIp = InetAddress.getLocalHost(); //buggy one
 		 }
 	 	    }
 		return localIp;
@@ -174,8 +179,36 @@ public class ControleurApplication implements PropertyChangeListener{
 			e.printStackTrace();
 		}
 	}
+	void test() {
+		 HttpClient client = HttpClient.newBuilder()
+			        .version(Version.HTTP_1_1)
+			        .followRedirects(Redirect.NORMAL)
+			        .connectTimeout(Duration.ofSeconds(20))
+			        .proxy(ProxySelector.of(new InetSocketAddress("localhost", 8080)))
+			        .build();
+		 HttpRequest request;
+		try {
+			request = HttpRequest.newBuilder()
+				        .uri(URI.create("https://foo.com/"))
+				        .timeout(Duration.ofMinutes(2))
+				        .header("Content-Type", "application/json")
+				        .POST(BodyPublishers.ofByteArray(Message.serialize(Message.Factory.askPseudoOkBroadcast(user))))
+				        .build();
+			   HttpResponse<byte[]> response;
+				response = client.send(request, BodyHandlers.ofByteArray());
+			
+			   System.out.println(response.statusCode());
+			   System.out.println(response.body());  
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			}
+			  /* client.sendAsync(request, BodyHandlers.ofString())
+			        .thenApply(HttpResponse::body)
+			        .thenAccept(System.out::println); */
+	}
 	ControleurApplication(){
 		init();
+		test();
 	    //on récupère les gens avec qui on a déjà parlé #offline reading
 	   for(Personne p: maBD.getPseudoTalked(user.getId())) {
 		   model.addElement(p);

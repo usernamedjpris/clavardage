@@ -34,14 +34,17 @@ public class VueChoixPseudo  implements ActionListener{
 	private void initialize() {
 		frame = new JDialog();
 		frame.setModalityType(JDialog.DEFAULT_MODALITY_TYPE);
-		frame.setBounds(100, 100, 600, 100);
+		frame.setBounds(100, 100, 250, 175);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(new FlowLayout());
 		frame.setTitle("Choisissez un pseudo ! :D ");
 		frame.setIconImage(new ImageIcon("images/icon.png").getImage());
 		//frame.getContentPane().setLayout(new GridLayout(6, 3));
 
-		JLabel lblPseudoDuJour = new JLabel("Surnom :");
+		
+		
+		
+		JLabel lblPseudoDuJour = new JLabel(" Pseudo :");
 		lblPseudoDuJour.setHorizontalAlignment(SwingConstants.CENTER);
 		lblPseudoDuJour.setFont(new Font("Courier New", Font.BOLD, 20));
 		frame.getContentPane().add(lblPseudoDuJour);
@@ -49,7 +52,7 @@ public class VueChoixPseudo  implements ActionListener{
 
 		textField = new JTextField();
 		textField.setFont(new Font("Courier New", Font.BOLD | Font.ITALIC, 20));
-		textField.setPreferredSize(new Dimension(220,25));
+		textField.setPreferredSize(new Dimension(200,25));
 		frame.getContentPane().add(textField);
 
 
@@ -62,11 +65,15 @@ public class VueChoixPseudo  implements ActionListener{
 		btnLogin.setBackground(new Color(102, 205, 170));
 		btnLogin.setForeground(Color.WHITE);
 		btnLogin.setFont(new Font("Courier New", Font.BOLD, 20));
-		btnLogin.setPreferredSize(new Dimension(205,25));
+		btnLogin.setPreferredSize(new Dimension(200,25));
 		panel.add(btnLogin);
 		btnLogin.addActionListener(this);
-
+		
 		if(!inApp) {
+			JLabel lblIp = new JLabel(" ip : "+app.getPersonne().getAdresse());
+			lblIp.setHorizontalAlignment(SwingConstants.CENTER);
+			lblIp.setFont(new Font("Courier New", Font.BOLD, 10));
+			frame.getContentPane().add(lblIp);
 			//frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 			/*JButton btnCan = new JButton(" annuler");
 			btnCan.setBackground(new Color(255, 102, 102));
@@ -90,7 +97,7 @@ public class VueChoixPseudo  implements ActionListener{
 					System.exit(0);
 				}
 			});
-		}
+		} 
 
 		frame.getRootPane().setDefaultButton(btnLogin); //permet de l'appuyer en appuyant sur entree
 		frame.setVisible(true);

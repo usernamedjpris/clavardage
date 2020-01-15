@@ -52,8 +52,12 @@ public class BD {
 			Statement s0=c.createStatement();
 			s0.executeUpdate("SET DATABASE SQL SYNTAX MYS TRUE");
 			Statement s=c.createStatement();
-			s.executeUpdate("INSERT IGNORE INTO preferences VALUES (1,'.')");		
+			s.executeUpdate("INSERT IGNORE INTO preferences VALUES (1,'.')");	
 			
+			//kind of finalize but secure for standard exit
+			Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
+		         deconnexion();
+				    }});
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -89,17 +93,12 @@ public class BD {
 	public void deconnexion() {
 		try {
 			if (c != null) {
+				System.out.print(" close BD !");
 				c.close();
-				c = null;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void finalize() // dst //NB: pas de garantie d'appel
-	{
-		this.deconnexion();
 	}
 	/**
 	 * Attribue un id à un pseudo donné

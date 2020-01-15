@@ -70,7 +70,7 @@
       </java>
 </target>
 <!-- ultra quick run, for already compiled files -->
-<target name="relaunch" depends="compile">
+<target name="relaunch">
       <java fork = "true" failonerror = "yes" classpath="${bin.dir};${lib.dir}/*" classname = "${main-class}">
       </java>
 </target>
