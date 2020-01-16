@@ -1,0 +1,9 @@
+package com.sdzee.servlets;
+
+import javax.servlet.http.HttpServlet;
+
+public class Test extends HttpServlet {
+public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException{
+		
+	}
+}

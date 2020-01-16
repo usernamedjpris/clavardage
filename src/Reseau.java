@@ -9,6 +9,9 @@ import java.util.Observer;
 
 import javax.swing.JOptionPane;
 
+import com.clava.serializable.Message;
+import com.clava.serializable.Personne;
+
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
 

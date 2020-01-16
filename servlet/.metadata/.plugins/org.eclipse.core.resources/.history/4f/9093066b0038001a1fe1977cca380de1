@@ -1,0 +1,5 @@
+package com.sdzee.servlets;
+
+public class Message {
+
+}

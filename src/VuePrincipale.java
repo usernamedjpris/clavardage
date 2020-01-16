@@ -48,6 +48,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+import com.clava.serializable.Message;
+import com.clava.serializable.Personne;
 
 public class VuePrincipale {
 

@@ -1,3 +1,5 @@
+package com.clava.serializable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,7 +25,10 @@ This variable will be loaded with current value defined in the class during dese
 */
 public class Message implements Serializable {
 
-	private static final long serialVersionUID = -8338507989483169683L;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE,ASKPSEUDO,REPLYPSEUDO, FILE, DEFAULT}
 	private byte[] data;
 	private Personne emetteur;

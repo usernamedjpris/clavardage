@@ -1,8 +1,11 @@
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Authenticator;
 import java.net.DatagramSocket;
 import java.net.Inet4Address;
@@ -20,10 +23,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Enumeration;
 import java.util.Observable;
 import java.util.Observer;
@@ -34,6 +39,9 @@ import javax.swing.JOptionPane;
 
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Wini;
+import com.clava.serializable.Message;
+import com.clava.serializable.Personne;
+
 
 //tips: ctrl +r =run (me) ctrl+F11 (standard)
 //ctrl+maj+F11=code coverage (standard)
@@ -180,16 +188,72 @@ public class ControleurApplication implements PropertyChangeListener{
 		}
 	}
 	void test() {
+		
+		
+		HttpClient client = HttpClient.newBuilder()
+			      .version(Version.HTTP_2)
+			      .followRedirects(Redirect.NORMAL)
+			      .build();
+		HttpRequest request;
+		try {
+			/*byte[] encodedBytes = Base64.getEncoder().encode(Message.serialize(Message.Factory.whoIsAliveBroadcast(user)));
+			System.out.println("encodedBytes " + new String(encodedBytes));
+			byte[] decodedBytes = Base64.getDecoder().decode(encodedBytes);
+			System.out.println("decodedBytes " + new String(decodedBytes));*/
+			
+			///TODO refactoring
+			//encodage inutile (cf reponse au retour non encode, taille de l'envoi àvoir si utile ou pas)
+			
+			byte[] m=Message.serialize(Message.Factory.whoIsAliveBroadcast(user));
+			ByteArrayOutputStream m2 =new ByteArrayOutputStream();
+			DataOutputStream dos = new DataOutputStream(m2);
+			int len = m.length;
+			dos.writeInt(len);
+			if (len > 0) {
+			    dos.write(m, 0, len);
+			    dos.flush();
+			}
+			byte[] encodedBytes = Base64.getEncoder().encode(m2.toByteArray());
+			request = HttpRequest.newBuilder()
+				      .uri(URI.create("http://localhost:8080/test/clavardeur"))
+				      .timeout(Duration.ofMinutes(1))
+				      .header("Content-Type", "application/octet-stream")
+				      .POST(BodyPublishers.ofByteArray(encodedBytes))
+				      .build();
+		
+		 HttpResponse<byte[]> response  = client.send(request, BodyHandlers.ofByteArray());
+		 Message rep=Message.deserialize(response.body());
+		 System.out.println("\n" +rep.getType()+" \n contenu "+rep.toHtml());
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		     
+			      
+		/*
+
+	    HttpResponse<String> response = null;
+		try {
+			response = client.send(request, BodyHandlers.ofString());
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}*/
+
+	    
+		  /*
+		    
 		 HttpClient client = HttpClient.newBuilder()
 			        .version(Version.HTTP_1_1)
 			        .followRedirects(Redirect.NORMAL)
 			        .connectTimeout(Duration.ofSeconds(20))
-			        .proxy(ProxySelector.of(new InetSocketAddress("localhost", 8080)))
 			        .build();
 		 HttpRequest request;
 		try {
 			request = HttpRequest.newBuilder()
-				        .uri(URI.create("https://foo.com/"))
+				        .uri(URI.create("http://localhost:8080/serveur/bonjour"))
 				        .timeout(Duration.ofMinutes(2))
 				        .header("Content-Type", "application/json")
 				        .POST(BodyPublishers.ofByteArray(Message.serialize(Message.Factory.askPseudoOkBroadcast(user))))
@@ -198,10 +262,16 @@ public class ControleurApplication implements PropertyChangeListener{
 				response = client.send(request, BodyHandlers.ofByteArray());
 			
 			   System.out.println(response.statusCode());
-			   System.out.println(response.body());  
-			} catch (IOException | InterruptedException e) {
+			   System.out.println(response.body()); 
+			   try {
+				System.out.print(Message.deserialize(response.body()).toHtml());
+			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
+			   
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			}*/
 			  /* client.sendAsync(request, BodyHandlers.ofString())
 			        .thenApply(HttpResponse::body)
 			        .thenAccept(System.out::println); */

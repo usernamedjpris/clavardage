@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.swing.JOptionPane;
-
+import com.clava.serializable.Message;
+import com.clava.serializable.Personne;
 //https://www.baeldung.com/java-broadcast-multicast
 public class ClientUDP {
 	int portUDP;

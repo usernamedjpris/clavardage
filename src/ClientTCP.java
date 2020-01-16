@@ -3,6 +3,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import com.clava.serializable.Message;
+import com.clava.serializable.Personne;
 public class ClientTCP {
 
 	

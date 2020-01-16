@@ -28,3 +28,25 @@ SuperDB.data
 SuperDB.lobs
 doc/debug.log
 src_serveur/WebContent/debug.log
+/.metadata/
+Servers/.project
+Servers/.settings/org.eclipse.wst.server.core.prefs
+Servers/Tomcat v9.0 Server at localhost-config/catalina.policy
+Servers/Tomcat v9.0 Server at localhost-config/catalina.properties
+Servers/Tomcat v9.0 Server at localhost-config/context.xml
+Servers/Tomcat v9.0 Server at localhost-config/server.xml
+Servers/Tomcat v9.0 Server at localhost-config/tomcat-users.xml
+Servers/Tomcat v9.0 Server at localhost-config/web.xml
+serveur/.project
+serveur/.settings/.jsdtscope
+serveur/.settings/org.eclipse.jdt.core.prefs
+serveur/.settings/org.eclipse.wst.common.component
+serveur/.settings/org.eclipse.wst.common.project.facet.core.xml
+serveur/.settings/org.eclipse.wst.jsdt.ui.superType.container
+serveur/.settings/org.eclipse.wst.jsdt.ui.superType.name
+serveur/src/com/octest/servlets/Message.java
+serveur/src/com/octest/servlets/Personne.java
+serveur/src/com/octest/servlets/Serveur.java
+serveur/WebContent/debug.log
+serveur/WebContent/META-INF/MANIFEST.MF
+serveur/WebContent/WEB-INF/web.xml
