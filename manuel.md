@@ -3,10 +3,10 @@ retour au [sommaire](README.md)<br>
 **prérequis** : Installation du terminal réussie<br>
 
 ### Aperçu
-*Vue choix pseudo*
-[*Vue choix pseudo*](images/VueChoixPseudo.png)
-*Vue principale*
-[*Vue principale*](images/VuePrincipale.png)
+*Vue choix pseudo :*<br>
+![*Vue choix pseudo*](images/VueChoixPseudo.png)<br>
+*Vue principale :*<br>
+![*Vue principale*](images/VuePrincipale.png)<br>
 
 ### Lancement
 Lancer l'application après une première compilation:<br>
