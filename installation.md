@@ -1,4 +1,3 @@
-retour au [sommaire](README.md)<br>
 ## Installation
 ### Terminal
 **prérequis** : JVM ?<br>
@@ -10,3 +9,4 @@ Compiler le projet :<br>
 Lancer le [clavardeur.war](war/) sur un serveur.
 <br><br><br>
 [manuel d'utilisation >](manuel.md "manuel >")
+retour au [sommaire](README.md)<br>
