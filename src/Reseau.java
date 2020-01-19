@@ -37,7 +37,7 @@ public class Reseau implements PropertyChangeListener {
 	private Reseau() {
 	}
 	///TODO connexion à la classe gestion servlet
-	void init(int portTCP, int portUDP, InetAddress ipServer, int portServer) {
+	void init(int portTCP, int portUDP, String ipServer, int portServer) {
 		support = new PropertyChangeSupport(this);
 		this.reception = new ServeurTCP(portTCP);
 		this.reception.addPropertyChangeListener(this);
@@ -49,11 +49,8 @@ public class Reseau implements PropertyChangeListener {
 		Thread tu = new Thread(serveurUDP);
         tu.start();
         
-        try {
-        	this.clientHTTP=new ClientHTTP(ipServer, portServer);
-        } catch (MalformedURLException e) {
-        	e.printStackTrace();
-        }
+        this.clientHTTP=new ClientHTTP(ipServer, portServer);
+        clientHTTP.addPropertyChangeListener(this);
 		this.envoi = new ClientTCP();//on get auto adresse +port dans personne destinataire (get from serveur/UDP #discovery part)
 		this.clientUDP = new ClientUDP(portUDP);//port nécessaire pour broadcast, #same config UDP everywhere
 	}

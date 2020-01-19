@@ -126,7 +126,7 @@ public class ControleurApplication implements PropertyChangeListener{
 		return mac;
 	}
 	void init() {
-		InetAddress ipServer=null;
+		String ipServer=null;
 		InetAddress ipForceLocal=null;
 		String mac =null;
 		boolean forceUseIp=false;
@@ -142,13 +142,8 @@ public class ControleurApplication implements PropertyChangeListener{
 		int portUDP =ini.get("IP", "UDPport", int.class);
 		int portServer =ini.get("IP", "publicServerPort",int.class);
 		pathDownload=new File(ini.get("DOWNLOAD", "path",String.class));
-				try {
-					ipServer =InetAddress.getByName(ini.get("IP", "publicServerIp", String.class));
-				} catch (UnknownHostException e1) {
-					JOptionPane.showMessageDialog(null, " L'adresse IP fournie pour le serveur public dans config.ini n'est pas au format correct,"+
-				" vérifiez votre saisie ou supprimez ce champs", "Web Server", JOptionPane.ERROR_MESSAGE);	
-					System.exit(0);
-				}
+		ipServer =ini.get("IP", "publicServerIp", String.class);//InetAddress.getByName(
+				
 				try {
 					String s=ini.get("ADVANCED", "doNotUseAutoIpAndUseThisOne", String.class);
 					if(!s.equals("")) {
@@ -341,7 +336,7 @@ IOUtils.write(encoded, output);
 	           Message message = (Message) evt.getNewValue();
 	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
 	           // || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE
-        	   if(message.getEmetteur().getId()!= user.getId()) {
+        	   if(message.getEmetteur().getId()!= user.getId()  || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+
 	        		   "("+message.getEmetteur().getAddressAndPorts().toString()+")"+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
