@@ -1,4 +1,3 @@
-retour au [sommaire](README.md)<br>
 ## Manuel d'utilisation
 **prérequis** : Installation du terminal réussie<br>
 
@@ -80,3 +79,4 @@ NB: Les noms des fichiers reçus sont cliquables ! <br>
 Et les liens écrits à la volée e.g. `https://google.com` aussi !
 <br><br><br>
 [< installation](installation.md "< installation")          •          [choix d'implémentation >](choix.md "choix d'implémentation >")
+retour au [sommaire](README.md)<br>

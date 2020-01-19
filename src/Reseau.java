@@ -1,16 +1,12 @@
-
+import com.clava.serializable.Message;
+import com.clava.serializable.Personne;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Observable;
-import java.util.Observer;
-
+import java.net.MalformedURLException;
 import javax.swing.JOptionPane;
-
-import com.clava.serializable.Message;
-import com.clava.serializable.Personne;
 
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
@@ -19,6 +15,7 @@ import com.clava.serializable.Personne;
 //public class Reseau extends Observable implements Observer {
 public class Reseau implements PropertyChangeListener {
 	private PropertyChangeSupport support;
+	private ClientHTTP clientHTTP;
 	private ServeurTCP reception;
 	private ClientTCP envoi;
 	private ClientUDP clientUDP;
@@ -51,7 +48,12 @@ public class Reseau implements PropertyChangeListener {
 		this.serveurUDP.addPropertyChangeListener(this);
 		Thread tu = new Thread(serveurUDP);
         tu.start();
-
+        
+        try {
+        	this.clientHTTP=new ClientHTTP(ipServer, portServer);
+        } catch (MalformedURLException e) {
+        	e.printStackTrace();
+        }
 		this.envoi = new ClientTCP();//on get auto adresse +port dans personne destinataire (get from serveur/UDP #discovery part)
 		this.clientUDP = new ClientUDP(portUDP);//port nécessaire pour broadcast, #same config UDP everywhere
 	}
@@ -75,8 +77,9 @@ public class Reseau implements PropertyChangeListener {
 	}
 
 	public void sendDataBroadcast(Message message) {
-	try {
+		try {			
 			clientUDP.broadcast(message);
+			clientHTTP.sendMessage(message);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
