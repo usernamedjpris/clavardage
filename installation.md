@@ -8,5 +8,5 @@ Compiler le projet :<br>
 ### Serveur de présence
 Lancer le [clavardeur.war](war/) sur un serveur.
 <br><br><br>
-[manuel d'utilisation >](manuel.md "manuel >")
+[Manuel d'utilisation >](manuel.md "manuel >")<br>
 retour au [sommaire](README.md)<br>
