@@ -3,7 +3,7 @@
 ### Choix de conception
 #### MVC
 ![class](conception/COO-ClassDiagram.png)
-NB: cette représentation de ces trois packages Model-View-Controller est une vue de l'esprit qui n'a pas été implémentée.
+NB: cette représentation de ces trois packages Model-View-Controller est une vue de l'esprit qui a été respectée dans son principe — qui a facilité le développement simultané de l'application et éventuellement facilitera la maintenabilité et l'amélioration de l'application — mais qui n'a volontairement pas été écrite pour ne pas surcharger le code.
 
 ##### Modèle
 Le modèle contient le plus de classes (12 en tout).
@@ -24,14 +24,18 @@ Dans les faits les classes `Group`, `Interlocuteur`, `Message` et `Personne` ont
 Le contrôleur se résume en une seule classe `ControllerApplication`.
 Le couplage entre `ControllerApplication` et les classes serveurs du réseau `ServeurUDP` et `ServeurSocketTCP` est affaiblit grâce au design patern Observer.
 
-### Fonctionnement des principales actions
+### Fonctionnement des principaux cas d'utilisation
+#### Diagramme de cas d'utilisation
+![diagramme](conception/usecasediagram.png)<br>
+
 #### Vues
 *Vue choix pseudo :*<br>
 ![*Vue choix pseudo*](images/VueChoixPseudo.png)<br>
 *Vue principale :*<br>
 ![*Vue principale*](images/VuePrincipale.png)<br>
 
-#### Connexion
+#### Se connecter
+voir le [diagramme de séquence](conception/seqdiagram_seconnecter.png)
 1. Installer et lancer SuperClavardeur™
 	- le programme demande qui est présent `Message.Type =`**`WHOISALIVE`**
 	- *Vue choix Pseudo* s'ouvre
@@ -46,10 +50,11 @@ Le couplage entre `ControllerApplication` et les classes serveurs du réseau `Se
 			- ↳ retour 2.
 		- sinon
 			- le programme notifie la connexion de l'utilisateur aux autres utilisateurs `Message.Type =`**`CONNECTION`**  
-			- *Vue principale* s'ouvre
 			- *Vue choix Pseudo* se ferme
+			- *Vue principale* s'ouvre
 
-#### Changement de pseudo
+#### Changer de pseudo
+voir le [diagramme de séquence](conception/seqdiagram_changerpseudo.png)
 1. Lancer SuperClavardeur™ et se connecter
 2. Cliquer sur `bouton changement pseudo` de la *Vue principale*
 	- *Vue choix Pseudo* s'ouvre
@@ -64,10 +69,11 @@ Le couplage entre `ControllerApplication` et les classes serveurs du réseau `Se
 			- ↳ retour 3.
 		- sinon
 			- le programme notifie le changement de pseudo aux autres utilisateurs `Message.Type =`**`SWITCH`**  
-			- le programme met à jour le nom de pseudo partout dans la *Vue principale*
 			- *Vue choix Pseudo* se ferme
+			- le programme met à jour sa base de donnée locale
+			- le programme met à jour le nom de pseudo partout dans la *Vue principale*
 
-#### Création d'un groupe 
+#### Créer un nouveau groupe 
 1. Lancer SuperClavardeur™ et se connecter
 2. Cliquer sur `bouton création groupe` de la *Vue principale*
 	- *Vue Création Groupe* s'ouvre
@@ -77,7 +83,8 @@ Le couplage entre `ControllerApplication` et les classes serveurs du réseau `Se
 	- le programme ajoute le nouveau groupe dans la *Vue principale*
 	- *Vue Création Groupe* se ferme
 
-#### Envoi d'un message texte
+#### Envoyer un message texte
+voir le [diagramme de séquence](conception/seqdiagram_envoyertext.png)
 1. Lancer SuperClavardeur™ et se connecter
 2. Sélectionner un destinataire dans la `zone de découverte` de la *Vue principale*
 3. Rentrer un texte à envoyer dans la `zone de texte` 
@@ -91,9 +98,10 @@ Le couplage entre `ControllerApplication` et les classes serveurs du réseau `Se
 	- sinon
 		- le texte est encapsulé dans un message daté et envoyé au destinataire par TCP `Message.Type =`**`DEFAULT`**
 		- le message est enregistré dans la base de donnée locale
-		- la conversation avec ce destinanataire (`visualisation historique` de la *Vue principale*) est mise à jour avec la base de donnée locale
+		- la conversation avec ce destinataire (`visualisation historique` de la *Vue principale*) est mise à jour avec la base de donnée locale
 
-#### Envoi d'un message fichier
+#### Envoyer un message fichier
+voir le [diagramme de séquence](conception/seqdiagram_envoyerfichier.png)
 1. Lancer SuperClavardeur™ et se connecter
 2. Sélectionner un destinataire dans la `zone de découverte` de la *Vue principale*
 3. Cliquer sur le `bouton envoi fichier` ou `SHIFT` + `F`
@@ -105,14 +113,16 @@ Le couplage entre `ControllerApplication` et les classes serveurs du réseau `Se
 		- le message est enregistré dans la base de donnée locale
 		- la conversation avec ce destinanataire (`visualisation historique` de la *Vue principale*) est mise à jour avec la base de donnée locale
 
-#### Réception d'un message texte/fichier
+#### Recevoir un message texte/fichier
+voir le [diagramme de séquence](conception/seqdiagram_recevoirmessage.png)
 1. Lancer SuperClavardeur™ et se connecter
 2. Recevoir un message/fichier 
 	- les données du message sont desencapsulés du message `Message.Type =`**`DEFAULT`**/`Message.Type =`**`FILE`**
 	- le message est enregistré dans la base de donnée locale
 	- la conversation avec ce destinanataire (`visualisation historique` de la *Vue principale*) est mise à jour avec la base de donnée locale
 
-#### Déconnexion
+#### Se déconnecter
+voir le [diagramme de séquence](conception/seqdiagram_sedeconnecter.png)
 1. Lancer SuperClavardeur™ et se connecter
 2. Fermer l'application `bouton déconnexion` ou `x` de la *Vue principale*
 	- le programme notifie la déconnexion de l'utilisateur aux autres utilisateurs `Message.Type =`**`DECONNECTION`** 
