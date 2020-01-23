@@ -33,22 +33,22 @@ public class Message implements Serializable {
 	/**
 	 * 
 	 */
-	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE,ASKPSEUDO,REPLYPSEUDO, FILE, DEFAULT}
+	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE,ASKPSEUDO,REPLYPSEUDO, FILE,GROUPCREATION, DEFAULT}
 	private byte[] data;
-	private Personne emetteur;
-	private Personne destinataire;
+	private Interlocuteurs emetteur;
+	private Interlocuteurs destinataire;
 	private Date date;
 	private Type t;
 	private String nameFile;
 	
 	/**
-	 * Message à une personne TCP ou UDP (si réponse broadcast)
+	 * Message à une Interlocuteurs TCP ou UDP (si réponse broadcast)
 	 * @param cat type de message entre ALIVE, REPLYPSEUDO, DEFAULT
 	 * @param data texte si DEFAULT, null sinon
 	 * @param emetteur
 	 * @param destinataire
 	 */
-	private Message(Type cat,byte[] data, Personne emetteur, Personne destinataire) {
+	private Message(Type cat,byte[] data, Interlocuteurs emetteur, Interlocuteurs destinataire) {
 		this.data = data;
 		this.emetteur = emetteur;
 		this.destinataire=(destinataire);
@@ -60,13 +60,13 @@ public class Message implements Serializable {
 	/**
 	 * Broadcast Message UDP
 	 * @param cat type entre SWITCH, CONNEXION, DECONNEXION, WHOISALIVE, ASKPSEUDO
-	 * @param personne c-a-d l'emetteur
+	 * @param Interlocuteurs c-a-d l'emetteur
 	 * <br> rq pour SWITCH le nouveau pseudo est dans l'emetteur( check les id et maj en reception)
 	 * <br> idem pour ASKPSEUDO
 	 */
-	private Message(Type cat, Personne personne) {
+	private Message(Type cat, Interlocuteurs Interlocuteurs) {
 		destinataire=null;
-		emetteur=personne;
+		emetteur=Interlocuteurs;
 		t=cat;
 		date=new Date();
 	}
@@ -79,7 +79,7 @@ public class Message implements Serializable {
 	 * @param date2 date d'envoi
 	 * @param name nom du fichier
 	 */
-	private Message(Type typ,byte[] bytes, Personne emet, Personne interlocuteur, Date date2,String name) {
+	private Message(Type typ,byte[] bytes, Interlocuteurs emet, Interlocuteurs interlocuteur, Date date2,String name) {
 		data=bytes;
 		emetteur=emet;
 		destinataire=interlocuteur;
@@ -92,20 +92,20 @@ public class Message implements Serializable {
 		/**
 		 * @param data texte à transmettre
 		 * @param emetteur l'utilisateur
-		 * @param destinataire la personne avec qui il communique (conversation ouverte)
+		 * @param destinataire la Interlocuteurs avec qui il communique (conversation ouverte)
 		 * @return Message
 		 */
-		static public Message sendText(byte[] data,Personne emetteur, Personne destinataire) {
+		static public Message sendText(byte[] data,Interlocuteurs emetteur, Interlocuteurs destinataire) {
 			return new Message(Message.Type.DEFAULT,data,emetteur,destinataire);
 			}
 		/**
 		 * @param bytes fichier en bytes
 		 * @param emetteur l'utilisateur
-		 * @param destinataire la personne avec qui il communique (conversation ouverte)
+		 * @param destinataire la Interlocuteurs avec qui il communique (conversation ouverte)
 	     * @param name nom du fichier
 		 * @return Message
 		 */
-		static public Message sendFile(byte[] data,Personne emetteur, Personne destinataire, String name) {
+		static public Message sendFile(byte[] data,Interlocuteurs emetteur, Interlocuteurs destinataire, String name) {
 			return new Message(Message.Type.FILE,data,emetteur,destinataire,new Date(),name);
 			}
 		/**
@@ -118,7 +118,7 @@ public class Message implements Serializable {
 		 * @param name
 		 * @return
 		 */
-		static public Message recreateMessageFromData(Type type,byte[] data,Personne emetteur, Personne destinataire,Date date) {
+		static public Message recreateMessageFromData(Type type,byte[] data,Interlocuteurs emetteur, Interlocuteurs destinataire,Date date) {
 			if(type==Type.FILE)
 			return new Message(type,"".getBytes(),emetteur,destinataire,date,new String(data));
 			else
@@ -126,18 +126,18 @@ public class Message implements Serializable {
 			}
 		/**
 		 * @param emetteur l'utilisateur (s'il a déjà ou  attend déjà pour prendre ce pseudo)
-		 * @param destinataire personne qui a demandé si son pseudo était déjà pris
+		 * @param destinataire Interlocuteurs qui a demandé si son pseudo était déjà pris
 		 * @return Message lui notifiant qu'il est déjà pris
 		 */
-		static public Message usernameAlreaydTaken(Personne emetteur, Personne destinataire) {
+		static public Message usernameAlreaydTaken(Interlocuteurs emetteur, Interlocuteurs destinataire) {
 		return new Message(Message.Type.REPLYPSEUDO,null,emetteur,destinataire);
 		}
 		/**
 		 * @param emetteur utilisateur (s'il est prêt à communiquer (pseudo choisi))
-		 * @param destinataire personne qui a demandé qui était alive (en broadcast)
+		 * @param destinataire Interlocuteurs qui a demandé qui était alive (en broadcast)
 		 * @return Message
 		 */
-		static public Message userIsAlive(Personne emetteur, Personne destinataire) {
+		static public Message userIsAlive(Interlocuteurs emetteur, Interlocuteurs destinataire) {
 			return new Message(Message.Type.ALIVE,null,emetteur,destinataire);
 			}
 		
@@ -146,7 +146,7 @@ public class Message implements Serializable {
 		 * @param emetteur utilisateur
 		 * @return Message demandant aux autres utilisateurs de se notifier
 		 */
-		static public Message whoIsAliveBroadcast(Personne emetteur) {
+		static public Message whoIsAliveBroadcast(Interlocuteurs emetteur) {
 			return new Message(Message.Type.WHOISALIVE,emetteur);
 			}
 		/**
@@ -154,7 +154,7 @@ public class Message implements Serializable {
 		 * @param emetteur utilisateur
 		 * @return Message notifiant la connexion
 		 */
-		static public Message userConnectedBroadcast(Personne emetteur) {
+		static public Message userConnectedBroadcast(Interlocuteurs emetteur) {
 			return new Message(Message.Type.CONNECTION,emetteur);
 			}
 		/**
@@ -162,7 +162,7 @@ public class Message implements Serializable {
 		 * @param emetteur utilisateur (avec son nouveau pseudo ! )
 		 * @return Message notifiant le changement de pseudo
 		 */
-		static public Message switchPseudoBroadcast(Personne emetteur) {
+		static public Message switchPseudoBroadcast(Interlocuteurs emetteur) {
 			return new Message(Message.Type.SWITCH,emetteur);
 			}
 		/**
@@ -170,7 +170,7 @@ public class Message implements Serializable {
 		 * @param emetteur utilisateur
 		 * @return Message notifiant la déconnexion
 		 */
-		static public Message userDisconnectedBroadcast(Personne emetteur) {
+		static public Message userDisconnectedBroadcast(Interlocuteurs emetteur) {
 			return new Message(Message.Type.DECONNECTION,emetteur);
 			}
 		/**
@@ -178,10 +178,16 @@ public class Message implements Serializable {
 		 * @param emetteur utilisateur (avec le pseudo demandé déjà set )
 		 * @return Message demandant une réponse si le pseudo est déjà pris
 		 */
-		static public Message askPseudoOkBroadcast(Personne emetteur) {
+		static public Message askPseudoOkBroadcast(Interlocuteurs emetteur) {
 			return new Message(Message.Type.ASKPSEUDO,emetteur);
 			}
-		
+		/**
+		 * @param emetteur utilisateur qui crée le groupe
+		 * @param destinataires un groupe d'interlocuteur (pas de broadcast #confidentialité)
+		 */
+		static public Message createGroupe(Interlocuteurs emetteur,Interlocuteurs destinataires) {
+			return new Message(Message.Type.GROUPCREATION,null,emetteur,destinataires);
+			}
 		
 		
 	}
@@ -199,7 +205,7 @@ public class Message implements Serializable {
 	public byte[] getData() {
 		return data;
 	}
-	public Personne getEmetteur() {
+	public Interlocuteurs getEmetteur() {
 		return emetteur;
 	}
 	public String getNameFile() {
@@ -244,7 +250,7 @@ public class Message implements Serializable {
 		else
 			return "";
 	}
-	public Personne getDestinataire() {
+	public Interlocuteurs getDestinataire() {
 		return destinataire;
 	}
 	public void setNameFile(String name) {

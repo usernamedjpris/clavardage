@@ -64,7 +64,7 @@ public class ClientHTTP implements Runnable {
 		HttpRequest request;
 		try {
 		byte[] m= Message.serialize(message);
-		
+		/*
 		ByteArrayOutputStream m2 =new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(m2);
 		int len = m.length;
@@ -75,22 +75,22 @@ public class ClientHTTP implements Runnable {
 		}
 		
 		
-		byte[] encodedBytes = Base64.getEncoder().encode(m2.toByteArray());
+		byte[] encodedBytes = Base64.getEncoder().encode(m2.toByteArray());*/
 		request = HttpRequest.newBuilder()
 			      .uri(URI.create("http://"+ipServer+":"+portServer+"/test/clavardeur"))
 			      .timeout(Duration.ofMinutes(1))
 			      .header("Content-Type", "application/octet-stream")
-			      .POST(BodyPublishers.ofByteArray(encodedBytes))
+			      .POST(BodyPublishers.ofByteArray(m))
 			      .build();
-		
+		client.send(request, BodyHandlers.ofByteArray());/*
 		 HttpResponse<byte[]> response  = client.send(request, BodyHandlers.ofByteArray());
 		 Message rep=Message.deserialize(response.body());
 		 support.firePropertyChange("message","", rep);
-		 System.out.println("\n" +rep.getType()+" \n contenu "+rep.toHtml());
+		 System.out.println("\n" +rep.getType()+" \n contenu "+rep.toHtml());*/
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+			/*} catch (ClassNotFoundException e) {
+				e.printStackTrace();*/
 			} catch (IllegalArgumentException e) {
 				JOptionPane.showMessageDialog(null, " La combinaison adresse IP/port fournie pour le serveur public dans config.ini n'est pas au format correct,"+
 						" vérifiez votre saisie ", "Web Server", JOptionPane.ERROR_MESSAGE);

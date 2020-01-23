@@ -148,6 +148,7 @@ public class ControleurApplication implements PropertyChangeListener{
 					String s=ini.get("ADVANCED", "doNotUseAutoIpAndUseThisOne", String.class);
 					if(!s.equals("")) {
 						forceUseIp=true;
+						int a;
 						ipForceLocal =InetAddress.getByName(s);
 					}
 				} catch (UnknownHostException e1) {
@@ -178,95 +179,6 @@ public class ControleurApplication implements PropertyChangeListener{
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
-	}
-	void test() {
-		
-		
-		HttpClient client = HttpClient.newBuilder()
-			      .version(Version.HTTP_2)
-			      .followRedirects(Redirect.NORMAL)
-			      .build();
-		HttpRequest request;
-		try {
-			/*byte[] encodedBytes = Base64.getEncoder().encode(Message.serialize(Message.Factory.whoIsAliveBroadcast(user)));
-			System.out.println("encodedBytes " + new String(encodedBytes));
-			byte[] decodedBytes = Base64.getDecoder().decode(encodedBytes);
-			System.out.println("decodedBytes " + new String(decodedBytes));*/
-			
-			///TODO refactoring
-			//encodage inutile (cf reponse au retour non encode, taille de l'envoi àvoir si utile ou pas)
-			
-			byte[] m=Message.serialize(Message.Factory.whoIsAliveBroadcast(user));
-			ByteArrayOutputStream m2 =new ByteArrayOutputStream();
-			DataOutputStream dos = new DataOutputStream(m2);
-			int len = m.length;
-			dos.writeInt(len);
-			if (len > 0) {
-			    dos.write(m, 0, len);
-			    dos.flush();
-			}
-			byte[] encodedBytes = Base64.getEncoder().encode(m2.toByteArray());
-			request = HttpRequest.newBuilder()
-				      .uri(URI.create("http://localhost:8080/test/clavardeur"))
-				      .timeout(Duration.ofMinutes(1))
-				      .header("Content-Type", "application/octet-stream")
-				      .POST(BodyPublishers.ofByteArray(encodedBytes))
-				      .build();
-		
-		 HttpResponse<byte[]> response  = client.send(request, BodyHandlers.ofByteArray());
-		 Message rep=Message.deserialize(response.body());
-		 System.out.println("\n" +rep.getType()+" \n contenu "+rep.toHtml());
-			} catch (IOException | InterruptedException e) {
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		     
-			      
-		/*
-
-	    HttpResponse<String> response = null;
-		try {
-			response = client.send(request, BodyHandlers.ofString());
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-		}*/
-
-	    
-		  /*
-		    
-		 HttpClient client = HttpClient.newBuilder()
-			        .version(Version.HTTP_1_1)
-			        .followRedirects(Redirect.NORMAL)
-			        .connectTimeout(Duration.ofSeconds(20))
-			        .build();
-		 HttpRequest request;
-		try {
-			request = HttpRequest.newBuilder()
-				        .uri(URI.create("http://localhost:8080/serveur/bonjour"))
-				        .timeout(Duration.ofMinutes(2))
-				        .header("Content-Type", "application/json")
-				        .POST(BodyPublishers.ofByteArray(Message.serialize(Message.Factory.askPseudoOkBroadcast(user))))
-				        .build();
-			   HttpResponse<byte[]> response;
-				response = client.send(request, BodyHandlers.ofByteArray());
-			
-			   System.out.println(response.statusCode());
-			   System.out.println(response.body()); 
-			   try {
-				System.out.print(Message.deserialize(response.body()).toHtml());
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-			   
-			} catch (IOException | InterruptedException e) {
-				e.printStackTrace();
-			}*/
-			  /* client.sendAsync(request, BodyHandlers.ofString())
-			        .thenApply(HttpResponse::body)
-			        .thenAccept(System.out::println); */
 	}
 	ControleurApplication(){
 		init();

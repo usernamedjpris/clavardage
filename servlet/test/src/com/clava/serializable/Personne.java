@@ -1,61 +1,79 @@
 package com.clava.serializable;
-
 import java.io.Serializable;
 import java.net.*;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.ArrayList;
 
-public class Personne implements Serializable{
 
-	/**
-	 * 
-	 */
+public class Personne implements Serializable, Interlocuteurs{
+
 	private static final long serialVersionUID = 1L;
-	private InetAddress adresse;
-	private int port;//tcp, UDP étant en broadcast, il faut le même pour toutes les personnes (dans config.ini), inutile de charger personne avec un attribut static
+	private SimpleEntry<InetAddress, Integer> adresse;
+	/*port tcp, UDP est en broadcast, il faut le meme pour toutes les personnes 
+	(dans config.ini), inutile de charger personne avec un attribut static */
 	private String pseudo;
 	private boolean connected;
-	private long id;
+	private int id;
 	/**
-	 * @param adresse
-	 * @param portTCP 
+	 * @param a adresse et portTcp
 	 * @param pseudo
 	 * @param connected 
 	 * @param identifiant
 	 */
-	public Personne(InetAddress adresse,int port, String pseudo,boolean c, long id) {
-		this.adresse=adresse;
+	public Personne(SimpleEntry<InetAddress, Integer> a, String pseudo,boolean c, int id) {
+		this.adresse=a;
 		this.pseudo = pseudo;
 		connected=c;
 		this.id=id;
-		this.setPort(port);
 	}
 	
+	@Override
 	public boolean getConnected() {return connected;}
+	@Override
 	public String getPseudo() {
 		return pseudo;
 	}
-	public InetAddress getAdresse() {
-		return adresse;
-	}
+	@Override
 	public void setPseudo(String nouveauPseudo) {
 		pseudo=nouveauPseudo;
 	}
-	public void setInetAdress(InetAddress a) {
-		adresse=a;
-	}
+	@Override
 	public void setConnected(boolean b) {
 		connected=b;
-		
 	}
-	public long getId() {
+	@Override
+	public int getId() {
 		return id;
 	}
 
-	public int getPort() {
-		return port;
+	@Override
+	public void setPort(int port) {
+		adresse.setValue(port);
 	}
 
-	public void setPort(int port) {
-		this.port = port;
+	@Override
+	public ArrayList<SimpleEntry<InetAddress, Integer>> getAddressAndPorts() {
+		ArrayList<SimpleEntry<InetAddress, Integer>> array=new ArrayList<>();
+		array.add(adresse);
+		return array;
 	}
+
+	@Override
+	public void setAddressAndPorts(SimpleEntry<InetAddress, Integer> a) throws NoSuchMethodException {
+		this.adresse=a;
+		
+	}
+
+	@Override
+	public ArrayList<Interlocuteurs> getInterlocuteurs() {
+		 ArrayList<Interlocuteurs> array= new ArrayList<Interlocuteurs>();
+		 array.add(this);
+		return array;
+	}
+
+
+
+	
 
 }
