@@ -1,3 +1,0 @@
-• Image "litéralement : pouvoir envoyer des fichiers → (nomdufichier, tailledumessage, data) et ensuite élément cliquable sur nomdufichier"
-• Multicast "pas dans le cahier des charges"
-• Serveur centralisé "il y en a pas"
