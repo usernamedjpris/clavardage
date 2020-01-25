@@ -26,6 +26,8 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Enumeration;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
@@ -59,6 +61,14 @@ public class ControleurApplication implements PropertyChangeListener{
 	public static void main(String[] args) {
 			new ControleurApplication();
 
+	}
+	void configServeur() {
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			  @Override
+			  public void run() {
+				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
+			  }} , 3000, 3000);
 	}
 	InetAddress findIp() {
 		InetAddress localIp;
@@ -187,6 +197,7 @@ public class ControleurApplication implements PropertyChangeListener{
 	   for(Interlocuteurs p: maBD.getInterlocuteursTalked(user.getId())) {
 		   model.addElement(p);
 	   }
+	   configServeur();
 	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
 	    new VueChoixPseudo(this,false);
 	    model.addElement(user);
@@ -244,6 +255,62 @@ FileOutputStream output = new FileOutputStream(new File("target-file"));
 IOUtils.write(encoded, output);
 		 */
 		//on ne repond pas tant que l'on n'est pas initialis� (avec un pseudo)
+		//System.out.print(" \n type d'évenements: : "+evt.getPropertyName());
+		if(evt.getPropertyName().equals("serveur") && evt.getNewValue() instanceof Message) {
+			Message message = (Message) evt.getNewValue();
+
+			/*System.out.print(" \n Serveur send us :" +message.getType()+" avec ");
+			for(Interlocuteurs i:message.getEmetteur().getInterlocuteurs()) {
+				System.out.print( "\n pseudo :"+i.getPseudo()+"  "+i.getAddressAndPorts());
+			}*/
+			if(message.getType()==Message.Type.OKSERVEUR) {
+				
+			}
+			else if(message.getType()==Message.Type.REPLYPSEUDO)
+	        	   answerPseudo=false;
+			else if(message.getType()==Message.Type.ALIVE){
+			
+				for(Object ob: model.toArray()) {
+	        		   Interlocuteurs p =(Interlocuteurs)ob;
+	        		   boolean found=false;
+	        		   for(Interlocuteurs i:message.getEmetteur().getInterlocuteurs()) {
+			        		   if(p.getId()==i.getId()) {
+			        			   try {
+			        				   //le serveur contient tjrs le pseudo le + à jour
+			        				   System.out.print(" \n MAJ du pseudo de : "+p.getPseudo());
+									p.setPseudo(i.getPseudo());
+									found=true;
+								} catch (NoSuchMethodException e) {
+									e.printStackTrace();
+								}
+			        		   }
+			        		   //si la personne n'est pas présente dans la liste retournée par le serveur et n'est pas un groupe
+			        		   //(absent du serveur), c'est qu'elle s'est déconnectée
+			        		   if(!found && p.getInterlocuteurs().size()<2)
+								try {
+									System.out.print(" \n Deconnexion de: "+p.getPseudo());
+									p.setConnected(false);
+								} catch (NoSuchMethodException e) {
+									e.printStackTrace();
+								}
+	        	   }
+				}
+				//si la liste du serveur contient un nouveau venu on l'ajoute
+				 for(Interlocuteurs i:message.getEmetteur().getInterlocuteurs()) {
+	        		   boolean found=false;
+					 for(Object ob: model.toArray()) {
+		        		   Interlocuteurs p =(Interlocuteurs)ob;
+		        		   if(i.getId()==p.getId())
+		        			   found=true;
+					 }
+					 if(!found) {
+						 System.out.print(" \n Connexion de: "+i.getPseudo());
+						 model.add(0, i);
+					 }
+				 }
+			}else
+				System.out.print(" Warning unknow message type !");
+		}else {
 		  if (evt.getNewValue() instanceof Message) {
 	           Message message = (Message) evt.getNewValue();
 	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
@@ -295,7 +362,8 @@ IOUtils.write(encoded, output);
 	       		 main.updateList();
 	           }
 	           else if(message.getType()==Message.Type.DECONNECTION) {
-	        	  // int index = model.indexOf(message.getEmetteur());
+	        	  // int index = model.indexOf(message.getEmetteur()); // not working
+	        	   //fix via equals redefinition => refactoring possible ! 
 	        	   for(Object ob: model.toArray()) {
 	        		   Interlocuteurs p =(Interlocuteurs)ob;
 	        			   if(p.getId()==message.getEmetteur().getId()) {
@@ -365,6 +433,7 @@ IOUtils.write(encoded, output);
         	   }
 
 	        }
+		}
 	}
 	public void sendDisconnected() {
 			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));

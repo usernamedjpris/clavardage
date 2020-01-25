@@ -32,5 +32,11 @@ public interface Interlocuteurs extends Serializable{
 	void setPseudo(String nouveauPseudo) throws NoSuchMethodException ;
 
 	void setPort(int port) throws NoSuchMethodException;
+	
+	@Override
+    public boolean equals(Object o);
+	
+	@Override
+    public int hashCode();
 
 }

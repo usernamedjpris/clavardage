@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,7 +31,7 @@ public class Message implements Serializable {
 	/**
 	 * 
 	 */
-	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE,ASKPSEUDO,REPLYPSEUDO, FILE,GROUPCREATION, DEFAULT}
+	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE,ASKPSEUDO,REPLYPSEUDO, FILE,GROUPCREATION,OKSERVEUR, DEFAULT}
 	private byte[] data;
 	private Interlocuteurs emetteur;
 	private Interlocuteurs destinataire;
@@ -188,6 +186,13 @@ public class Message implements Serializable {
 		static public Message createGroupe(Interlocuteurs emetteur,Interlocuteurs destinataires) {
 			return new Message(Message.Type.GROUPCREATION,null,emetteur,destinataires);
 			}
+		/**
+		 * 
+		 * @return notify reception serveur ok
+		 */
+		static public Message okServeur() {
+			return new Message(Message.Type.OKSERVEUR,null);
+		}
 		
 		
 	}

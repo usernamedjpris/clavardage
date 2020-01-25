@@ -27,6 +27,17 @@ public class Personne implements Serializable, Interlocuteurs{
 		connected=c;
 		this.id=id;
 	}
+	@Override
+    public boolean equals(Object o) {
+		if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Personne p = (Personne) o;
+        return p.getId()==this.getId();
+	}
+	@Override
+    public int hashCode() {
+        return getId();
+    }
 	
 	@Override
 	public boolean getConnected() {return connected;}

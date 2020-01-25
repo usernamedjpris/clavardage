@@ -10,9 +10,19 @@ public class Group implements Interlocuteurs {
 	 */
 	private static final long serialVersionUID = 1L;
 	ArrayList<Interlocuteurs> p;
-	
+	@Override
+    public boolean equals(Object o) {
+		if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Group g = (Group) o;
+        return g.getId()==this.getId();
+	}
+	@Override
+    public int hashCode() {
+        return getId();
+    }
 	public Group(ArrayList<Interlocuteurs> liste){
-		System.out.print("liste :"+liste);
+		//System.out.print("liste :"+liste);
 		p=new ArrayList<>(liste);
 	}
 

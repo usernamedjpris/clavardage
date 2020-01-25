@@ -37,7 +37,7 @@ public class ClientHTTP implements Runnable {
 		this.portServer = portServer;
 		client = HttpClient.newBuilder()
 			      .version(Version.HTTP_2)
-			      .followRedirects(Redirect.NORMAL)
+			      .followRedirects(Redirect.NEVER)
 			      .build();
 		support = new PropertyChangeSupport(this);
 		
@@ -61,6 +61,7 @@ public class ClientHTTP implements Runnable {
 
 	@Override
 	public void run() {
+		
 		HttpRequest request;
 		try {
 		byte[] m= Message.serialize(message);
@@ -76,17 +77,20 @@ public class ClientHTTP implements Runnable {
 		
 		
 		byte[] encodedBytes = Base64.getEncoder().encode(m2.toByteArray());*/
+		System.out.print("http://"+ipServer+":"+portServer+"/test/clavardeur");
 		request = HttpRequest.newBuilder()
 			      .uri(URI.create("http://"+ipServer+":"+portServer+"/test/clavardeur"))
-			      .timeout(Duration.ofMinutes(1))
+			      .timeout(Duration.ofMillis(500)) 
 			      .header("Content-Type", "application/octet-stream")
 			      .POST(BodyPublishers.ofByteArray(m))
 			      .build();
-		client.send(request, BodyHandlers.ofByteArray());/*
+		
 		 HttpResponse<byte[]> response  = client.send(request, BodyHandlers.ofByteArray());
+		 
 		 Message rep=Message.deserialize(response.body());
-		 support.firePropertyChange("message","", rep);
-		 System.out.println("\n" +rep.getType()+" \n contenu "+rep.toHtml());*/
+		 support.firePropertyChange("serveur","", rep);
+		 
+		 System.out.println("\n reponse serveur : " +rep.getType());//+" personne(s) : "+rep.getEmetteur().getPseudo());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			/*} catch (ClassNotFoundException e) {
@@ -100,6 +104,8 @@ public class ClientHTTP implements Runnable {
 						" vérifiez votre saisie", "Web Server", JOptionPane.ERROR_MESSAGE);
 				e.printStackTrace();
 			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		

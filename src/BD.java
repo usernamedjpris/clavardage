@@ -274,7 +274,7 @@ public class BD {
 		ArrayList<Interlocuteurs> array=new ArrayList<>();
 		for (Interlocuteurs i: liste.values())
 			array.add(i);
-		System.out.print(" array bd :" +array.toString());
+		//System.out.print(" array bd :" +array.toString());
 		return array;
 	}
 	/**

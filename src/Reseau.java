@@ -34,6 +34,7 @@ public class Reseau implements PropertyChangeListener {
     public void removePropertyChangeListener(PropertyChangeListener pcl) {
         support.removePropertyChangeListener(pcl);
     }
+
 	private Reseau() {
 	}
 	///TODO connexion à la classe gestion servlet
@@ -72,11 +73,14 @@ public class Reseau implements PropertyChangeListener {
 			e.printStackTrace();
 		}
 	}
-
+	public void sendHttp(Message m) {
+		System.out.print("\n"+m.getEmetteur().getPseudo()+" envoi d'un message "+m.getType().toString()+" au serveur ");
+		clientHTTP.sendMessage(m);
+	}
 	public void sendDataBroadcast(Message message) {
 		try {			
 			clientUDP.broadcast(message);
-			clientHTTP.sendMessage(message);
+			sendHttp(message);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -93,6 +97,6 @@ public class Reseau implements PropertyChangeListener {
 	}
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		support.firePropertyChange("message", evt.getOldValue(), evt.getNewValue());
+		support.firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
 	}
 }

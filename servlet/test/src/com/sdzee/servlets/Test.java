@@ -1,5 +1,6 @@
 package com.sdzee.servlets;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.clava.serializable.Group;
 import com.clava.serializable.Interlocuteurs;
 import com.clava.serializable.Message;
 //https://openclassrooms.com/fr/courses/626954-creez-votre-application-web-avec-java-ee/619584-la-servlet
@@ -20,12 +22,14 @@ public class Test extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	private ArrayList<Interlocuteurs> disponibilite = new ArrayList<>();
-	private ClientTCP client;
+	//private ClientTCP client;
+	ArrayList<String> pseudoWaiting=new ArrayList<String>();
+	private int DEFAULT_BUFFER_SIZE=2048;
 	public Test(){
-		client=new ClientTCP();
+		//client=new ClientTCP();
 	}
 
-	synchronized protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	   // String description = request.getParameter("description"); // Retrieves <input type="text" name="description">
 	    //Part filePart = request.getPart("file"); // Retrieves <input type="file" name="file">
 	   // String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
@@ -40,18 +44,22 @@ public class Test extends HttpServlet {
            dis.read(data, 0,len);
        }*/
        byte[] data=fileContent.readAllBytes();
-	    System.out.print(data);
 			Message m;
 			try {
 				m = Message.deserialize(data);
 
-
-			
 			Interlocuteurs p = m.getEmetteur();				
 			//recuperation du couple (adresse,port) du NAT pour du tcp hole punching
 			InetAddress addrNat = InetAddress.getByName(request.getRemoteAddr());		
 			int portNat = request.getRemotePort();
-			
+			System.out.print(" \n RECEPTION DE : "+m.getType()+" avec "
+					+ "adresse : "+addrNat+" port "+portNat+" pseudo : "+
+					m.getEmetteur().getPseudo());
+			System.out.print(" \n LIST *users*  :  \n ");
+			for(Interlocuteurs i:disponibilite) {
+				System.out.print("adresse : "+addrNat+" port "+portNat+" pseudo : "+i.getPseudo()+" \n");
+			}
+			System.out.print("\n\n");
 			//rq: seule 1 personne envoie des messages au serveur
 			// (pas un groupe)
 			//=> cast to personn possible
@@ -64,25 +72,43 @@ public class Test extends HttpServlet {
 			
 			if (m.getType()==Message.Type.SWITCH) {
 	        	updateSwitch(p);
+	        	repondMessage(Message.Factory.okServeur(), response);
 	        }
 	        else if (m.getType()==Message.Type.CONNECTION) {
 	        	updateConnection(p);
+	        	pseudoWaiting.remove(p.getPseudo());
+	        	repondMessage(Message.Factory.okServeur(), response);
 	        }	        
 	        else if (m.getType()==Message.Type.DECONNECTION) {
 	        	updateDeconnection(p);
+	        	repondMessage(Message.Factory.okServeur(), response);
 	        }
 	        else if (m.getType()==Message.Type.ASKPSEUDO) {
+	        	boolean found=false;
+	        	for(String s:pseudoWaiting) {
+			        	if(s.equals(p.getPseudo())){
+			        		System.out.print(pseudoWaiting+" NEINNNNN already used !");
+			        		Message messageReplied = Message.Factory.usernameAlreaydTaken(null, p);
+			        		found=true;
+			        		repondMessage(messageReplied, response);
+			        		break;
+			        		//client.sendMessage(messageReplied, p); 
+			        	}
+	        	}
+	        	if(!found)
+	        		pseudoWaiting.add(p.getPseudo());
+	        	
 	        	Interlocuteurs samePseudo = personneWithPseudo(p.getPseudo());
 	        	if(samePseudo!=null) {
-	        		Message messageReplied = Message.Factory.usernameAlreaydTaken(samePseudo, p);
-	        		client.sendMessage(messageReplied, p); 
+	        		Message messageReplied = Message.Factory.usernameAlreaydTaken(null, p);
+	        		//client.sendMessage(messageReplied, p); 
+	        		repondMessage(messageReplied, response);
 	        	}
+	        	repondMessage(Message.Factory.okServeur(), response);
 	        }	
-	        else if (m.getType()==Message.Type.WHOISALIVE) {        	       	
-	        	for (Interlocuteurs i:disponibilite) { //on envoie autant de message ALIVE que de Persone who are alive	 
-	        		Message messageReplied = Message.Factory.userIsAlive(i, p);
-	        		client.sendMessage(messageReplied, p); 
-	        	}
+	        else if (m.getType()==Message.Type.WHOISALIVE) { 
+	        		Message messageReplied = Message.Factory.userIsAlive(new Group(disponibilite), p);
+	        		repondMessage(messageReplied, response);
 	        }	
 			} catch (ClassNotFoundException | IOException e1) {
 				e1.printStackTrace();
@@ -99,15 +125,14 @@ public class Test extends HttpServlet {
 	 * @return indexOf(id) ; -1 si inexistante
 	 */
 	private int findIDfromDisponibilite(long id) { 
-		boolean found = false;
-		int i=0;
-		int index = -1;
-		while (i < disponibilite.size() && !found) {
-			if (disponibilite.get(i).getId()==id) {
-				index = i;
-				found = true;					
+		int index=-1;
+		int tmp=0;
+		for(Interlocuteurs i:disponibilite) {
+			if(i.getId()==id) {
+				index=tmp;
+				break;
 			}
-			i++;
+			tmp++;
 		}
 		return index;
 	}
@@ -117,17 +142,12 @@ public class Test extends HttpServlet {
 	 * @return Personne avec ce pseudo si dÃ©jÃ  pris, null sinon
 	 */
 	private Interlocuteurs personneWithPseudo(String pseudo) { 
-		boolean found = false;
-		Interlocuteurs p = null;
-		int i=0;
-		while (i < disponibilite.size() && !found) {
-			if (disponibilite.get(i).getPseudo().equals(pseudo)) {
-				p = disponibilite.get(i);
-				found = true;	 
+		for(Interlocuteurs i:disponibilite) {
+			if(i.getPseudo().equals(pseudo)) {
+				return i;
 			}
-			i++;
 		}
-		return p;
+		return null;
 	}
 	/**
 	 * opere le changement de pseudo avec le nouveau pseudo fourni. 
@@ -147,31 +167,31 @@ public class Test extends HttpServlet {
 		else {
 			disponibilite.add(p);
 		}
-		try {
-			for(Interlocuteurs o:disponibilite)
-			client.sendMessage(Message.Factory.switchPseudoBroadcast(p),o);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	/*		for(Interlocuteurs o:disponibilite) {
+				repondMessage(Message.Factory.switchPseudoBroadcast(p),response);
+			//client.sendMessage(Message.Factory.switchPseudoBroadcast(p),o);
+			}
+			*/
 	}
 	/**
 	 * met Ã  jour de l'Ã©tat de connexion Ã  true dans liste de disponibilitÃ© 
 	 * <p>RepÃ¨re la Personne grÃ¢ce Ã  son id dans la liste ou l'ajoute si non trouvee.</p>
+	 * @param response 
 	 * @param Personne p 
 	 */
 	private void updateConnection(Interlocuteurs p) {
 		int index = findIDfromDisponibilite(p.getId());
-		if (index<0) { //la personne est dans disponibilite
+		if (index<0) {
 			disponibilite.add(p);
 		}else
 			System.out.print("Check your code, not one can connect itself"
 					+ " twice without disconnect between both");
-		try {
+		/*try {
 			for(Interlocuteurs o:disponibilite)
 			client.sendMessage(Message.Factory.userConnectedBroadcast(p),o);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 	/**
 	 * met Ã  jour de l'Ã©tat de connexion Ã  false dans liste de disponibilitÃ© 
@@ -179,14 +199,41 @@ public class Test extends HttpServlet {
 	 * @param Personne p
 	 */
 	private void updateDeconnection(Interlocuteurs p) {
-		
-			disponibilite.remove(p);
-			try {
+
+			if(!disponibilite.remove(p)) {
+				System.out.print(" \n Check updateDecconection, it's not possible to "
+						+ "deconnect without first being conected via a CONNEXION");
+			}
+			/*try {
 				for(Interlocuteurs o:disponibilite)
 				client.sendMessage(Message.Factory.userDisconnectedBroadcast(p),o);
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			}*/
+	}
+	 // Repond au clientHTTP un message
+	 // @param message a envoyer
+	 	private void repondMessage(Message m, HttpServletResponse response ) {	
+		byte[] rep;
+		BufferedOutputStream sortie = null;
+		try {
+			rep = Message.serialize(m);
+	    response.reset();
+		response.setBufferSize( DEFAULT_BUFFER_SIZE );
+		String  type = "application/octet-stream";
+		response.setContentType( type );
+		response.setHeader( "Content-Length", ""+rep.length );
+		    sortie = new BufferedOutputStream( response.getOutputStream(), DEFAULT_BUFFER_SIZE );
+		    sortie.write( rep, 0, rep.length );
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+		    try {
+		    	if(sortie != null)
+		        sortie.close();
+		    } catch ( IOException ignore ) {
+		    }
+		}
 	}
 
 }
@@ -203,26 +250,7 @@ public class Test extends HttpServlet {
 		}
 		return Liste;
 	}
-	 * Repond au clientHTTP un message
-	 * @param message a envoyer
-	 	private void repondMessage(Message m, HttpServletResponse response ) {	
-		byte[] rep = Message.serialize(m);
-	    response.reset();
-		response.setBufferSize( DEFAULT_BUFFER_SIZE );
-		String  type = "application/octet-stream";
-		response.setContentType( type );
-		response.setHeader( "Content-Length", ""+rep.length );
-		BufferedOutputStream sortie = null;
-		try {
-		    sortie = new BufferedOutputStream( response.getOutputStream(), DEFAULT_BUFFER_SIZE );
-		    sortie.write( rep, 0, rep.length );
-		} finally {
-		    try {
-		        sortie.close();
-		    } catch ( IOException ignore ) {
-		    }
-		}
-	}
+	
 	/*
 	public void doGet( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException{
 		response.setContentType("text/html");
