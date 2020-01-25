@@ -27,7 +27,7 @@ public class ClientTCP {
         Socket s = new Socket (); //127.0.0.1 == localhost
         SocketAddress sockaddr = new InetSocketAddress(a.getKey(),a.getValue());
         s.setReuseAddress(true);
-        s.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"),3256));
+        s.bind(new InetSocketAddress(m.getEmetteur().getAddressAndPorts().get(0).getKey(),3526));
        	s.connect(sockaddr, 2000);
         //Set up OUTput streams
         OutputStream os = s.getOutputStream();
