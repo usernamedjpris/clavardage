@@ -68,7 +68,7 @@ public class ControleurApplication implements PropertyChangeListener{
 			  @Override
 			  public void run() {
 				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
-			  }} , 3000, 3000);
+			  }} , 4000, 4000);
 	}
 	InetAddress findIp() {
 		InetAddress localIp;
@@ -277,23 +277,29 @@ IOUtils.write(encoded, output);
 			        		   if(p.getId()==i.getId()) {
 			        			   try {
 			        				   //le serveur contient tjrs le pseudo le + à jour
-			        				   System.out.print(" \n MAJ du pseudo de : "+p.getPseudo());
-									p.setPseudo(i.getPseudo());
+			        				   if(!p.getPseudo().equals(i.getPseudo())) {
+					        				  System.out.print(" \n MAJ du pseudo de : "+p.getPseudo());
+											  p.setPseudo(i.getPseudo());
+			        				   }
+			        				   if(!p.getConnected()) {
+			        					   System.out.print(" \n Connexion de : "+p.getPseudo());
+			        					   p.setConnected(true);
+			        				   }
 									found=true;
 								} catch (NoSuchMethodException e) {
 									e.printStackTrace();
 								}
 			        		   }
-			        		   //si la personne n'est pas présente dans la liste retournée par le serveur et n'est pas un groupe
-			        		   //(absent du serveur), c'est qu'elle s'est déconnectée
-			        		   if(!found && p.getInterlocuteurs().size()<2)
-								try {
-									System.out.print(" \n Deconnexion de: "+p.getPseudo());
-									p.setConnected(false);
-								} catch (NoSuchMethodException e) {
-									e.printStackTrace();
-								}
-	        	   }
+	        		   }	
+	        		 //si la personne n'est pas présente dans la liste retournée par le serveur et n'est pas un groupe
+	        		   //(absent du serveur), c'est qu'elle s'est déconnectée
+	        		   if(!found && p.getInterlocuteurs().size()<2)
+						try {
+							System.out.print(" \n Deconnexion de: "+p.getPseudo());
+							p.setConnected(false);
+						} catch (NoSuchMethodException e) {
+							e.printStackTrace();
+						}
 				}
 				//si la liste du serveur contient un nouveau venu on l'ajoute
 				 for(Interlocuteurs i:message.getEmetteur().getInterlocuteurs()) {
