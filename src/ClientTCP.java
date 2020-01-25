@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketOption;
 import java.util.AbstractMap.SimpleEntry;
 
 import com.clava.serializable.Message;
@@ -14,7 +15,15 @@ public class ClientTCP {
     public void sendMessage (Message m) throws IOException{ //String data, Personne dest, Personne emmet
     	for(SimpleEntry<InetAddress,Integer> a:m.getDestinataire().getAddressAndPorts()) {
         //Initier la connexion
+/*    the NAT uses "endpoint independent mapping": two successive TCP connections coming from the same internal endpoint are mapped
+ *  to the same public endpoint.With this solution, the peers will first connect to a third party server that will save their port 
+ *  mapping value and give to both peers the port mapping value of the other peer. In a second step, both peers will reuse the same 
+ *  local endpoint to perform a TCP simultaneous open with each other. This unfortunately requires the use of the SO_REUSEADDR on the
+ *   TCP sockets, and such use violates the TCP standard and can lead to data corruption. It should only be used if the application 
+ *   can protect itself against such data corruption. 
+*/
         Socket s = new Socket (a.getKey(),a.getValue()); //127.0.0.1 == localhost
+        s.setReuseAddress(true);
         //Set up OUTput streams
         OutputStream os = s.getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);

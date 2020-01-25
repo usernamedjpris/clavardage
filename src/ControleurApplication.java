@@ -282,7 +282,7 @@ IOUtils.write(encoded, output);
 											  p.setPseudo(i.getPseudo());
 			        				   }
 			        				   if(!p.getConnected()) {
-			        					   System.out.print(" \n Connexion de : "+p.getPseudo());
+			        					   System.out.print(" \n Connexion de : "+p.getPseudo()+" à "+i.getAddressAndPorts().get(0));
 			        					   p.setConnected(true);
 			        					   p.setAddressAndPorts(i.getAddressAndPorts().get(0));
 			        				   }
