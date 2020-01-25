@@ -3,7 +3,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.SocketOption;
 import java.util.AbstractMap.SimpleEntry;
 
@@ -22,8 +24,11 @@ public class ClientTCP {
  *   TCP sockets, and such use violates the TCP standard and can lead to data corruption. It should only be used if the application 
  *   can protect itself against such data corruption. 
 */
-        Socket s = new Socket (a.getKey(),a.getValue()); //127.0.0.1 == localhost
+        Socket s = new Socket (); //127.0.0.1 == localhost
+        SocketAddress sockaddr = new InetSocketAddress(a.getKey(),a.getValue());
         s.setReuseAddress(true);
+        s.bind(new InetSocketAddress(InetAddress.getByName("127.0.0.1"),3256));
+       	s.connect(sockaddr, 2000);
         //Set up OUTput streams
         OutputStream os = s.getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);
