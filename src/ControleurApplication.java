@@ -284,6 +284,7 @@ IOUtils.write(encoded, output);
 			        				   if(!p.getConnected()) {
 			        					   System.out.print(" \n Connexion de : "+p.getPseudo());
 			        					   p.setConnected(true);
+			        					   p.setAddressAndPorts(i.getAddressAndPorts().get(0));
 			        				   }
 									found=true;
 								} catch (NoSuchMethodException e) {
@@ -293,7 +294,7 @@ IOUtils.write(encoded, output);
 	        		   }	
 	        		 //si la personne n'est pas présente dans la liste retournée par le serveur et n'est pas un groupe
 	        		   //(absent du serveur), c'est qu'elle s'est déconnectée
-	        		   if(!found && p.getInterlocuteurs().size()<2)
+	        		   if(!found && p.getInterlocuteurs().size()<2 && p.getConnected())
 						try {
 							System.out.print(" \n Deconnexion de: "+p.getPseudo());
 							p.setConnected(false);
