@@ -17,11 +17,17 @@ public class ServeurSocketThread implements  Runnable {
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
     }
-
+    public void close() {
+    	try {
+			s.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
 	@Override
     public void run() {
         try{
-           
+           while(true) {
             InputStream is = s.getInputStream();
             DataInputStream dis = new DataInputStream(is);
             int len = dis.readInt();
@@ -35,8 +41,9 @@ public class ServeurSocketThread implements  Runnable {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-            //Clore la connexion
-            s.close();
+            //Ne pas clore la connexion
+           // s.close();
+           }
         }
         catch (IOException e){
             System.out.println("I03xception :)");
