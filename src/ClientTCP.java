@@ -8,25 +8,11 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketOption;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.HashMap;
 
 import com.clava.serializable.Message;
 import com.clava.serializable.Personne;
 public class ClientTCP {
-	HashMap<Integer,Socket> map;
-	public ClientTCP() {
-		map=new HashMap<Integer,Socket>();
-		Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){
-	         map.forEach((Integer a,Socket s)-> {
-				try {
-					System.out.print(" CLose socket");
-					s.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			});
-			    }});
-	}
+
 	
     public void sendMessage (Message m) throws IOException{ //String data, Personne dest, Personne emmet
     	for(SimpleEntry<InetAddress,Integer> a:m.getDestinataire().getAddressAndPorts()) {
@@ -37,16 +23,12 @@ public class ClientTCP {
  *  local endpoint to perform a TCP simultaneous open with each other. This unfortunately requires the use of the SO_REUSEADDR on the
  *   TCP sockets, and such use violates the TCP standard and can lead to data corruption. It should only be used if the application 
  *   can protect itself against such data corruption. 
-*/		Socket s=map.get(m.getEmetteur().getId());
-    	if(s== null) {
-        s = new Socket (a.getKey(),a.getValue()); //127.0.0.1 == localhost
-        s.setKeepAlive(true);
-        map.put(m.getEmetteur().getId(), s);
-    	}
-        /*SocketAddress sockaddr = new InetSocketAddress(a.getKey(),a.getValue());
+*/
+        Socket s = new Socket (); //127.0.0.1 == localhost
+        SocketAddress sockaddr = new InetSocketAddress(a.getKey(),a.getValue());
         s.setReuseAddress(true);
         s.bind(new InetSocketAddress(m.getEmetteur().getAddressAndPorts().get(0).getKey(),3526));
-       	s.connect(sockaddr, 2000);*/
+       	s.connect(sockaddr, 2000);
         //Set up OUTput streams
         OutputStream os = s.getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);
@@ -62,10 +44,10 @@ public class ClientTCP {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        os.flush();
-        //dos.close();
-       /* os.close();
-       // s.close();*/	  
+        //Clore la connexion
+        dos.close();
+        os.close();
+        s.close();	  
     	}
 	}
 
