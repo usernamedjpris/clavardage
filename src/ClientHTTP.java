@@ -80,7 +80,7 @@ public class ClientHTTP implements Runnable {
 		System.out.print("http://"+ipServer+":"+portServer+"/test/clavardeur");
 		request = HttpRequest.newBuilder()
 			      .uri(URI.create("http://"+ipServer+":"+portServer+"/test/clavardeur"))
-			      .timeout(Duration.ofMillis(500)) 
+			      .timeout(Duration.ofMillis(2000)) 
 			      .header("Content-Type", "application/octet-stream")
 			      .POST(BodyPublishers.ofByteArray(m))
 			      .build();
