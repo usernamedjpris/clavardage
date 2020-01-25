@@ -43,7 +43,7 @@ public class VueCreationGroupe {
      	{
      	JDialog frame = new JDialog();
 		frame.setModalityType(JDialog.DEFAULT_MODALITY_TYPE);
-		frame.setBounds(100, 100, 200, 175);
+		frame.setBounds(100, 100, 200, 300);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(new FlowLayout());
 		frame.setTitle("Choisissez les participants ! :D ");

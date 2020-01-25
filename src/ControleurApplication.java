@@ -284,7 +284,7 @@ IOUtils.write(encoded, output);
 			        				   if(!p.getConnected()) {
 			        					   System.out.print(" \n Connexion de : "+p.getPseudo()+" à "+i.getAddressAndPorts().get(0));
 			        					   p.setConnected(true);
-			        					   p.setAddressAndPorts(i.getAddressAndPorts().get(0));
+			        					///TODO not working NAT etc //   p.setAddressAndPorts(i.getAddressAndPorts().get(0));
 			        				   }
 									found=true;
 								} catch (NoSuchMethodException e) {
@@ -415,14 +415,15 @@ IOUtils.write(encoded, output);
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 		        	  if(initialized)
 		        	  main.updateList();
-	           } else if(message.getType()==Message.Type.GROUPCREATION ) { 
+	           }/*//GROUP REMAIN LOCAL AS SMS TO MULTIPLE PERSONN ///TODO finish the way, just send group as emetteur au lieu de user
+	           else if(message.getType()==Message.Type.GROUPCREATION ) { 
 	        	   Group g=(Group)message.getDestinataire();
 	        	   g.addInterlocuteur(message.getEmetteur());
 	        	   g.removeInterlocuteur(user);
 	        	   if(!model.contains(g)) {
 	        	   maBD.addGroup(g.getId(),g.getInterlocuteurs());
 	        	   model.add(0, g);}
-	           }
+	           }*/
 	           else if(message.getType()==Message.Type.WHOISALIVE ) { 
 	        	   if(initialized)
 	        	   sendActiveUserPseudo(message.getEmetteur());
@@ -496,8 +497,9 @@ IOUtils.write(encoded, output);
 	}
 	public void creationGroupe(ArrayList<Interlocuteurs> array) {
 		Group g=new Group(array);
-		Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));
-		g.removeInterlocuteur(user);
+		/*///TODO for group
+		 * Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));
+		g.removeInterlocuteur(user);*/
 		model.add(1,g);
 		maBD.addGroup(g.getId(),array);
 		
