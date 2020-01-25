@@ -31,7 +31,7 @@ public class VueCreationGroupe {
      	DefaultListModel<Interlocuteurs> m=new DefaultListModel<Interlocuteurs>();
      	for(Object i:model.toArray()) {
      		Interlocuteurs v=(Interlocuteurs)i;
-     		if(v.getAddressAndPorts().size()==1 )///TODO && app.getPersonne().getId() != v.getId() )
+     		if(v.getAddressAndPorts().size()==1 && v.getConnected() && app.getPersonne().getId() != v.getId() )
      	m.addElement((Interlocuteurs)i);
      	}
      	list.setModel(m);

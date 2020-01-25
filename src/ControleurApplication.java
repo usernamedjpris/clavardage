@@ -63,12 +63,12 @@ public class ControleurApplication implements PropertyChangeListener{
 
 	}
 	void configServeur() {
-		Timer timer = new Timer();
+		/*Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			  @Override
 			  public void run() {
 				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
-			  }} , 4000, 4000);
+			  }} , 4000, 4000);*/
 	}
 	InetAddress findIp() {
 		InetAddress localIp;
@@ -247,7 +247,7 @@ public class ControleurApplication implements PropertyChangeListener{
 	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
+	synchronized public void propertyChange(PropertyChangeEvent evt) {
 		//try convert arg to message
 		/* si  IMAGE to write file :
 		 * byte[] encoded = key.getEncoded();
@@ -415,7 +415,7 @@ IOUtils.write(encoded, output);
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 		        	  if(initialized)
 		        	  main.updateList();
-	           }/*//GROUP REMAIN LOCAL AS SMS TO MULTIPLE PERSONN ///TODO finish the way, just send group as emetteur au lieu de user
+	           }/*///TODO finish group
 	           else if(message.getType()==Message.Type.GROUPCREATION ) { 
 	        	   Group g=(Group)message.getDestinataire();
 	        	   g.addInterlocuteur(message.getEmetteur());
@@ -498,8 +498,8 @@ IOUtils.write(encoded, output);
 	public void creationGroupe(ArrayList<Interlocuteurs> array) {
 		Group g=new Group(array);
 		/*///TODO for group
-		 * Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));
-		g.removeInterlocuteur(user);*/
+		 * Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));*/
+		g.removeInterlocuteur(user);
 		model.add(1,g);
 		maBD.addGroup(g.getId(),array);
 		
