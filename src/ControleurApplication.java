@@ -63,13 +63,13 @@ public class ControleurApplication implements PropertyChangeListener{
 
 	}
 	void configServeur() {
-		/*Timer timer = new Timer();
+		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			  @Override
 			  public void run() {
 				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
-			  }} , 4000, 4000);*/
-	}
+			  }} , 5000, 5000);
+		}
 	InetAddress findIp() {
 		InetAddress localIp;
 		try {
@@ -197,8 +197,8 @@ public class ControleurApplication implements PropertyChangeListener{
 	   for(Interlocuteurs p: maBD.getInterlocuteursTalked(user.getId())) {
 		   model.addElement(p);
 	   }
-	   configServeur();
 	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
+		 configServeur();
 	    new VueChoixPseudo(this,false);
 	    model.addElement(user);
 	    main=new VuePrincipale(this,model);
@@ -284,7 +284,8 @@ IOUtils.write(encoded, output);
 			        				   if(!p.getConnected()) {
 			        					   System.out.print(" \n Connexion de : "+p.getPseudo()+" à "+i.getAddressAndPorts().get(0));
 			        					   p.setConnected(true);
-			        					///TODO not working NAT etc //   p.setAddressAndPorts(i.getAddressAndPorts().get(0));
+			        					///TODO not working NAT etc //  
+			        					   p.setAddressAndPorts(i.getAddressAndPorts().get(0));
 			        				   }
 									found=true;
 								} catch (NoSuchMethodException e) {
@@ -295,13 +296,13 @@ IOUtils.write(encoded, output);
 	        		 //si la personne n'est pas présente dans la liste retournée par le serveur et n'est pas un groupe
 	        		   //(absent du serveur), c'est qu'elle s'est déconnectée
 	        		   
-	        		 /*  if(!found && p.getInterlocuteurs().size()<2 && p.getConnected())
+	        		  if(!found && p.getInterlocuteurs().size()<2 && p.getConnected())
 						try {
 							System.out.print(" \n Deconnexion de: "+p.getPseudo());
-							//p.setConnected(false);
+							p.setConnected(false);
 						} catch (NoSuchMethodException e) {
 							e.printStackTrace();
-						}*/
+						}
 				}
 				//si la liste du serveur contient un nouveau venu on l'ajoute
 				 for(Interlocuteurs i:message.getEmetteur().getInterlocuteurs()) {
