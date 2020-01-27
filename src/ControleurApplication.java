@@ -21,20 +21,29 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DateFormat;
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.bitlet.weupnp.GatewayDevice;
+import org.bitlet.weupnp.GatewayDiscover;
+import org.bitlet.weupnp.NatInit;
+import org.bitlet.weupnp.PortMappingEntry;
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Wini;
+import org.xml.sax.SAXException;
 
 import com.clava.serializable.Group;
 import com.clava.serializable.Interlocuteurs;
@@ -68,9 +77,8 @@ public class ControleurApplication implements PropertyChangeListener{
 			  @Override
 			  public void run() {
 				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
-			  }} , 5000, 5000);
-		}
-	InetAddress findIp() {
+			  }} , 5000, 5000);}
+InetAddress findIp() {
 		InetAddress localIp;
 		try {
 					DatagramSocket so=new DatagramSocket();
@@ -153,7 +161,6 @@ public class ControleurApplication implements PropertyChangeListener{
 		int portServer =ini.get("IP", "publicServerPort",int.class);
 		pathDownload=new File(ini.get("DOWNLOAD", "path",String.class));
 		ipServer =ini.get("IP", "publicServerIp", String.class);//InetAddress.getByName(
-				
 				try {
 					String s=ini.get("ADVANCED", "doNotUseAutoIpAndUseThisOne", String.class);
 					if(!s.equals("")) {
@@ -172,6 +179,7 @@ public class ControleurApplication implements PropertyChangeListener{
 					mac=mac_manuel;
 				}
 		//System.out.print("data :" +portTcp+" "+portUDP+" "+portServer+" "+ini.get("IP", "publicServerIp", String.class)+" "+ini.get("IP", "doNotUseAutoIpAndUseThisOne", String.class));
+		new NatInit(portTcp);
 		Reseau.getReseau().init(portTcp,portUDP,ipServer,portServer);
 		Reseau.getReseau().addPropertyChangeListener(this);//.addObserver(this);
 		try {
@@ -192,7 +200,6 @@ public class ControleurApplication implements PropertyChangeListener{
 	}
 	ControleurApplication(){
 		init();
-		//test();
 	    //on récupère les gens avec qui on a déjà parlé #offline reading
 	   for(Interlocuteurs p: maBD.getInterlocuteursTalked(user.getId())) {
 		   model.addElement(p);
@@ -449,6 +456,7 @@ IOUtils.write(encoded, output);
 	}
 	public void sendDisconnected() {
 			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));
+			
 	}
 	public File getDownloadPath() {
 		return pathDownload;

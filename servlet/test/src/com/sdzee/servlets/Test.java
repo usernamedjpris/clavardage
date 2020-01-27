@@ -50,16 +50,10 @@ public class Test extends HttpServlet {
 
 			Interlocuteurs p = m.getEmetteur();				
 			//recuperation du couple (adresse,port) du NAT pour du tcp hole punching
+			//Implementation en java très difficile => le nat sera ouvert à la main 
+			//=> on renvoie le port où le nat a été effectué à la main
 			InetAddress addrNat = InetAddress.getByName(request.getRemoteAddr());		
-			int portNat = request.getRemotePort();
-			System.out.print(" \n RECEPTION DE : "+m.getType()+" avec "
-					+ "adresse : "+addrNat+" port "+portNat+" pseudo : "+
-					m.getEmetteur().getPseudo());
-			System.out.print(" \n LIST *users*  :  \n ");
-			for(Interlocuteurs i:disponibilite) {
-				System.out.print("adresse : "+addrNat+" port "+portNat+" pseudo : "+i.getPseudo()+" \n");
-			}
-			System.out.print("\n\n");
+			int portNat = m.getEmetteur().getAddressAndPorts().get(0).getValue();//request.getRemotePort();
 			//rq: seule 1 personne envoie des messages au serveur
 			// (pas un groupe)
 			//=> cast to personn possible
@@ -69,6 +63,15 @@ public class Test extends HttpServlet {
 				System.out.print(" Les groupes ne devraient pas parler au serveur !");
 				e.printStackTrace();
 			}
+			System.out.print(" \n RECEPTION DE : "+m.getType()+" avec "
+					+ "adresse : "+addrNat+" port "+portNat+" pseudo : "+
+					m.getEmetteur().getPseudo());
+			System.out.print(" \n LIST *users*  :  \n ");
+			for(Interlocuteurs i:disponibilite) {
+				System.out.print("adresse : "+i.getAddressAndPorts().get(0)+" pseudo : "+i.getPseudo()+" \n");
+			}
+			System.out.print("\n\n");
+			
 			
 			if (m.getType()==Message.Type.SWITCH) {
 	        	updateSwitch(p);
@@ -76,7 +79,9 @@ public class Test extends HttpServlet {
 	        }
 	        else if (m.getType()==Message.Type.CONNECTION) {
 	        	updateConnection(p);
-	        	pseudoWaiting.remove(p.getPseudo());
+	        	if(!pseudoWaiting.remove(p.getPseudo())) {
+	        		System.out.print("\n Check pseudoWaiting deletion");
+	        	}
 	        	repondMessage(Message.Factory.okServeur(), response);
 	        }	        
 	        else if (m.getType()==Message.Type.DECONNECTION) {
