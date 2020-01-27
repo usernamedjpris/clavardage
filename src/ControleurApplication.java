@@ -198,13 +198,15 @@ public class ControleurApplication implements PropertyChangeListener{
 		   model.addElement(p);
 	   }
 	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
-		 configServeur();
 	    new VueChoixPseudo(this,false);
-	    model.addElement(user);
 	    main=new VuePrincipale(this,model);
 	    initialized=true;
 	    Reseau.getReseau().sendDataBroadcast(Message.Factory.userConnectedBroadcast(user));
-	
+	    //on s'ajoute après que le serveur sait que l'on ait connecte
+	    //rq: on s'ajoute à la main car on bloque les broadcast venant de nous même en réception (pollution)
+	    model.addElement(user);
+	    main.updateList();
+		configServeur();
 	}
 	String getPseudo() {
 		return user.getPseudo();
