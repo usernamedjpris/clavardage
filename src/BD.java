@@ -229,6 +229,7 @@ public class BD {
 	 * @return
 	 */
 	public ArrayList<Interlocuteurs> getInterlocuteursTalked(int id) {
+		//printTablesDepuis(" BD : [GetInterlocuteursTalked]\n");
 		HashMap<Integer, Interlocuteurs> liste=new HashMap<Integer,Interlocuteurs> ();
 		try {
 			PreparedStatement stmt;
@@ -239,44 +240,57 @@ public class BD {
 			while (rs.next()) {
 				String pseudo = rs.getString("pseudo");
 				int idU = rs.getInt("idUtilisateur");
-				liste.put(idU, new Personne(new SimpleEntry<InetAddress, Integer>(null,-1),pseudo,false,idU));
-			}
+				liste.put(idU, new Personne(new SimpleEntry<InetAddress, Integer>(null,-1),pseudo,false,idU));	
+				//System.out.print("\n liste.get("+idU+")"+liste.get(idU).getPseudo());
+			}			
 			rs.close();
-			stmt.close();
+			stmt.close();			
+		
+			
 			PreparedStatement s;
-			sql = "SELECT * FROM groupe";
+			sql = "SELECT DISTINCT idGroup from groupe";
 			s = c.prepareStatement(sql);
 			ResultSet r = s.executeQuery();
 			ArrayList<Interlocuteurs> allInGroup=new ArrayList<>();
-			int n=0;
-			if(r.next()) {
-			int idGroup=r.getInt("idGroup");
-			allInGroup.add(liste.get(r.getInt("idUtilisateur")));
 			while (r.next()) {
-				System.out.print("\n array :"+allInGroup);
 				int idG = r.getInt("idGroup");
-				int idP = r.getInt("idUtilisateur");
-				if(idG != idGroup) {
-					liste.put(idGroup, new Group(allInGroup));
-					System.out.print("\n array2 :"+allInGroup);
-					allInGroup.clear();
-					idGroup=idG;
+				//System.out.println("\n idGroup found : "+idG);
+				
+				PreparedStatement s2;
+				sql = "SELECT idUtilisateur,pseudo FROM identification JOIN (SELECT * FROM groupe) ON idUtilisateur = idUtilisateur WHERE idUtilisateur != ? AND idGroup = ?";
+				s2 = c.prepareStatement(sql);
+				s2.setInt(1, id);
+				s2.setInt(2, idG);
+				ResultSet r2 = s2.executeQuery();		
+				
+				while (r2.next()) {
+					int idP = r2.getInt("idUtilisateur");
+					//System.out.println("\n			idUtilisateur Interlocuteurs : "+liste.get(idP)+" idUtilisateur found : "+idP);
+					allInGroup.add(liste.get(idP));
 				}
-				allInGroup.add(liste.get(idP));
-			}
-			}
+				
+				liste.put(idG, new Group(allInGroup));
+				//System.out.print("\n array2 :"+allInGroup);
+				allInGroup.clear();
+				r2.close();
+				s2.close();
+				
+				
+			}						
 			r.close();
 			s.close();
-		
+
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		ArrayList<Interlocuteurs> array=new ArrayList<>();
 		for (Interlocuteurs i: liste.values())
 			array.add(i);
-		//System.out.print(" array bd :" +array.toString());
+		//System.out.print("\narray3 :" +array.toString());
 		return array;
 	}
+		
 	/**
 	 * Enregistre un nouveau message 
 	 * <p>
@@ -286,6 +300,7 @@ public class BD {
 	 * @see BD#setIdPseudoLink(String, long)
 	 */
 	public void addData(Message message) {
+		//printTablesDepuis(" BD : [ADDDATA]\n");
 		try {
 			PreparedStatement stmt;
 			String sql = "INSERT INTO message VALUES (?, ?, ?, ?, ?);"; 
@@ -303,6 +318,7 @@ public class BD {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		//printTablesDepuis(" BD : [DATAADDED]\n");
 	}
 	/**
 	 * Enregistre un nouveau message de type FILE
@@ -310,6 +326,7 @@ public class BD {
 	 * 
 	 */
 	public void addFile(Message message) {
+		//printTablesDepuis(" BD : [ADDFILE]\n");
 		try {
 			PreparedStatement stmt;
 			String sql = "INSERT INTO message VALUES (?, ?, ?, ?, ?);"; 
@@ -326,52 +343,28 @@ public class BD {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		//printTablesDepuis(" BD : [FILEADDED]\n");
 	}
 
 	public void addGroup(int id, ArrayList<Interlocuteurs> interlocuteurs) {
+		//printTablesDepuis(" BD : [ADDGROUP]\n");
 		try {
 			PreparedStatement stmt;
-			for( Interlocuteurs i: interlocuteurs) {
-			String sql = "REPLACE INTO groupe (idGroup,idUtilisateur) VALUES (?, ?);";
-			stmt = c.prepareStatement(sql);
-			stmt.setInt(1, id);
-			stmt.setInt(2, i.getId());
-			stmt.executeUpdate();
+			for( Interlocuteurs i: interlocuteurs ) {
+				String sql = "REPLACE INTO groupe (idGroup,idUtilisateur) VALUES (?, ?);";
+				stmt = c.prepareStatement(sql);
+				stmt.setInt(1, id);
+				stmt.setInt(2, i.getId());
+				stmt.executeUpdate();
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+		//printTablesDepuis(" BD : [GROUPADDED]\n");
+
 	}
-}
-	/*/** 
-	 * Donne accès à l'emplacement de tout les fichiers téléchargés 
-	 * @return chemin de téléchargement
-	public File getDownloadPath() {
-		String downloadPath = "";
-		try {
-			Statement s = c.createStatement();
-			ResultSet rs = s.executeQuery("SELECT * FROM preferences");
-			rs.next();
-			downloadPath = rs.getString("downloadPath");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		System.out.println(downloadPath+"\n");
-		return new File(downloadPath); //def = "."
-	}
-	/**
-	 * Affecte un nouveau chemin de téléchargement
-	 * @param file
-	public void setDownloadPath(File file) {
-		try {
-			String sql = "UPDATE preferences SET downloadPath='"+file.getPath()+"'";
-			Statement s = c.createStatement();
-			s.executeQuery(sql);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+
+	/*
 	//pour tests
 	public void printMessage() {
 		try {
@@ -383,18 +376,17 @@ public class BD {
 				String date = rs.getString("sentDate");
 				String typ = rs.getString("type");
 				java.sql.Blob ablob = rs.getBlob("texte");
-				long emet = rs.getLong("idEmet");
-				long dest = rs.getLong("idDest");
+				int emet = rs.getInt("idEmet");
+				int dest = rs.getInt("idDest");
 				String texte = new String(ablob.getBytes(1l, (int) ablob.length()));
-				System.out.println("PRINT message "+Long.toString(emet) +"->"+Long.toString(dest)+" "+texte+" ("+ date+") ["+ typ+"]");
+				System.out.println("PRINT message "+emet +"->"+dest+" "+texte+" ("+ date+") ["+ typ+"]");
 			}
 			rs.close();
 			stmt.close();
 		
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
-		
+		}		
 	}
 	public void printIdentification() {
 		try {
@@ -404,16 +396,39 @@ public class BD {
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String pseudo = rs.getString("pseudo");
-				long idUtilisateur = rs.getLong("idUtilisateur");
-				System.out.println("PRINT identification "+Long.toString(idUtilisateur) +" : "+pseudo);
+				int idUtilisateur = rs.getInt("idUtilisateur");
+				System.out.println("PRINT identification "+idUtilisateur+" : "+pseudo);
 			}
 			rs.close();
 			stmt.close();
 		
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		}		
+	}
+	public void printGroupe() {
+		try {
+			PreparedStatement stmt;
+			String sql = "SELECT * FROM groupe";
+			stmt = c.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				int idUtilisateur = rs.getInt("idUtilisateur");
+				int idGroup = rs.getInt("idGroup");
+				System.out.println("PRINT groupe "+idUtilisateur +" : "+idGroup);
+			}
+			rs.close();
+			stmt.close();
 		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}		
+	}
+	public void printTablesDepuis(String nomFonction) {
+		System.out.println(nomFonction);
+		printMessage();
+		printIdentification();
+		printGroupe();
 	}
 }
 */

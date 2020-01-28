@@ -271,7 +271,7 @@ IOUtils.write(encoded, output);
 			else if(message.getType()==Message.Type.REPLYPSEUDO)
 	        	   answerPseudo=false;
 			else if(message.getType()==Message.Type.ALIVE){
-			
+
 				for(Object ob: model.toArray()) {
 	        		   Interlocuteurs p =(Interlocuteurs)ob;
 	        		   boolean found=false;
@@ -419,7 +419,7 @@ IOUtils.write(encoded, output);
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 		        	  if(initialized)
 		        	  main.updateList();
-	           }/*///TODO finish group
+	           }//TODO finish group
 	           else if(message.getType()==Message.Type.GROUPCREATION ) { 
 	        	   Group g=(Group)message.getDestinataire();
 	        	   g.addInterlocuteur(message.getEmetteur());
@@ -427,7 +427,7 @@ IOUtils.write(encoded, output);
 	        	   if(!model.contains(g)) {
 	        	   maBD.addGroup(g.getId(),g.getInterlocuteurs());
 	        	   model.add(0, g);}
-	           }*/
+	           }
 	           else if(message.getType()==Message.Type.WHOISALIVE ) { 
 	        	   if(initialized)
 	        	   sendActiveUserPseudo(message.getEmetteur());
@@ -501,8 +501,8 @@ IOUtils.write(encoded, output);
 	}
 	public void creationGroupe(ArrayList<Interlocuteurs> array) {
 		Group g=new Group(array);
-		/*///TODO for group
-		 * Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));*/
+		///TODO for group
+		Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));
 		g.removeInterlocuteur(user);
 		model.add(1,g);
 		maBD.addGroup(g.getId(),array);

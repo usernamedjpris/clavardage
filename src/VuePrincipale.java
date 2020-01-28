@@ -144,7 +144,7 @@ public class VuePrincipale {
          });
         menu.add(tele);
         
-        /*///TODO Finish: pas assez stable pour le rendu final
+        //TODO Finish: pas assez stable pour le rendu final
         JMenuItem createGroup = new JMenuItem("Créer un groupe ",new ImageIcon("images/network.png"));
         createGroup.setMnemonic(KeyEvent.VK_C);
         createGroup.addActionListener(new ActionListener() {
@@ -154,7 +154,7 @@ public class VuePrincipale {
            new VueCreationGroupe(model,app);
 			}
             });
-        menu.add(createGroup);*/
+        menu.add(createGroup);
         
         JMenuItem apropos = new JMenuItem("A propos",new ImageIcon("images/icon22.png"));
         apropos.setMnemonic(KeyEvent.VK_A);
