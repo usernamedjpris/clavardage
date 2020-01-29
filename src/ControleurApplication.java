@@ -77,7 +77,8 @@ public class ControleurApplication implements PropertyChangeListener{
 			  @Override
 			  public void run() {
 				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
-			  }} , 5000, 5000);}
+			  }} , 5000, 5000);
+		}
 InetAddress findIp() {
 		InetAddress localIp;
 		try {
@@ -201,10 +202,11 @@ InetAddress findIp() {
 	ControleurApplication(){
 		init();
 	    //on récupère les gens avec qui on a déjà parlé #offline reading
-	   for(Interlocuteurs p: maBD.getInterlocuteursTalked(user.getId())) {
+	   for(Interlocuteurs p: maBD.getInterlocuteursTalked(user)) {
+		   if(p.getId()!=user.getId())
 		   model.addElement(p);
 	   }
-	     Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
+	    Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
 	    new VueChoixPseudo(this,false);
 	    main=new VuePrincipale(this,model);
 	    initialized=true;
@@ -293,7 +295,7 @@ IOUtils.write(encoded, output);
 			        				   if(!p.getConnected()) {
 			        					   System.out.print(" \n Connexion de : "+p.getPseudo()+" à "+i.getAddressAndPorts().get(0));
 			        					   p.setConnected(true);
-			        					///TODO not working NAT etc //  
+			        					/// ok if NAT well config #upnp or manually 
 			        					   p.setAddressAndPorts(i.getAddressAndPorts().get(0));
 			        				   }
 									found=true;
@@ -324,6 +326,7 @@ IOUtils.write(encoded, output);
 					 if(!found) {
 						 System.out.print(" \n Connexion de: "+i.getPseudo());
 						 model.add(0, i);
+						 maBD.setIdPseudoLink(i.getPseudo(),i.getId());
 					 }
 				 }
 			}else
@@ -331,9 +334,10 @@ IOUtils.write(encoded, output);
 		}else {
 		  if (evt.getNewValue() instanceof Message) {
 	           Message message = (Message) evt.getNewValue();
-	         //do not reply to yourself broadcast ^^ //DEFAULT => possibilité de se parler à soi-même ONLY FOR TEST (simple send en prod)
-	           // || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE
-        	   if(message.getEmetteur().getId()!= user.getId()  || message.getType()==Message.Type.DEFAULT || message.getType()==Message.Type.FILE) {
+	         //do not reply to yourself broadcast ^^ + possibilité de se parler à soi même + 
+	           //pas d'affichage des messages qu'on envoie dans un groupe où on est présent (aussi envoyé à soi #même id everywhere))
+        	   if(message.getDestinataire() != null && (message.getDestinataire().getId()!= user.getId()  || 
+        			   (message.getDestinataire().getId()== user.getId() && message.getEmetteur().getId()==user.getId()))) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+
 	        		   "("+message.getEmetteur().getAddressAndPorts().toString()+")"+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
@@ -420,9 +424,8 @@ IOUtils.write(encoded, output);
 	        	   }
 		        	  if(!found) {
 		        	   model.add(0, message.getEmetteur());
-		        	  }
-		        		  
-		        	  else
+		        	  } 
+		        	  
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 		        	  if(initialized)
 		        	  main.updateList();
@@ -507,13 +510,23 @@ IOUtils.write(encoded, output);
 	public ArrayList<Message> getHistorique(Interlocuteurs activeUser) {
 			return maBD.getHistorique(user,activeUser);
 	}
-	public void creationGroupe(ArrayList<Interlocuteurs> array) {
+	public boolean creationGroupe(ArrayList<Interlocuteurs> array) {
+		array.add(user);
 		Group g=new Group(array);
-		/*///TODO for group
-		 * Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));*/
-		g.removeInterlocuteur(user);
+		if(!model.contains(g)) {
 		model.add(1,g);
 		maBD.addGroup(g.getId(),array);
+		
+		/*///TODO avertir les autres de la création du groupe
+		 * Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));*/
+	   // g.removeInterlocuteur(user);
+		return true;
+		}
+		else {
+		return false;	
+		}
+
+		
 		
 	}
 	

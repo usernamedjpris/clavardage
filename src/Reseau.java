@@ -16,14 +16,14 @@ import javax.swing.JOptionPane;
 public class Reseau implements PropertyChangeListener {
 	private PropertyChangeSupport support;
 	private ClientHTTP clientHTTP;
-	private ServeurTCP reception;
-	private ClientTCP envoi;
+	private ServeurTCP serveurTcp;
+	private ClientTCP clientTcp;
 	private ClientUDP clientUDP;
 	private ServeurUDP serveurUDP;
 	static Reseau theNetwork;
 	/**
-	 * @param reception
-	 * @param envoi
+	 * @param serveurTcp
+	 * @param clientTcp
 	 * @param clientUDP
 	 * @throws IOException
 	 */
@@ -37,13 +37,12 @@ public class Reseau implements PropertyChangeListener {
 
 	private Reseau() {
 	}
-	///TODO connexion à la classe gestion servlet
 	void init(int portTCP, int portUDP, String ipServer, int portServer) {
 		support = new PropertyChangeSupport(this);
-		this.reception = new ServeurTCP(portTCP);
-		this.reception.addPropertyChangeListener(this);
+		this.serveurTcp = new ServeurTCP(portTCP);
+		this.serveurTcp.addPropertyChangeListener(this);
 
-		Thread tr = new Thread(reception);
+		Thread tr = new Thread(serveurTcp);
         tr.start();
 		this.serveurUDP = new ServeurUDP(portUDP);
 		this.serveurUDP.addPropertyChangeListener(this);
@@ -52,7 +51,7 @@ public class Reseau implements PropertyChangeListener {
         
         this.clientHTTP=new ClientHTTP(ipServer, portServer);
         clientHTTP.addPropertyChangeListener(this);
-		this.envoi = new ClientTCP();//on get auto adresse +port dans personne destinataire (get from serveur/UDP #discovery part)
+		this.clientTcp = new ClientTCP();//on get auto adresse +port dans personne destinataire (get from serveur/UDP #discovery part)
 		this.clientUDP = new ClientUDP(portUDP);//port nécessaire pour broadcast, #same config UDP everywhere
 	}
 
@@ -66,7 +65,7 @@ public class Reseau implements PropertyChangeListener {
 		try {
 			System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en tcp ("
 		+message.getDestinataire().getAddressAndPorts().toString());
-			envoi.sendMessage(message);
+			clientTcp.sendMessage(message);
 		} catch (IOException e) {
 			//warning graphique envoi fail
 			JOptionPane.showMessageDialog(null, "Erreur réseau à l'envoi du message :'( ", "Erreur ", JOptionPane.ERROR_MESSAGE);	
@@ -90,7 +89,7 @@ public class Reseau implements PropertyChangeListener {
 		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi d'un message "+message.getType().toString()+" à "+
 	message.getDestinataire().getPseudo()+"("+message.getDestinataire().getAddressAndPorts().toString());
 		try {
-			clientUDP.send(message);
+		clientUDP.send(message);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

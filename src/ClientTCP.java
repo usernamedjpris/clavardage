@@ -24,11 +24,11 @@ public class ClientTCP {
  *   TCP sockets, and such use violates the TCP standard and can lead to data corruption. It should only be used if the application 
  *   can protect itself against such data corruption. 
 */
-        Socket s = new Socket (a.getKey(),a.getValue()); //127.0.0.1 == localhost
-        /*SocketAddress sockaddr = new InetSocketAddress(a.getKey(),a.getValue());
-        s.setReuseAddress(true);
-        s.bind(new InetSocketAddress(m.getEmetteur().getAddressAndPorts().get(0).getKey(),3526));
-       	s.connect(sockaddr, 2000);*/
+       Socket s = new Socket ();//(a.getKey(),a.getValue()); //127.0.0.1 == localhost
+        SocketAddress sockaddr = new InetSocketAddress(a.getKey(),a.getValue());
+       // s.setReuseAddress(true);
+       // s.bind(new InetSocketAddress(m.getEmetteur().getAddressAndPorts().get(0).getKey(),3526));
+       	s.connect(sockaddr, 4000);//timeout 4s 
         //Set up OUTput streams
         OutputStream os = s.getOutputStream();
         DataOutputStream dos = new DataOutputStream(os);

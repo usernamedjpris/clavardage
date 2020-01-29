@@ -59,7 +59,7 @@ public class NatInit implements Runnable {
 		try {
 			if(activeGW != null) {
 			if (activeGW.deletePortMapping(SAMPLE_PORT,"TCP")) {
-				addLogLine("Port mapping removed, test SUCCESSFUL");
+				addLogLine("Port mapping removed");
 			} else {
 				addLogLine("Port mapping removal FAILED");
 			}

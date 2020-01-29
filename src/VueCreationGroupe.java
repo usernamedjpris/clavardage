@@ -36,10 +36,10 @@ public class VueCreationGroupe {
      	}
      	list.setModel(m);
      	///TODO EN PROD
-     	/*if(m.getSize() <2) {
+     	if(m.getSize() <2) {
      		JOptionPane.showMessageDialog(null, "Il n'y a pas assez d'utilisateurs connecté pour créer un groupe :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
      	}
-     	else*/
+     	else
      	{
      	JDialog frame = new JDialog();
 		frame.setModalityType(JDialog.DEFAULT_MODALITY_TYPE);
@@ -97,10 +97,14 @@ public class VueCreationGroupe {
  			btnOK.addActionListener(new ActionListener() {public void actionPerformed(ActionEvent ae)
  			 {		
  				///TODO 
+ 				
  				if(l != null && l.size() >1) {
- 				 	 l.add(app.getPersonne());
-					 app.creationGroupe(new ArrayList<>(l));
+ 				 	 //l.add(app.getPersonne());
+					 if(app.creationGroupe(new ArrayList<>(l)))
 					 frame.dispose();
+					 else{
+						 JOptionPane.showMessageDialog(null, "Ce groupe existe déjà :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
+					 }
  			 }else
  				JOptionPane.showMessageDialog(null, "Il faut sélectionner les personnes du groupe, au moins 2 :p (ctrl maintenu pour sélection multiple) ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
  			 }});

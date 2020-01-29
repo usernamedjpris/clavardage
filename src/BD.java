@@ -220,29 +220,54 @@ public class BD {
 		}
 		return messages;
 	}
+	public void addGroup(int id, ArrayList<Interlocuteurs> interlocuteurs) {
+		try {
+			System.out.print("\n GROUPE ADDED BD ! ");
+			PreparedStatement stmt;
+			for( Interlocuteurs i: interlocuteurs) {
+			String sql = "INSERT IGNORE INTO groupe (idGroup,idUtilisateur) VALUES (?, ?);";
+			stmt = c.prepareStatement(sql);
+			stmt.setInt(1, id);
+			stmt.setInt(2, i.getId());
+			stmt.executeUpdate();
+			}
+			stmt = c.prepareStatement("SELECT * from groupe");
+			ResultSet rs=stmt.executeQuery();
+			while(rs.next()) {
+				System.out.print(" id groupe: "+rs.getInt("idGroup")+" personne :"+rs.getInt("idUtilisateur"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
 	/**
 	 * retourne la liste des personnes à qui on a déjà parlé une fois sauf à soi (donner son id) 
 	 * <p>
 	 * parlé une fois = envoyé au moins eu un message default ou file à destination de cette personne
 	 * </p>
+	 * @param user 
 	 * @param id 
 	 * @return
 	 */
-	public ArrayList<Interlocuteurs> getInterlocuteursTalked(int id) {
+	public ArrayList<Interlocuteurs> getInterlocuteursTalked(Personne user) {
 		HashMap<Integer, Interlocuteurs> liste=new HashMap<Integer,Interlocuteurs> ();
 		try {
 			PreparedStatement stmt;
-			String sql = "SELECT pseudo, idUtilisateur FROM identification JOIN (SELECT DISTINCT idDest FROM message WHERE type = 'DEFAULT' OR type = 'FILE') ON idDest = idUtilisateur WHERE idUtilisateur != ?";
+			String sql = "SELECT pseudo, idUtilisateur FROM identification";// JOIN (SELECT DISTINCT idDest FROM message WHERE type = 'DEFAULT' OR type = 'FILE') ON idDest = idUtilisateur";
 			stmt = c.prepareStatement(sql);
-			stmt.setInt(1, id);
+			//stmt.setInt(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				String pseudo = rs.getString("pseudo");
 				int idU = rs.getInt("idUtilisateur");
 				liste.put(idU, new Personne(new SimpleEntry<InetAddress, Integer>(null,-1),pseudo,false,idU));
 			}
+			liste.put(user.getId(), user);
 			rs.close();
 			stmt.close();
+			
+			System.out.print("\n FOUNDED : "+liste.toString());
 			PreparedStatement s;
 			sql = "SELECT * FROM groupe";
 			s = c.prepareStatement(sql);
@@ -251,7 +276,9 @@ public class BD {
 			int n=0;
 			if(r.next()) {
 			int idGroup=r.getInt("idGroup");
-			allInGroup.add(liste.get(r.getInt("idUtilisateur")));
+			int idUser=r.getInt("idUtilisateur");
+			System.out.print("\n id groupe :"+idGroup+" iduser "+idUser+" result :"+liste.get(idUser));
+			allInGroup.add(liste.get(idUser));
 			while (r.next()) {
 				System.out.print("\n array :"+allInGroup);
 				int idG = r.getInt("idGroup");
@@ -259,11 +286,12 @@ public class BD {
 				if(idG != idGroup) {
 					liste.put(idGroup, new Group(allInGroup));
 					System.out.print("\n array2 :"+allInGroup);
-					allInGroup.clear();
+					allInGroup=new ArrayList<>();
 					idGroup=idG;
 				}
 				allInGroup.add(liste.get(idP));
 			}
+			liste.put(idGroup, new Group(allInGroup));
 			}
 			r.close();
 			s.close();
@@ -328,21 +356,7 @@ public class BD {
 		}
 	}
 
-	public void addGroup(int id, ArrayList<Interlocuteurs> interlocuteurs) {
-		try {
-			PreparedStatement stmt;
-			for( Interlocuteurs i: interlocuteurs) {
-			String sql = "REPLACE INTO groupe (idGroup,idUtilisateur) VALUES (?, ?);";
-			stmt = c.prepareStatement(sql);
-			stmt.setInt(1, id);
-			stmt.setInt(2, i.getId());
-			stmt.executeUpdate();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-	}
+	
 }
 	/*/** 
 	 * Donne accès à l'emplacement de tout les fichiers téléchargés 
