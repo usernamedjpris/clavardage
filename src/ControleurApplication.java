@@ -336,8 +336,8 @@ IOUtils.write(encoded, output);
 	           Message message = (Message) evt.getNewValue();
 	         //do not reply to yourself broadcast ^^ + possibilité de se parler à soi même + 
 	           //pas d'affichage des messages qu'on envoie dans un groupe où on est présent (aussi envoyé à soi #même id everywhere))
-        	   if(message.getDestinataire() != null && (message.getDestinataire().getId()!= user.getId()  || 
-        			   (message.getDestinataire().getId()== user.getId() && message.getEmetteur().getId()==user.getId()))) {
+        	   if((message.getDestinataire() == null && message.getEmetteur().getId()!=user.getId()) || (message.getDestinataire() != null && (message.getDestinataire().getId()!= user.getId()  || 
+        			   (message.getDestinataire().getId()== user.getId() && message.getEmetteur().getId()==user.getId())))) {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+
 	        		   "("+message.getEmetteur().getAddressAndPorts().toString()+")"+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {

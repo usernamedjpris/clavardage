@@ -82,7 +82,7 @@ public class BD {
 	 * @see BD#c
 	 * @return BD
 	 */
-	public static BD getBD() {
+	public synchronized static BD getBD() {
 		return instance != null ? instance : (instance = new BD()).getBD();
 	}
 	/**

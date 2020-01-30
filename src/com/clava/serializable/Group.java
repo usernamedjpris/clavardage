@@ -3,6 +3,8 @@ package com.clava.serializable;
 import java.net.InetAddress;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Group implements Interlocuteurs {
 	/**
@@ -10,6 +12,7 @@ public class Group implements Interlocuteurs {
 	 */
 	private static final long serialVersionUID = 1L;
 	ArrayList<Interlocuteurs> p;
+	private int id;
 	
 	@Override
     public boolean equals(Object o) {
@@ -26,6 +29,16 @@ public class Group implements Interlocuteurs {
 	public Group(ArrayList<Interlocuteurs> liste){
 		System.out.print("liste :"+liste);
 		p=new ArrayList<>(liste);
+		ArrayList<Integer> array =new ArrayList<>();
+		for(Interlocuteurs i: p) {
+			array.add(i.getId());
+		}
+		 Collections.sort(array);
+		 String id="";
+		 for(int i:array) {
+			 id+=i;
+		 }
+		 this.id=id.hashCode();
 	}
 
 	@Override
@@ -58,12 +71,7 @@ public class Group implements Interlocuteurs {
 
 	@Override
 	public int getId() {
-		String id="";
-		System.out.print("size :"+p.size()+" p :"+p.toString());
-		for (Interlocuteurs c :p){
-			id+=c.getId();
-		}
-		return id.hashCode();
+		return id;
 	}
 	
 	@Override
