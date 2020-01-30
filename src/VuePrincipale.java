@@ -288,9 +288,7 @@ public class VuePrincipale {
 				
 			}};
 		    list.addListSelectionListener(listSelectionListener);
-			list.setSelectedIndex(0);
-			activeUser = list.getSelectedValue();
-			loadConversation(activeUser.getId());
+			
 			//conv.put(activeUser.getId(), new ArrayList<>());
 	}
 	@SuppressWarnings("serial")
@@ -496,5 +494,10 @@ public class VuePrincipale {
 		list.updateUI();
 		list.repaint();
 		
+	}
+	public void firstSelection() {
+		list.setSelectedIndex(0);
+		activeUser = list.getSelectedValue();
+		loadConversation(activeUser.getId());
 	}
 }
