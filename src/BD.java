@@ -180,18 +180,26 @@ public class BD {
 	 * Retourne la conversation entière entre deux personnes données
 	 * @param user (mettre soi)
 	 * @param Interlocuteur
+	 * @param groupe
 	 * @return liste de messages
 	 */
-	public ArrayList<Message> getHistorique(Personne user, Interlocuteurs Interlocuteur) {
+	public ArrayList<Message> getHistorique(Personne user, Interlocuteurs Interlocuteur, boolean groupe) {
 		ArrayList<Message> messages = new ArrayList<Message>();
 				try {
 			PreparedStatement stmt;
-			String sql = "SELECT * FROM message WHERE ((idEmet = ? AND idDest = ?) OR (idEmet = ? AND idDest = ?)) ORDER BY sentDate;";
-			stmt = c.prepareStatement(sql);
-			stmt.setInt(1, user.getId());
-			stmt.setInt(2, Interlocuteur.getId());
-			stmt.setInt(3, Interlocuteur.getId());
-			stmt.setInt(4, user.getId());
+			String sql;
+			if(!groupe) {
+				sql = "SELECT * FROM message WHERE ((idEmet = ? AND idDest = ?) OR (idEmet = ? AND idDest = ?)) ORDER BY sentDate;";
+				stmt = c.prepareStatement(sql);
+				stmt.setInt(1, user.getId());
+				stmt.setInt(2, Interlocuteur.getId());
+				stmt.setInt(3, Interlocuteur.getId());
+				stmt.setInt(4, user.getId());
+			}else {
+				sql = "SELECT * FROM message WHERE (idDest = ?) ORDER BY sentDate;";
+				stmt = c.prepareStatement(sql);
+				stmt.setInt(1, Interlocuteur.getId());
+			}
 			ResultSet rs = stmt.executeQuery();
 			int idUser=user.getId();
 			while (rs.next()) {

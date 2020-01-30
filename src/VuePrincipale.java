@@ -493,6 +493,7 @@ public class VuePrincipale {
 		updateList();
 	}
 	public void updateList() {
+		list.updateUI();
 		list.repaint();
 		
 	}

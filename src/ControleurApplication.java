@@ -293,7 +293,7 @@ IOUtils.write(encoded, output);
 											  p.setPseudo(i.getPseudo());
 			        				   }//si app crashe, on ignore l'nfo du serveur disant qu'on était déjà connecté (notre connexion va régulariser
 			        				   //la situation
-			        				   if(!p.getConnected() && p.getId()!=user.getId()) {
+			        				   if(!p.getConnected() && i.getId()!=user.getId()) {
 			        					   System.out.print(" \n Connexion de : "+p.getPseudo()+" à "+i.getAddressAndPorts().get(0));
 			        					   p.setConnected(true);
 			        					/// ok if NAT well config #upnp or manually 
@@ -321,10 +321,11 @@ IOUtils.write(encoded, output);
 	        		   boolean found=false;
 					 for(Object ob: model.toArray()) {
 		        		   Interlocuteurs p =(Interlocuteurs)ob;
-		        		   if(i.getId()==p.getId())
+		        		   if(i.getId()==p.getId() )
 		        			   found=true;
 					 }
-					 if(!found) {
+					 //on ne se connecte pas soi même #régularisation 
+					 if(!found && i.getId()!= user.getId()) {
 						 System.out.print(" \n Connexion de: "+i.getPseudo());
 						 model.add(0, i);
 						 maBD.setIdPseudoLink(i.getPseudo(),i.getId());
@@ -335,10 +336,12 @@ IOUtils.write(encoded, output);
 		}else {
 		  if (evt.getNewValue() instanceof Message) {
 	           Message message = (Message) evt.getNewValue();
-	         //do not reply to yourself broadcast ^^ + possibilité de se parler à soi même + 
+	           //pas de réponse à notre propre broadcast ^^  
 	           //pas d'affichage des messages qu'on envoie dans un groupe où on est présent (aussi envoyé à soi #même id everywhere))
+	           //possibilité de se parler à soi même
         	   if((message.getDestinataire() == null && message.getEmetteur().getId()!=user.getId()) 
         			   || !message.getEmetteur().getInterlocuteurs().contains(user)
+        			   || message.getDestinataire() != null 
         			   && (message.getDestinataire().getId()== user.getId() 
         			   && message.getEmetteur().getId()==user.getId()))
         			    {
@@ -346,7 +349,10 @@ IOUtils.write(encoded, output);
 	        		   "("+message.getEmetteur().getAddressAndPorts().toString()+")"+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   if(initialized) {
-	        	   main.update(message.getEmetteur(),message,false);
+	        		   if(message.getEmetteur().getInterlocuteurs().size()>1)
+		        		   main.update(message.getDestinataire(),message,false); 
+		        	   else
+		        		   main.update(message.getEmetteur(),message,false);
 		           maBD.addData(message); //SAVE BD LE MESSAGE RECU
 		          // maBD.printMessage();
 	        	   }
@@ -367,7 +373,11 @@ IOUtils.write(encoded, output);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-	        	   main.update(message.getEmetteur(),message,false);
+	        	   //si groupe, graphiquement l'emetteur apparait comme étant le groupe
+	        	   if(message.getEmetteur().getInterlocuteurs().size()>1)
+	        		   main.update(message.getDestinataire(),message,false); 
+	        	   else
+	        		   main.update(message.getEmetteur(),message,false);
 		           maBD.addFile(message); //SAVE BD LE MESSAGE RECU
 	           }
 	           else if(message.getType()==Message.Type.SWITCH) {
@@ -433,15 +443,18 @@ IOUtils.write(encoded, output);
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 		        	  if(initialized)
 		        	  main.updateList();
-	           }/*///TODO finish group
+	           }///TODO finish group
 	           else if(message.getType()==Message.Type.GROUPCREATION ) { 
-	        	   Group g=(Group)message.getDestinataire();
-	        	   g.addInterlocuteur(message.getEmetteur());
-	        	   g.removeInterlocuteur(user);
+	        	   Interlocuteurs g=message.getDestinataire();
+	        	   //g.addInterlocuteur(message.getEmetteur());
+	        	  // g.removeInterlocuteur(user);
 	        	   if(!model.contains(g)) {
 	        	   maBD.addGroup(g.getId(),g.getInterlocuteurs());
-	        	   model.add(0, g);}
-	           }*/
+	        	   model.add(1, g);
+	        	   if(initialized)
+	        		   main.updateList();
+	        	   }
+	           }
 	           else if(message.getType()==Message.Type.WHOISALIVE ) { 
 	        	   if(initialized)
 	        	   sendActiveUserPseudo(message.getEmetteur());
@@ -512,7 +525,7 @@ IOUtils.write(encoded, output);
 		maBD.addFile(m2); 
 	}
 	public ArrayList<Message> getHistorique(Interlocuteurs activeUser) {
-			return maBD.getHistorique(user,activeUser);
+			return maBD.getHistorique(user,activeUser,(activeUser.getInterlocuteurs().size()>1));
 	}
 	public boolean creationGroupe(ArrayList<Interlocuteurs> array) {
 		array.add(user);
@@ -521,8 +534,8 @@ IOUtils.write(encoded, output);
 		model.add(1,g);
 		maBD.addGroup(g.getId(),array);
 		
-		/*///TODO avertir les autres de la création du groupe
-		 * Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));*/
+		///TODO avertir les autres de la création du groupe
+		Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));
 	   // g.removeInterlocuteur(user);
 		return true;
 		}

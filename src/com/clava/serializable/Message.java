@@ -233,6 +233,7 @@ public class Message implements Serializable {
 	}
 
 	public String toHtml() {
+		String beautiful="";
 		if(t==Type.DEFAULT) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
@@ -240,20 +241,26 @@ public class Message implements Serializable {
 		    {
 				String url=new String(data);
 		        new URL(url).toURI();
-		        return "<a href=\""+url +"\">"+ url+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; 
+		        beautiful= "<a href=\""+url +"\">"+ url+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; 
 		    } catch (Exception exception)
 		    {
-		    	return new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
-		    }		 
+		    	beautiful= new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
+		    }	
+			//si envoyé à un groupe 
+			if(this.getDestinataire().getInterlocuteurs().size()>1)
+				beautiful += "<div class='date'><b> de : "+emetteur.getPseudo()+"</b></div>";
 		}
 		else if(t==Type.FILE) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
 			System.out.print("<a href='"+nameFile +"'>"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>");
-			return  "<a href=\""+nameFile +"\">"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
+			beautiful= "<a href=\""+nameFile +"\">"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
+			//si envoyé à un groupe 
+			if(this.getDestinataire().getInterlocuteurs().size()>1)
+				beautiful += "<div class='date'><b> de : "+emetteur.getPseudo()+"</b></div>";
 		}
-		else
-			return "";
+	
+			return beautiful;
 	}
 	public Interlocuteurs getDestinataire() {
 		return destinataire;
