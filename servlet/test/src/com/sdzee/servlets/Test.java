@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,34 +24,23 @@ public class Test extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private ArrayList<Interlocuteurs> disponibilite = new ArrayList<>();
 	//private ClientTCP client;
-	ArrayList<String> pseudoWaiting=new ArrayList<String>();
+	//ArrayList<String> pseudoWaiting=new ArrayList<String>();
+	HashMap<Integer,String> pseudoWaiting=new HashMap<>();
 	private int DEFAULT_BUFFER_SIZE=2048;
 	public Test(){
 		//client=new ClientTCP();
 	}
 
 	 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	   // String description = request.getParameter("description"); // Retrieves <input type="text" name="description">
-	    //Part filePart = request.getPart("file"); // Retrieves <input type="file" name="file">
-	   // String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-	   InputStream fileContent = request.getInputStream();
-	   
-	   /*byte[] decodedBytes = Base64.getDecoder().decode(fileContent.readAllBytes());
-	   ByteArrayInputStream m3 =new ByteArrayInputStream(decodedBytes);
-	   DataInputStream dis = new DataInputStream(m3);
-       int len = dis.readInt();
-       byte[] data = new byte[len];
-       if (len > 0) {
-           dis.read(data, 0,len);
-       }*/
-       byte[] data=fileContent.readAllBytes();
+	     InputStream fileContent = request.getInputStream();
+	     byte[] data=fileContent.readAllBytes();
 			Message m;
 			try {
 				m = Message.deserialize(data);
 
 			Interlocuteurs p = m.getEmetteur();				
 			//recuperation du couple (adresse,port) du NAT pour du tcp hole punching
-			//Implementation en java très difficile => le nat sera ouvert à la main 
+			//Implementation en java très difficile => le nat sera ouvert à la main / upnp
 			//=> on renvoie le port où le nat a été effectué à la main
 			InetAddress addrNat = InetAddress.getByName(request.getRemoteAddr());		
 			int portNat = m.getEmetteur().getAddressAndPorts().get(0).getValue();//request.getRemotePort();
@@ -79,9 +69,7 @@ public class Test extends HttpServlet {
 	        }
 	        else if (m.getType()==Message.Type.CONNECTION) {
 	        	updateConnection(p);
-	        	if(!pseudoWaiting.remove(p.getPseudo())) {
-	        		System.out.print("\n Check pseudoWaiting deletion");
-	        	}
+	        	pseudoWaiting.remove(p.getId());
 	        	repondMessage(Message.Factory.okServeur(), response);
 	        }	        
 	        else if (m.getType()==Message.Type.DECONNECTION) {
@@ -89,19 +77,18 @@ public class Test extends HttpServlet {
 	        	repondMessage(Message.Factory.okServeur(), response);
 	        }
 	        else if (m.getType()==Message.Type.ASKPSEUDO) {
-	        	boolean found=false;
-	        	for(String s:pseudoWaiting) {
-			        	if(s.equals(p.getPseudo())){
+	        	//et ce n'est pas nous même qui nous étions mal déconnectés
+	        	if(pseudoWaiting.get(p.getId()) != null) {
+	        		disponibilite.remove(p);
+	        		pseudoWaiting.remove(p.getId());
+	        	}
+	        	else if(pseudoWaiting.containsValue(p.getPseudo()) && p.getPseudo().equals()) {
 			        		System.out.print(pseudoWaiting+" NEINNNNN already used !");
 			        		Message messageReplied = Message.Factory.usernameAlreaydTaken(null, p);
-			        		found=true;
 			        		repondMessage(messageReplied, response);
-			        		break;
-			        		//client.sendMessage(messageReplied, p); 
 			        	}
-	        	}
-	        	if(!found)
-	        		pseudoWaiting.add(p.getPseudo());
+	        	else
+	        		pseudoWaiting.put(p.getId(),p.getPseudo());
 	        	
 	        	Interlocuteurs samePseudo = personneWithPseudo(p.getPseudo());
 	        	if(samePseudo!=null) {
@@ -185,12 +172,18 @@ public class Test extends HttpServlet {
 	 * @param Personne p 
 	 */
 	private void updateConnection(Interlocuteurs p) {
-		int index = findIDfromDisponibilite(p.getId());
-		if (index<0) {
+		if (!disponibilite.contains(p)) {
 			disponibilite.add(p);
-		}else
+		}else {
 			System.out.print("Check your code, not one can connect itself"
-					+ " twice without disconnect between both");
+					+ " twice without disconnect between both #maybe DECONNEXION did'nt send"
+					+ "# force quit");
+			//normalisation de la situation
+			pseudoWaiting.remove(p.getId());
+			while(disponibilite.remove(p));
+			disponibilite.add(p);
+		}
+			
 		/*try {
 			for(Interlocuteurs o:disponibilite)
 			client.sendMessage(Message.Factory.userConnectedBroadcast(p),o);

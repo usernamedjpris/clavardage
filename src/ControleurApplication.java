@@ -291,8 +291,9 @@ IOUtils.write(encoded, output);
 			        				   if(!p.getPseudo().equals(i.getPseudo())) {
 					        				  System.out.print(" \n MAJ du pseudo de : "+p.getPseudo());
 											  p.setPseudo(i.getPseudo());
-			        				   }
-			        				   if(!p.getConnected()) {
+			        				   }//si app crashe, on ignore l'nfo du serveur disant qu'on était déjà connecté (notre connexion va régulariser
+			        				   //la situation
+			        				   if(!p.getConnected() && p.getId()!=user.getId()) {
 			        					   System.out.print(" \n Connexion de : "+p.getPseudo()+" à "+i.getAddressAndPorts().get(0));
 			        					   p.setConnected(true);
 			        					/// ok if NAT well config #upnp or manually 
@@ -336,8 +337,11 @@ IOUtils.write(encoded, output);
 	           Message message = (Message) evt.getNewValue();
 	         //do not reply to yourself broadcast ^^ + possibilité de se parler à soi même + 
 	           //pas d'affichage des messages qu'on envoie dans un groupe où on est présent (aussi envoyé à soi #même id everywhere))
-        	   if((message.getDestinataire() == null && message.getEmetteur().getId()!=user.getId()) || (message.getDestinataire() != null && (message.getDestinataire().getId()!= user.getId()  || 
-        			   (message.getDestinataire().getId()== user.getId() && message.getEmetteur().getId()==user.getId())))) {
+        	   if((message.getDestinataire() == null && message.getEmetteur().getId()!=user.getId()) 
+        			   || !message.getEmetteur().getInterlocuteurs().contains(user)
+        			   && (message.getDestinataire().getId()== user.getId() 
+        			   && message.getEmetteur().getId()==user.getId()))
+        			    {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+
 	        		   "("+message.getEmetteur().getAddressAndPorts().toString()+")"+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {

@@ -27,7 +27,7 @@ public class Group implements Interlocuteurs {
     }
 	
 	public Group(ArrayList<Interlocuteurs> liste){
-		System.out.print("liste :"+liste);
+		//System.out.print("liste :"+liste);
 		p=new ArrayList<>(liste);
 		ArrayList<Integer> array =new ArrayList<>();
 		for(Interlocuteurs i: p) {

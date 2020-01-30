@@ -267,7 +267,7 @@ public class BD {
 			rs.close();
 			stmt.close();
 			
-			System.out.print("\n FOUNDED : "+liste.toString());
+			//System.out.print("\n FOUNDED : "+liste.toString());
 			PreparedStatement s;
 			sql = "SELECT * FROM groupe";
 			s = c.prepareStatement(sql);
@@ -277,15 +277,15 @@ public class BD {
 			if(r.next()) {
 			int idGroup=r.getInt("idGroup");
 			int idUser=r.getInt("idUtilisateur");
-			System.out.print("\n id groupe :"+idGroup+" iduser "+idUser+" result :"+liste.get(idUser));
+			//System.out.print("\n id groupe :"+idGroup+" iduser "+idUser+" result :"+liste.get(idUser));
 			allInGroup.add(liste.get(idUser));
 			while (r.next()) {
-				System.out.print("\n array :"+allInGroup);
+				//System.out.print("\n array :"+allInGroup);
 				int idG = r.getInt("idGroup");
 				int idP = r.getInt("idUtilisateur");
 				if(idG != idGroup) {
 					liste.put(idGroup, new Group(allInGroup));
-					System.out.print("\n array2 :"+allInGroup);
+					//System.out.print("\n array2 :"+allInGroup);
 					allInGroup=new ArrayList<>();
 					idGroup=idG;
 				}
