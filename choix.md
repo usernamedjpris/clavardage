@@ -77,8 +77,7 @@ voir le [diagramme de séquence](conception/seqdiagram_changerpseudo.png)
 1. Lancer SuperClavardeur™ et se connecter
 2. Cliquer sur `bouton création groupe` de la *Vue principale*
 	- *Vue Création Groupe* s'ouvre
-3. Rentrer le nom du groupe
-4. Sélectionner des utilisateurs 
+3. Sélectionner des utilisateurs 
 	- le programme notifie de la création de groupe aux autres utilisateurs `Message.Type =`**`GROUPCREATION`**
 	- le programme ajoute le nouveau groupe dans la *Vue principale*
 	- *Vue Création Groupe* se ferme
