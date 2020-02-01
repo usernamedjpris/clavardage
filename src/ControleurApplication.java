@@ -350,7 +350,7 @@ IOUtils.write(encoded, output);
 	        		   "("+message.getEmetteur().getAddressAndPorts().toString()+")"+"\n" );
 	           if(message.getType()==Message.Type.DEFAULT) {
 	        	   if(initialized) {
-	        		   if(message.getEmetteur().getInterlocuteurs().size()>1)
+	        		   if(message.getDestinataire().getInterlocuteurs().size()>1)
 		        		   main.update(message.getDestinataire(),message,false); 
 		        	   else
 		        		   main.update(message.getEmetteur(),message,false);
@@ -375,7 +375,7 @@ IOUtils.write(encoded, output);
 					e.printStackTrace();
 				}
 	        	   //si groupe, graphiquement l'emetteur apparait comme étant le groupe
-	        	   if(message.getEmetteur().getInterlocuteurs().size()>1)
+	        	   if(message.getDestinataire().getInterlocuteurs().size()>1)
 	        		   main.update(message.getDestinataire(),message,false); 
 	        	   else
 	        		   main.update(message.getEmetteur(),message,false);
@@ -447,10 +447,26 @@ IOUtils.write(encoded, output);
 		        	  main.updateList();
 	           }///TODO finish group
 	           else if(message.getType()==Message.Type.GROUPCREATION ) { 
-	        	   Interlocuteurs g=message.getDestinataire();
+	        	   
+	        	   if(!model.contains(message.getDestinataire())) {
+	        	   //recréation du groupe en local #avec les pointeurs sur lespersonnes que l'on a crées en local #
+	        	   //#auto connexion/deconnexion, pseudo switch
+	        	   ArrayList<Interlocuteurs> array=new ArrayList<>();
+	        	   for(Interlocuteurs i:message.getDestinataire().getInterlocuteurs()) {
+	        		   int index =model.indexOf(i);
+	        		   if(index != -1)
+	        		   array.add(model.get(index));
+	        		   else {
+	        		   System.out.print("\n Warning !, un de vos amis a créé un groupe avec une personne que vous ne connaissez pas, "
+	        		   		+ "ceci peut être dû à un délai réseau, nous ajoutons cette personne" );
+	        		   model.add(0,i);
+	        		   array.add(i);
+	        		   }
+	        	   }
+	        	   Group g=new Group(array);
 	        	   //g.addInterlocuteur(message.getEmetteur());
 	        	  // g.removeInterlocuteur(user);
-	        	   if(!model.contains(g)) {
+	        	  
 	        	   maBD.addGroup(g.getId(),g.getInterlocuteurs());
 	        	   model.add(1, g);
 	        	   if(initialized)
