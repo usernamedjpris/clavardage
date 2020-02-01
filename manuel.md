@@ -7,7 +7,7 @@
 *Vue principale :*<br>
 ![*Vue principale*](images/VuePrincipale.png)<br>
 *Vue création groupe :*<br>
-![*Vue création groupe*](images/VueCreationGroupe.png)<br>
+![*Vue création groupe*](images/VueCreationGroupe.PNG)<br>
 
 ### Lancement
 Lancer l'application après une première compilation:<br>
