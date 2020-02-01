@@ -5,14 +5,11 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
-
-import javax.swing.JOptionPane;
 import com.clava.serializable.Message;
-import com.clava.serializable.Personne;
 //https://www.baeldung.com/java-broadcast-multicast
 public class ClientUDP {
 	int portUDP;
-	 List<InetAddress> broadcastList;
+	List<InetAddress> broadcastList;
 	public ClientUDP(int port) {
 		portUDP=port;
 		try {
@@ -21,27 +18,39 @@ public class ClientUDP {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Permet d'envoyer un message en broadcast (reseau local)
+	 * <p> utile pour les messages du type DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ASKPSEUDO, GROUPCREATION</p>
+	 * @param message
+	 * @throws IOException
+	 * @throws SocketException
+	 */
     public void broadcast(Message message) throws IOException, SocketException {
     	System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast "+
-    "sur le port :"+portUDP);
+        "sur le port :"+portUDP);
 		
     	DatagramSocket socket = new DatagramSocket();
         socket.setBroadcast(true);
  
         byte[] buffer = Message.serialize(message);
         for(InetAddress a:broadcastList) {
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length,a, portUDP);
-        socket.send(packet);
+	        DatagramPacket packet = new DatagramPacket(buffer, buffer.length,a, portUDP);
+	        socket.send(packet);
         }
         socket.close();
     }
+    /**
+     * Liste toutes les adresses de broadcast disponibles 
+     * @return
+     * @throws SocketException
+     */
     List<InetAddress> listAllBroadcastAddresses() throws SocketException {
         List<InetAddress> broadcastList = new ArrayList<>();
-        Enumeration<NetworkInterface> interfaces 
-          = NetworkInterface.getNetworkInterfaces();
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        
         while (interfaces.hasMoreElements()) {
             NetworkInterface networkInterface = interfaces.nextElement();
-     
+            
             if (networkInterface.isLoopback() || !networkInterface.isUp()) {
                 continue;
             }
@@ -55,6 +64,7 @@ public class ClientUDP {
     }
     /**
      * R UDP not for group
+     * utile pour ALIVE, REPLYPSEUDO
      * @param message
      * @throws IOException
      * @throws SocketException

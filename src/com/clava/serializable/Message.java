@@ -23,15 +23,8 @@ This variable will be loaded with current value defined in the class during dese
 */
 public class Message implements Serializable {
 
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	/**
-	 * 
-	 */
-	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE,ASKPSEUDO,REPLYPSEUDO, FILE,GROUPCREATION,OKSERVEUR, DEFAULT}
+	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE, ASKPSEUDO, REPLYPSEUDO, FILE, GROUPCREATION, OKSERVEUR, DEFAULT}
 	private byte[] data;
 	private Interlocuteurs emetteur;
 	private Interlocuteurs destinataire;
@@ -41,6 +34,7 @@ public class Message implements Serializable {
 	
 	/**
 	 * Message à une Interlocuteurs TCP ou UDP (si réponse broadcast)
+	 * <p> [Design Pattern Serialization]</p>
 	 * @param cat type de message entre ALIVE, REPLYPSEUDO, DEFAULT
 	 * @param data texte si DEFAULT, null sinon
 	 * @param emetteur
@@ -57,6 +51,7 @@ public class Message implements Serializable {
 	
 	/**
 	 * Broadcast Message UDP
+	 * <p> [Design Pattern Serialization]</p>
 	 * @param cat type entre SWITCH, CONNEXION, DECONNEXION, WHOISALIVE, ASKPSEUDO
 	 * @param Interlocuteurs c-a-d l'emetteur
 	 * <br> rq pour SWITCH le nouveau pseudo est dans l'emetteur( check les id et maj en reception)
@@ -70,6 +65,7 @@ public class Message implements Serializable {
 	}
 	/**
 	 * All inclusive builder, for FILE or BD 
+	 * <p> [Design Pattern Serialization]</p>
 	 * @param bytes
 	 * @param typ
 	 * @param emet
@@ -233,7 +229,6 @@ public class Message implements Serializable {
 	}
 
 	public String toHtml() {
-		String beautiful="";
 		if(t==Type.DEFAULT) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
@@ -241,26 +236,20 @@ public class Message implements Serializable {
 		    {
 				String url=new String(data);
 		        new URL(url).toURI();
-		        beautiful= "<a href=\""+url +"\">"+ url+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; 
+		        return "<a href=\""+url +"\">"+ url+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>"; 
 		    } catch (Exception exception)
 		    {
-		    	beautiful= new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
-		    }	
-			//si envoyé à un groupe 
-			if(this.getDestinataire().getInterlocuteurs().size()>1)
-				beautiful += "<div class='date'><b> de : "+emetteur.getPseudo()+"</b></div>";
+		    	return new String(data)+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
+		    }		 
 		}
 		else if(t==Type.FILE) {
 			SimpleDateFormat heure = new SimpleDateFormat("hh:mm ");
 			SimpleDateFormat jour = new SimpleDateFormat("EEEE d MMM ");
-			System.out.print("<a href='"+nameFile +"'>"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>");
-			beautiful= "<a href=\""+nameFile +"\">"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
-			//si envoyé à un groupe 
-			if(this.getDestinataire().getInterlocuteurs().size()>1)
-				beautiful += "<div class='date'><b> de : "+emetteur.getPseudo()+"</b></div>";
+			//System.out.print("<a href='"+nameFile +"'>"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>");
+			return  "<a href=\""+nameFile +"\">"+ new File(nameFile).getName()+"</a>"+"<div class='date'><b>"+heure.format(date)+"</b>"+jour.format(date)+"</div>";
 		}
-	
-			return beautiful;
+		else
+			return "";
 	}
 	public Interlocuteurs getDestinataire() {
 		return destinataire;

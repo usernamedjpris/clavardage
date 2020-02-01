@@ -16,6 +16,8 @@ public class Personne implements Serializable, Interlocuteurs{
 	private boolean connected;
 	private int id;
 	/**
+	 * Constructeur Personne
+	 * <p> [Design Pattern Serialization]</p>
 	 * @param a adresse et portTcp
 	 * @param pseudo
 	 * @param connected 
@@ -82,9 +84,4 @@ public class Personne implements Serializable, Interlocuteurs{
 		 array.add(this);
 		return array;
 	}
-
-
-
-	
-
 }

@@ -67,10 +67,17 @@ public class ControleurApplication implements PropertyChangeListener{
 	private Object mutex = new Object();
 	Wini ini;
 	private InetAddress localIp;
+	/**
+	 * main thread
+	 * @param args
+	 */
 	public static void main(String[] args) {
 			new ControleurApplication();
 
 	}
+	/**
+	 * Interroge le serveur toute les 5s pour mettre à jour les destinataires présents "ALIVE".
+	 */
 	void configServeur() {
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
@@ -79,30 +86,36 @@ public class ControleurApplication implements PropertyChangeListener{
 				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
 			  }} , 5000, 5000);
 		}
-InetAddress findIp() {
+	/**
+	 * Fonction de découverte automatique de l'ip (IPV4) locale de l'utilisateur 
+	 * @return ip locale
+	 * NB : si l'application echoue à trouver l'ip locale on peut toujour la rentrer manuellement dans config.ini
+	 * @see ControleurApplication#init() 
+	 */
+	InetAddress findIp() {
 		InetAddress localIp;
 		try {
-					DatagramSocket so=new DatagramSocket();
-					so.connect(InetAddress.getByAddress(new byte[]{1,1,1,1}), 0);
-					localIp=so.getLocalAddress();
-					so.close();
+			DatagramSocket so=new DatagramSocket();
+			so.connect(InetAddress.getByAddress(new byte[]{1,1,1,1}), 0);
+			localIp=so.getLocalAddress();
+			so.close();
 			//System.out.print(" adresse  ip : "+ localIp.toString());
 	 	    if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
-		for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
-			  NetworkInterface network = (NetworkInterface) enm.nextElement();
-			 	    //si getLoaclHost n'a pas marché correctement (on veut de l'IPV4) 
-			 	   for(Enumeration<InetAddress> s = network.getInetAddresses(); s.hasMoreElements();){
-			 		  InetAddress in = (InetAddress) s.nextElement();
-			 		 // System.out.print(" \nlocalIP s found : " +in.toString() + " ? "+ (!in.isLoopbackAddress() && in instanceof Inet4Address));
+	 	    for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
+	 	    	NetworkInterface network = (NetworkInterface) enm.nextElement();
+		 	    //si getLoaclHost n'a pas marché correctement (on veut de l'IPV4) 
+		 	    for(Enumeration<InetAddress> s = network.getInetAddresses(); s.hasMoreElements();){
+			 		InetAddress in = (InetAddress) s.nextElement();
+			 		// System.out.print(" \nlocalIP s found : " +in.toString() + " ? "+ (!in.isLoopbackAddress() && in instanceof Inet4Address));
 			 		// System.out.print(" \nloop: " +in.toString() + " ? "+ (in.isLoopbackAddress()));
-			 		  if(!in.isLoopbackAddress() && in instanceof Inet4Address)
-			 			  localIp=in;
-			 	   }
-			    }
-		//find good local ip last chance
-		 if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
-				localIp = InetAddress.getLocalHost(); //buggy one
-		 }
+			 		if(!in.isLoopbackAddress() && in instanceof Inet4Address)
+			 			localIp=in;
+				 	}
+				}
+				//find good local ip last chance 
+				if(localIp.isLoopbackAddress() || !(localIp instanceof Inet4Address)) {
+					localIp = InetAddress.getLocalHost(); //buggy one
+				}
 	 	    }
 		return localIp;
 		} catch (UnknownHostException e2) {
@@ -122,6 +135,14 @@ InetAddress findIp() {
 		return (InetAddress) new Object();
 				
 	}
+	/**
+	 * Fonction de découverte automatique de l'@mac locale de l'utilisateur 
+	 * @return mac locale
+	 * NB : si l'application echoue à trouver l'@mac locale on peut toujour la rentrer manuellement dans config.ini
+	 * @see ControleurApplication#init() 
+	 * @throws SocketException
+	 * @throws UnknownHostException
+	 */
 	String findMac() throws SocketException, UnknownHostException {
 		String mac="";
 			for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
@@ -144,6 +165,9 @@ InetAddress findIp() {
 		}
 		return mac;
 	}
+	/**
+	 * initialisation du reseau (ip, mac et port locaux) + [Design Pattern Observers]
+	 */
 	void init() {
 		String ipServer=null;
 		InetAddress ipForceLocal=null;
@@ -199,13 +223,17 @@ InetAddress findIp() {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Constructeur ControleurApplication 
+	 * <p>initialise le réseau, la Vue Pseudo (bloquante) et affiche la Vue Principale en consultant la BD + [Design Pattern Observers]</p>
+	 */
 	ControleurApplication(){
 		init();
 	    //on récupère les gens avec qui on a déjà parlé #offline reading
-	   for(Interlocuteurs p: maBD.getInterlocuteursTalked(user)) {
-		   if(p.getId()!=user.getId())
-		   model.addElement(p);
-	   }
+	    for(Interlocuteurs p: maBD.getInterlocuteursTalked(user)) {
+			if(p.getId()!=user.getId())
+			model.addElement(p);
+	    }
 	    Reseau.getReseau().sendDataBroadcast(Message.Factory.whoIsAliveBroadcast(user));
 	    new VueChoixPseudo(this,false);
 	    main=new VuePrincipale(this,model);
@@ -218,20 +246,38 @@ InetAddress findIp() {
 	    main.updateList();
 		configServeur();
 	}
+	/**
+	 * Retourne le pseudo utilisateur
+	 * @return pseudo utilisateur
+	 */
 	String getPseudo() {
 		return user.getPseudo();
 	}
+	/**
+	 * Retourne la personne utilisateur
+	 * @return personne utilisateur
+	 */
 	Interlocuteurs getPersonne() {
 		return user;
 	}
+	/**
+	 * Envoie un message ALIVE (emetteur = utilisateur) en broadcast UDP sur le réseau local
+	 * @param to
+	 */
 	void sendActiveUserPseudo(Interlocuteurs to) {
 			Reseau.getReseau().sendUDP(Message.Factory.userIsAlive(user, to));
 	}
+	/**
+	 * checkUnicity envoie un message (emetteur = user, user.pseudo = newpseudo) ASKPSEUDO à tout le monde
+	 * s'il ne reçoit pas de réponse (message REPLYPSEUDO) dans les 3 secondes alors estime que pseudo pas deje pris
+	 * @param pseudo
+	 * @return false si deja pris true sinon
+	 */
 	boolean checkUnicity(String pseudo) {
 		synchronized (mutex) {
-		answerPseudo=true;
-		pseudoWaiting=pseudo;
-		user.setPseudo(pseudo);
+			answerPseudo=true;
+			pseudoWaiting=pseudo;
+			user.setPseudo(pseudo);
 		}
 		Reseau.getReseau().sendDataBroadcast(Message.Factory.askPseudoOkBroadcast(user));
 		try {
@@ -240,11 +286,11 @@ InetAddress findIp() {
 			e.printStackTrace();
 		}
 		if(answerPseudo) {
-		for(Object i : model.toArray()) {
-			Interlocuteurs v=(Interlocuteurs) i;
-			if((v.getId()!=user.getId() && v.getConnected() && v.getPseudo().equals(pseudo)))
-				return false;
-		}
+			for(Object i : model.toArray()) {
+				Interlocuteurs v=(Interlocuteurs) i;
+				if((v.getId()!=user.getId() && v.getConnected() && v.getPseudo().equals(pseudo)))
+					return false;
+			}
 			return true;
 		}
 		else {
@@ -253,18 +299,18 @@ InetAddress findIp() {
 			}
 			return false;
 		}
-		}
-	void deconnexion(String pseudo) {
-			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));
 	}
-
+	/**
+	 * PropertyChange reçoit les messages de Reseau [Design Pattern Observers]
+	 * et traite selon le type de message 
+	 */
 	@Override
 	synchronized public void propertyChange(PropertyChangeEvent evt) {
 		//try convert arg to message
 		/* si  IMAGE to write file :
 		 * byte[] encoded = key.getEncoded();
-FileOutputStream output = new FileOutputStream(new File("target-file"));
-IOUtils.write(encoded, output);
+		FileOutputStream output = new FileOutputStream(new File("target-file"));
+		IOUtils.write(encoded, output);
 		 */
 		//on ne repond pas tant que l'on n'est pas initialis� (avec un pseudo)
 		//System.out.print(" \n type d'évenements: : "+evt.getPropertyName());
@@ -492,31 +538,48 @@ IOUtils.write(encoded, output);
 	        }
 		}
 	}
+	/**
+	 * Envoie message de déconnexion à tout le monde
+	 */
 	public void sendDisconnected() {
 			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));
-			
 	}
+	/**
+	 * Getter du chemin de téléchargement de fichier
+	 * @return File path
+	 */
 	public File getDownloadPath() {
 		return pathDownload;
 	}
+	/**
+	 * Setter du chemin de téléchargement de fichier et l'enregistre dans le fichier config.ini
+	 * @param file
+	 */
 	public void setDownloadPath(File file) {
-	pathDownload=file;
-	//maBD.setDownloadPath(file);
-	ini.put("DOWNLOAD", "path", file.getAbsolutePath());
-	try {
-		ini.store();
-	} catch (IOException e) {
-		e.printStackTrace();
+		pathDownload=file;
+		//maBD.setDownloadPath(file);
+		ini.put("DOWNLOAD", "path", file.getAbsolutePath());
+		try {
+			ini.store();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	}
+	/**
+	 * Mets à jour la BD, la Vue Principale et la Personne utilisateur du changement de pseudo
+	 * @param uname
+	 */
 	public void setPseudoUserSwitch(String uname) {
 		/*maBD.delIdPseudoLink(user.getPseudo());*/
 		maBD.setIdPseudoLink(uname,user.getId());
 		main.changePseudo(uname);
 		user.setPseudo(uname);
-		Reseau.getReseau().sendDataBroadcast(Message.Factory.switchPseudoBroadcast(user));
-	
+		Reseau.getReseau().sendDataBroadcast(Message.Factory.switchPseudoBroadcast(user));	
 	}
+	/**
+	 * Setter de pseudo
+	 * @param uname
+	 */
 	public void setPseudoUserConnexion(String uname) {
 		user.setPseudo(uname);
 	}
@@ -534,17 +597,26 @@ IOUtils.write(encoded, output);
 	 * @param file fichier à envoyer
 	 * @param f nom du fichier
 	 */
-	public void sendMessage(byte[] file, File f, Interlocuteurs to) {
-		
+	public void sendMessage(byte[] file, File f, Interlocuteurs to) {		
 		Message m =Message.Factory.sendFile(file, user, to,f.getName());//new Message(file, user, to,f.getName());
 		Reseau.getReseau().sendTCP(m);
 		Message m2 =Message.Factory.sendFile(file, user, to,f.getAbsolutePath());
 		main.update(to,m2,true);
 		maBD.addFile(m2); 
 	}
+	/**
+	 * Récupère historique des messages stockés dans la BD associé à un interlocuteur donné 
+	 * @param activeUser interlocuteur 
+	 * @return liste de message historique de la conversation
+	 */
 	public ArrayList<Message> getHistorique(Interlocuteurs activeUser) {
 			return maBD.getHistorique(user,activeUser,(activeUser.getInterlocuteurs().size()>1));
 	}
+	/**
+	 * Crée un groupe dans la BD
+	 * @param array
+	 * @return
+	 */
 	public boolean creationGroupe(ArrayList<Interlocuteurs> array) {
 		array.add(user);
 		Group g=new Group(array);
@@ -554,16 +626,11 @@ IOUtils.write(encoded, output);
 		
 		///TODO avertir les autres de la création du groupe
 		Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));
-	   // g.removeInterlocuteur(user);
+	    // g.removeInterlocuteur(user);
 		return true;
 		}
 		else {
 		return false;	
 		}
-
-		
-		
-	}
-	
-
+	}	
 }

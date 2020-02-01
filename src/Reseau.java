@@ -1,18 +1,14 @@
 import com.clava.serializable.Message;
-import com.clava.serializable.Personne;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
 import javax.swing.JOptionPane;
 
 //https://www.baeldung.com/java-observer-pattern
-//PropertyChangeListener better (java 11 )
+//PropertyChangeListener (java 11 ) better than Observer/Observable
 
-@SuppressWarnings("deprecation")
-//public class Reseau extends Observable implements Observer {
+
 public class Reseau implements PropertyChangeListener {
 	private PropertyChangeSupport support;
 	private ClientHTTP clientHTTP;
@@ -22,6 +18,8 @@ public class Reseau implements PropertyChangeListener {
 	private ServeurUDP serveurUDP;
 	static Reseau theNetwork;
 	/**
+	 * Remonte message reçu du reseau par les classes ClientHTTP ou ServeurUDP ou encore ServeurTCP à la classe ControlleurApplication [Design Pattern Observers]
+	 * @see ControleurApplication
 	 * @param serveurTcp
 	 * @param clientTcp
 	 * @param clientUDP
@@ -34,9 +32,33 @@ public class Reseau implements PropertyChangeListener {
     public void removePropertyChangeListener(PropertyChangeListener pcl) {
         support.removePropertyChangeListener(pcl);
     }
-
-	private Reseau() {
+    /**
+     * Constructeur Reseau privé
+     * <p>
+     * [Design Pattern Singleton, Observers]
+     * </p>
+     * 
+     * @see Reseau#getReseau()
+     */
+	private Reseau() {}
+	/**
+	 * Décide de créer un Reseau en fonction de s'il en existe un déjà (classe singleton)
+	 * @see Reseau#theNetwork
+	 * @return
+	 */
+	public static Reseau getReseau() {
+		if (theNetwork == null) {
+				theNetwork = new Reseau();
+		}
+		return theNetwork;
 	}
+	/**
+	 * initialise les differents protocoles utilisés : UDP, TCP, HTTP
+	 * @param portTCP
+	 * @param portUDP
+	 * @param ipServer
+	 * @param portServer
+	 */
 	void init(int portTCP, int portUDP, String ipServer, int portServer) {
 		support = new PropertyChangeSupport(this);
 		this.serveurTcp = new ServeurTCP(portTCP);
@@ -54,16 +76,13 @@ public class Reseau implements PropertyChangeListener {
 		this.clientTcp = new ClientTCP();//on get auto adresse +port dans personne destinataire (get from serveur/UDP #discovery part)
 		this.clientUDP = new ClientUDP(portUDP);//port nécessaire pour broadcast, #same config UDP everywhere
 	}
-
-	public static Reseau getReseau() {
-		if (theNetwork == null) {
-				theNetwork = new Reseau();
-		}
-		return theNetwork;
-	}
+	/**
+	 * Utilise ClientTCP pour envoyer en TCP un message au destinataire indiqué dans le message
+	 * @param message à envoyer
+	 */
 	public void sendTCP(Message message) {
 		try {
-			System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en tcp ("
+			System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en tcp (" 
 		+message.getDestinataire().getAddressAndPorts().toString());
 			clientTcp.sendMessage(message);
 		} catch (IOException e) {
@@ -72,10 +91,18 @@ public class Reseau implements PropertyChangeListener {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Utilise ClientHTTP pour envoyer un message en Http au serveur de présence
+	 * @param message à envoyer
+	 */
 	public void sendHttp(Message m) {
 		System.out.print("\n"+m.getEmetteur().getPseudo()+" envoi d'un message "+m.getType().toString()+" au serveur ");
 		clientHTTP.sendMessage(m);
 	}
+	/**
+	 * Utilise ClientUDP pour envoyer un message en UDP en broadcast 
+	 * @param message à envoyer du type DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ASKPSEUDO, ou GROUPCREATION
+	 */
 	public void sendDataBroadcast(Message message) {
 		try {			
 			clientUDP.broadcast(message);
@@ -84,7 +111,10 @@ public class Reseau implements PropertyChangeListener {
 			e.printStackTrace();
 		}
 	}
-
+	/**
+	 * Utilise ClientUDP pour envoyer en UDP un message au destinataire indiqué dans le message
+	 * @param message à envoyer du type REPLYPSEUDO ou ALIVE
+	 */
 	public void sendUDP(Message message) {
 		System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi d'un message "+message.getType().toString()+" à "+
 	message.getDestinataire().getPseudo()+"("+message.getDestinataire().getAddressAndPorts().toString());
@@ -94,6 +124,9 @@ public class Reseau implements PropertyChangeListener {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Reçoit message [Design Pattern Observers] et le transmet directement par le même moyen au ControlleurApplication
+	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		support.firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
