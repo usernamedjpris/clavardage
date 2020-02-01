@@ -31,8 +31,8 @@ La base de donnée est relativement simple et comporte 3 tables.
 
 ### Design Pattern 
 #### Singleton
-- BD
-- Reseau
+- `BD`
+- `Reseau`
 
 #### PropertyChangeListener
 - `ServeurSocketThread` → `ServeurTCP` → `Reseau` → `ControleurApplication`
