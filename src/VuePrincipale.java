@@ -73,7 +73,11 @@ public class VuePrincipale {
 	private String defaultTitle=new String("Super clavardeur !  :D");
 	private Object mutex = new Object();
 	protected boolean selected=false;
-	
+	/**
+	 * Constructeur VuePrincipale
+	 * @param application
+	 * @param m
+	 */
 	public VuePrincipale(ControleurApplication application,DefaultListModel<Interlocuteurs> m) {
 		app=application;
 		model=m;
@@ -90,12 +94,12 @@ public class VuePrincipale {
 	}
 	private void initializeMenu() {
 		JMenuBar bar=new JMenuBar();
-		//Build the File Menu.
+		// Build the File Menu.
         JMenu menu = new JMenu("Fichier");
         menu.setFont(new Font("Tahoma", Font.BOLD, 16));
         menu.setMnemonic(KeyEvent.VK_F);
         menu.getAccessibleContext().setAccessibleDescription("Gestion des fichiers");
-// create menu item and add it to the menu
+        // create menu item and add it to the menu
         JMenuItem fr = new JMenuItem("Ouvrir le dossier des fichiers reçus",
                 new ImageIcon("images/icon_open.png"));
         fr.setAccelerator(KeyStroke.getKeyStroke(
@@ -109,9 +113,9 @@ public class VuePrincipale {
 					Desktop.getDesktop().open(app.getDownloadPath());
 				} catch (IOException e1) {
 					e1.printStackTrace();
-				}
-				
+				}				
 			}});
+        
         menu.add(fr);
         JMenuItem tele = new JMenuItem("Changer le dossier de téléchargement",
                 new ImageIcon("images/icon_wheel.png"));
@@ -144,7 +148,6 @@ public class VuePrincipale {
          });
         menu.add(tele);
         
-        ///TODO Finish: pas assez stable pour le rendu final
         JMenuItem createGroup = new JMenuItem("Créer un groupe ",new ImageIcon("images/network.png"));
         createGroup.setMnemonic(KeyEvent.VK_C);
         createGroup.addActionListener(new ActionListener() {
@@ -163,7 +166,7 @@ public class VuePrincipale {
             public void actionPerformed(ActionEvent e) {
             	JOptionPane.showMessageDialog(frame, "Programmeurs: Rémi Fache et Jeremie Gantet V1.0 2020", "A propos", JOptionPane.INFORMATION_MESSAGE);	
             }
-            });
+        });
         menu.add(apropos);
         JMenuItem swip = new JMenuItem("Pseudo");
         swip.setFont(new Font("Tahoma", Font.BOLD, 16));
@@ -268,28 +271,25 @@ public class VuePrincipale {
                       setText("whodat?");
                  }
                  return c;
-            }
+           }
 
-       });
-
-		ListSelectionListener listSelectionListener = new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				if(e.getValueIsAdjusting()) {
-				 int selected = list.getSelectedIndex();
-				 if(selected != -1) {
-				 activeUser = list.getSelectedValue();
-				 loadConversation(activeUser.getId());
-				  scrollToBottom();
-				 unread.remove(activeUser.getId());
-				 System.out.print(activeUser.getPseudo());
-				 }
-				}
-				
-			}};
-		    list.addListSelectionListener(listSelectionListener);
-			
-			//conv.put(activeUser.getId(), new ArrayList<>());
+    });
+	ListSelectionListener listSelectionListener = new ListSelectionListener() {
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			if(e.getValueIsAdjusting()) {
+			 int selected = list.getSelectedIndex();
+			 if(selected != -1) {
+			 activeUser = list.getSelectedValue();
+			 loadConversation(activeUser.getId());
+			  scrollToBottom();
+			 unread.remove(activeUser.getId());
+			 System.out.print(activeUser.getPseudo());
+			 }
+			}				
+		}};
+		
+		list.addListSelectionListener(listSelectionListener);
 	}
 	@SuppressWarnings("serial")
 	private void initializeButtons() {
@@ -305,22 +305,22 @@ public class VuePrincipale {
 	               dirChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 	               int option = dirChooser.showOpenDialog(frame);
 	               if(option == JFileChooser.APPROVE_OPTION){   
-	               for(File f : dirChooser.getSelectedFiles()) {
-	                  System.out.print("file Selected: " + f.getAbsolutePath());
-	      	          byte[] data;
-					try {
-						data = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
-		                app.sendMessage(data,f,activeUser);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-	               }
-	               }else{
+		               for(File f : dirChooser.getSelectedFiles()) {
+		                  System.out.print("file Selected: " + f.getAbsolutePath());
+		      	          byte[] data;
+		      	          try {
+								data = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
+								app.sendMessage(data,f,activeUser);
+						  } catch (IOException e1) {
+							    e1.printStackTrace();
+						  }
+		               }
+	               } else {
 	            	   System.out.print("cancelled");
 	               }
-				}else
+				} else
 					JOptionPane.showMessageDialog(frame, "Vous ne pouvez pas envoyer un message à un utilisateur non connecté :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
-							}};
+		}};
 		btnFile.addActionListener(a);
 		btnFile.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, java.awt.event.InputEvent.SHIFT_DOWN_MASK ), "file");
 		btnFile.getActionMap().put("file", new AbstractAction() {

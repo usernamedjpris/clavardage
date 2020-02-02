@@ -136,7 +136,7 @@
 <target name="javadoc" description="Generate JavaDoc API docs">
 	        <delete dir="${doc.dir}" failonerror="false" />
 	        <mkdir dir="${doc.dir}" />
-	       <javadoc destdir="${doc.dir}" encoding="UTF-8">
+	       <javadoc destdir="${doc.dir}" encoding="UTF-8" classpathref="classpath">
 	           <fileset dir="."/>
 		</javadoc>
 	    </target>

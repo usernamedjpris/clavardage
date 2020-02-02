@@ -10,14 +10,26 @@ import java.io.*;
 public class ServeurSocketThread implements  Runnable {
     Socket s;
     private PropertyChangeSupport support;
+    /**
+     * Constructeur ServeurSocketThread
+     * <p>[Design Pattern Observers]</p>
+     * @param soc
+     */
     public ServeurSocketThread(Socket soc) {
         this.s = soc;
         support = new PropertyChangeSupport(this);
     }
+    /**
+     * Ajoute un Listener à notifier (ServeurTCP)
+     * @param pcl
+     * @see ServeurTCP
+     */
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
     }
-
+    /**
+     * Remonte le message reçu et déserializé au ServeurTCP
+     */
 	@Override
     public void run() {
         try{
