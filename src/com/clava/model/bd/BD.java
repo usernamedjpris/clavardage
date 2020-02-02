@@ -1,4 +1,5 @@
-import java.io.File;
+package com.clava.model.bd;
+
 import java.net.InetAddress;
 import java.sql.Blob;
 import java.sql.Connection;
@@ -289,7 +290,6 @@ public class BD {
 			s = c.prepareStatement(sql);
 			ResultSet r = s.executeQuery();
 			ArrayList<Interlocuteurs> allInGroup=new ArrayList<>();
-			int n=0;
 			if(r.next()) {
 			int idGroup=r.getInt("idGroup");
 			int idUser=r.getInt("idUtilisateur");

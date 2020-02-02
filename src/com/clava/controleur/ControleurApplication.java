@@ -1,8 +1,7 @@
+package com.clava.controleur;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -10,46 +9,31 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.URI;
 import java.net.UnknownHostException;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpClient.Version;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
-import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.bitlet.weupnp.GatewayDevice;
-import org.bitlet.weupnp.GatewayDiscover;
 import org.bitlet.weupnp.NatInit;
-import org.bitlet.weupnp.PortMappingEntry;
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Wini;
-import org.xml.sax.SAXException;
 
+import com.clava.model.bd.BD;
+import com.clava.model.reseau.Reseau;
 import com.clava.serializable.Group;
 import com.clava.serializable.Interlocuteurs;
 import com.clava.serializable.Message;
 import com.clava.serializable.Personne;
+import com.clava.vue.VueChoixPseudo;
+import com.clava.vue.VuePrincipale;
 
 
 //tips: ctrl +r =run (me) ctrl+F11 (standard)
@@ -220,16 +204,16 @@ InetAddress findIp() {
 	    main.updateList();
 		configServeur();
 	}
-	String getPseudo() {
+	public String getPseudo() {
 		return user.getPseudo();
 	}
-	Interlocuteurs getPersonne() {
+	public Interlocuteurs getPersonne() {
 		return user;
 	}
-	void sendActiveUserPseudo(Interlocuteurs to) {
+	public void sendActiveUserPseudo(Interlocuteurs to) {
 			Reseau.getReseau().sendUDP(Message.Factory.userIsAlive(user, to));
 	}
-	boolean checkUnicity(String pseudo) {
+	public boolean checkUnicity(String pseudo) {
 		synchronized (mutex) {
 		answerPseudo=true;
 		pseudoWaiting=pseudo;
@@ -447,7 +431,7 @@ IOUtils.write(encoded, output);
 		        	  maBD.setIdPseudoLink(message.getEmetteur().getPseudo(), message.getEmetteur().getId());
 		        	  if(initialized)
 		        	  main.updateList();
-	           }///TODO finish group
+	           }
 	           else if(message.getType()==Message.Type.GROUPCREATION ) { 
 	        	   
 	        	   if(!model.contains(message.getDestinataire())) {
@@ -553,7 +537,6 @@ IOUtils.write(encoded, output);
 		model.add(1,g);
 		maBD.addGroup(g.getId(),array);
 		
-		///TODO avertir les autres de la création du groupe
 		Reseau.getReseau().sendTCP(Message.Factory.createGroupe(user, g));
 	   // g.removeInterlocuteur(user);
 		return true;

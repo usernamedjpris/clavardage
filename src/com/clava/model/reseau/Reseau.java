@@ -1,17 +1,18 @@
-import com.clava.serializable.Message;
-import com.clava.serializable.Personne;
+package com.clava.model.reseau;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
+
 import javax.swing.JOptionPane;
+
+import com.clava.serializable.Message;
 
 //https://www.baeldung.com/java-observer-pattern
 //PropertyChangeListener better (java 11 )
 
-@SuppressWarnings("deprecation")
+
 //public class Reseau extends Observable implements Observer {
 public class Reseau implements PropertyChangeListener {
 	private PropertyChangeSupport support;
@@ -37,7 +38,7 @@ public class Reseau implements PropertyChangeListener {
 
 	private Reseau() {
 	}
-	void init(int portTCP, int portUDP, String ipServer, int portServer) {
+	public void init(int portTCP, int portUDP, String ipServer, int portServer) {
 		support = new PropertyChangeSupport(this);
 		this.serveurTcp = new ServeurTCP(portTCP);
 		this.serveurTcp.addPropertyChangeListener(this);

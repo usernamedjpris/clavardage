@@ -1,14 +1,18 @@
+package com.clava.model.reseau;
+
 
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 
-import javax.swing.JOptionPane;
 import com.clava.serializable.Message;
-import com.clava.serializable.Personne;
 //https://www.baeldung.com/java-broadcast-multicast
 public class ClientUDP {
 	int portUDP;

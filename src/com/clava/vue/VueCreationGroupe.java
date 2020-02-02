@@ -1,3 +1,5 @@
+package com.clava.vue;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -21,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.clava.controleur.ControleurApplication;
 import com.clava.serializable.Interlocuteurs;
 
 public class VueCreationGroupe {
@@ -35,7 +38,6 @@ public class VueCreationGroupe {
      	m.addElement((Interlocuteurs)i);
      	}
      	list.setModel(m);
-     	///TODO EN PROD
      	if(m.getSize() <2) {
      		JOptionPane.showMessageDialog(null, "Il n'y a pas assez d'utilisateurs connecté pour créer un groupe :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
      	}
@@ -96,8 +98,6 @@ public class VueCreationGroupe {
  	
  			btnOK.addActionListener(new ActionListener() {public void actionPerformed(ActionEvent ae)
  			 {		
- 				///TODO 
- 				
  				if(l != null && l.size() >1) {
  				 	 //l.add(app.getPersonne());
 					 if(app.creationGroupe(new ArrayList<>(l)))

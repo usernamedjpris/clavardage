@@ -1,3 +1,4 @@
+package com.clava.model.reseau;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -6,11 +7,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.SocketOption;
 import java.util.AbstractMap.SimpleEntry;
 
 import com.clava.serializable.Message;
-import com.clava.serializable.Personne;
 public class ClientTCP {
 
 	

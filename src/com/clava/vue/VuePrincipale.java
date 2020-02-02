@@ -1,3 +1,5 @@
+package com.clava.vue;
+
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -51,6 +53,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
+import com.clava.controleur.ControleurApplication;
 import com.clava.serializable.Group;
 import com.clava.serializable.Interlocuteurs;
 import com.clava.serializable.Message;

@@ -1,3 +1,5 @@
+package com.clava.model.reseau;
+
 import java.net.*;
 
 import com.clava.serializable.Message;

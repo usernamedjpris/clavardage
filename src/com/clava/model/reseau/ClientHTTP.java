@@ -1,26 +1,18 @@
+package com.clava.model.reseau;
+
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ConnectException;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
-import java.util.Base64;
 
 import javax.swing.JOptionPane;
 
@@ -47,7 +39,6 @@ public class ClientHTTP implements Runnable {
     }
 
 	public void sendMessage (Message m) { //String data, Personne dest, Personne emmet //https://www.baeldung.com/java-http-request
-		///TODO refactoring
 		//encodage inutile (cf reponse au retour non encode, taille de l'envoi àvoir si utile ou pas)
 		message=m;
 		//en bloquant si deconnexion (laisse le temps d'envoyer le message avant de kill

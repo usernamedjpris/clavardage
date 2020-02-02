@@ -1,3 +1,5 @@
+package com.clava.vue;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -17,6 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+
+import com.clava.controleur.ControleurApplication;
 
 
 public class VueChoixPseudo  implements ActionListener{

@@ -1,10 +1,11 @@
-import java.net.*;
-import java.util.Observable;
-import java.util.Observer;
+package com.clava.model.reseau;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 
 //public class ServeurTCP extends Observable implements Observer, Runnable {

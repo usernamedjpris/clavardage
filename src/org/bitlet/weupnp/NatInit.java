@@ -38,11 +38,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 /**
- * using weupnp
+ *	The class which use the library "weupnp" wich implements upnp protocol 
+ *	The purpose of this class is to open automaticaly a NAT rule in the router in order to let the conversation be possible
+ *	between 2 instances of clavardeur.
  */
 public class NatInit implements Runnable {
 
-	private static int SAMPLE_PORT = 1030;
+	private static int SAMPLE_PORT;
 	private static boolean LIST_ALL_MAPPINGS = false;
 	private GatewayDevice activeGW;
 

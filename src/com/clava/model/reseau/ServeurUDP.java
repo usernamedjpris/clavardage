@@ -1,3 +1,4 @@
+package com.clava.model.reseau;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -5,9 +6,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.Observable;
+
 import com.clava.serializable.Message;
-import com.clava.serializable.Personne;
 public class ServeurUDP implements Runnable{
 	private int port;
 	final static int taille = 2048;
