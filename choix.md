@@ -22,7 +22,28 @@ Dans les faits les classes `Group`, `Interlocuteur`, `Message` et `Personne` ont
 
 ##### Contrôleur
 Le contrôleur se résume en une seule classe `ControllerApplication`.
-Le couplage entre `ControllerApplication` et les classes serveurs du réseau `ServeurUDP` et `ServeurSocketTCP` est affaiblit grâce au design patern Observer.
+Le couplage entre `ControleurApplication` et les classes serveurs du réseau `ServeurUDP` et `ServeurSocketTCP` est affaiblit grâce au design patern Observer.
+
+### Types des messages
+L'un des éléments essentiel du fonctionnement de l'application peut se résumé en un attribut de la classe `Message` : `Message.Type`. 
+```
+public enum Type {CONNECTION, DECONNECTION, ASKPSEUDO, REPLYPSEUDO, SWITCH, WHOISALIVE, ALIVE, FILE, DEFAULT, GROUPCREATION, OKSERVEUR}
+```
+Chaque type de message est traité spécifiquement par `ControleurApplication` et peuvent être interprétés de la manière suivante :
+- `CONNECTION` "L'émetteur du message vient juste de me connecter"
+- `DECONNEXION` "L'émetteur du message vient juste de me déconnecter"
+- `ASKPSEUDO` "L'émetteur du message demande de changer de pseudo"
+- `REPLYPSEUDO` "L'émetteur du message possède déjà le pseudo demandé par le destinataire"          
+- `SWITCH` "L'émetteur du message vient juste de changer de pseudo" 
+- `WHOISALIVE` "L'émetteur du message demande qui est présent"
+- `ALIVE` "L'émetteur du message est présent"          
+- `FILE` "L'émetteur du message envoie un fichier à télécharger" 
+- `DEFAULT` "L'émetteur du message envoie un message textuel"
+- `GROUPCREATION` "L'émetteur du message crée un groupe dont les membres sont les destinataires" 
+- `OKSERVEUR` "Le serveur répond à une requête HTTP"
+
+Le choix d'avoir factorisé toutes ces fonctionnalités en un seul attribut nous a permis d'avoir un code extensible à volonté et très peu redondant dans la partie réseau. 
+Ainsi l'ajout des fonctionnalités *serveur de présence* ou *groupe* se sont faites en ajoutant simplement les types GROUPCREATION, OKSERVEUR au Type des messages et en écrivant le comportement idoine à adopter à leur réception dans ControleurApplication et nous avons presque rien eu à changer dans les classes réseaux (seulement rajouter la classe `ClientHTTP` pour envoyer des requêtes pour le *serveur de présence*).
 
 ### Fonctionnement des principaux cas d'utilisation
 #### Diagramme de cas d'utilisation
@@ -130,5 +151,5 @@ voir le [diagramme de séquence](conception/seqdiagram_sedeconnecter.png)
 	- *Vue principale* se ferme
 
 <br><br><br>
-[< Manuel d'utilisation](manuel.md)•[Batterie de tests >](tests.md)<br>
+[< Technologie](techno.md)•[Batterie de tests >](tests.md)<br>
 retour au [sommaire](README.md)<br>

@@ -1,3 +1,0 @@
-INDEX VERSION 1.4+C:\Users\FACHE Rémi\Documents\Programmation\JAVA\servlet\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
-648987399.index
-3271193799.index
