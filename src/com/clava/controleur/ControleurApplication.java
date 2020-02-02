@@ -328,11 +328,23 @@ IOUtils.write(encoded, output);
 	           //pas de réponse à notre propre broadcast ^^  
 	           //pas d'affichage des messages qu'on envoie dans un groupe où on est présent (aussi envoyé à soi #même id everywhere))
 	           //possibilité de se parler à soi même
-        	   if((message.getDestinataire() == null && message.getEmetteur().getId()!=user.getId()) 
+        	   /*if((message.getDestinataire() == null && message.getEmetteur().getId()!=user.getId()) 
         			   || !message.getEmetteur().getInterlocuteurs().contains(user)
-        			   || message.getDestinataire() != null 
+        			   || (message.getDestinataire() != null 
         			   && (message.getDestinataire().getId()== user.getId() 
-        			   && message.getEmetteur().getId()==user.getId()))
+        			   && message.getEmetteur().getId()==user.getId())))*/
+	         /*  System.out.println(message.getDestinataire());
+	           System.out.println( message.getEmetteur().getId());
+	          System.out.println(message.getDestinataire() == null && message.getEmetteur().getId()!=user.getId());
+	          System.out.println(message.getDestinataire() != null);
+	          System.out.println( message.getEmetteur().getId()==user.getId());
+	          System.out.println(message.getDestinataire() != null && message.getDestinataire().getInterlocuteurs().size()==1);
+        		   if(message.getDestinataire() == null && message.getEmetteur().getId()!=user.getId()
+        				   || (message.getDestinataire() != null && (message.getDestinataire().getInterlocuteurs().size()==1
+        						   || message.getEmetteur().getId()==user.getId())))*/
+	           /*System.out.print(message.getType() +"  "
+	        		   +(message.getEmetteur().getId()!=user.getId()));*/
+	           if(message.getEmetteur().getId()!=user.getId())
         			    {
 	           System.out.print("\n Reception de :"+message.getType().toString()+" de la part de "+message.getEmetteur().getPseudo()+
 	        		   "("+message.getEmetteur().getAddressAndPorts().toString()+")"+"\n" );
