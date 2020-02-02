@@ -225,13 +225,13 @@ public class VuePrincipale {
 
 	}
 	public void setHtmlView(ArrayList<Message> m) {
-		int to=activeUser.getId();
+		int us=app.getPersonne().getId();
 		String new_message_text = "<html>";//Embetant à switch : +"<center class='title'><b><font size=6>"+activeUser.getPseudo()+"</font></b></center><div id=textbox>";
 		for (Message i: m) {
-			if (to==i.getEmetteur().getId()){ 
-				new_message_text += "<div class='alignleft'>"+i.toHtml()+"</div>";
-			} else {
+			if (us==i.getEmetteur().getId()){ 
 				new_message_text += "<div class='alignright'>"+i.toHtml()+"</div>";
+			} else {
+				new_message_text += "<div class='alignleft'>"+i.toHtml()+"</div>";
 			}
 		}
 		//System.out.println(new_message_text+"</div></html>");

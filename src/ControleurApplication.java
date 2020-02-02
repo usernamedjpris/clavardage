@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -60,6 +61,7 @@ public class ControleurApplication implements PropertyChangeListener{
 	private VuePrincipale main;
 	private BD maBD=BD.getBD();
 	private DefaultListModel<Interlocuteurs> model = new DefaultListModel<Interlocuteurs>();
+	ArrayList<Integer> localConnexion=new ArrayList<>();
 	private File pathDownload;
 	private Boolean initialized=false;
 	private String pseudoWaiting="";
@@ -270,7 +272,9 @@ IOUtils.write(encoded, output);
 		//System.out.print(" \n type d'évenements: : "+evt.getPropertyName());
 		if(evt.getPropertyName().equals("serveur") && evt.getNewValue() instanceof Message) {
 			Message message = (Message) evt.getNewValue();
-
+			
+			//si une personne nous envoie les infos localement pas besoin d'écouter à retard les mêmes infos venant du serveur
+			//if(!localConnexion.contains(message.getEmetteur().getId())) {
 			/*System.out.print(" \n Serveur send us :" +message.getType()+" avec ");
 			for(Interlocuteurs i:message.getEmetteur().getInterlocuteurs()) {
 				System.out.print( "\n pseudo :"+i.getPseudo()+"  "+i.getAddressAndPorts());
@@ -286,16 +290,16 @@ IOUtils.write(encoded, output);
 	        		   Interlocuteurs p =(Interlocuteurs)ob;
 	        		   boolean found=false;
 	        		   for(Interlocuteurs i:message.getEmetteur().getInterlocuteurs()) {
-			        		   if(p.getId()==i.getId()) {
+			        		   if(p.getId()==i.getId() && !localConnexion.contains(p.getId())) {
 			        			   try {
 			        				   //le serveur contient tjrs le pseudo le + à jour
 			        				   if(!p.getPseudo().equals(i.getPseudo())) {
-					        				  System.out.print(" \n MAJ du pseudo de : "+p.getPseudo());
+					        				  System.out.print(" \n [serveur] MAJ du pseudo de : "+p.getPseudo());
 											  p.setPseudo(i.getPseudo());
 			        				   }//si app crashe, on ignore l'nfo du serveur disant qu'on était déjà connecté (notre connexion va régulariser
 			        				   //la situation
 			        				   if(!p.getConnected() && i.getId()!=user.getId()) {
-			        					   System.out.print(" \n Connexion de : "+p.getPseudo()+" à "+i.getAddressAndPorts().get(0));
+			        					   System.out.print(" \n [serveur] Connexion de : "+p.getPseudo()+" à "+i.getAddressAndPorts().get(0));
 			        					   p.setConnected(true);
 			        					/// ok if NAT well config #upnp or manually 
 			        					   p.setAddressAndPorts(i.getAddressAndPorts().get(0));
@@ -309,7 +313,7 @@ IOUtils.write(encoded, output);
 	        		 //si la personne n'est pas présente dans la liste retournée par le serveur et n'est pas un groupe
 	        		   //(absent du serveur), c'est qu'elle s'est déconnectée
 	        		   
-	        		  if(!found && p.getInterlocuteurs().size()<2 && p.getConnected())
+	        		  if(!found && p.getInterlocuteurs().size()<2 && p.getConnected() && !localConnexion.contains(p.getId()))
 						try {
 							System.out.print(" \n Deconnexion de: "+p.getPseudo());
 							p.setConnected(false);
@@ -326,7 +330,7 @@ IOUtils.write(encoded, output);
 		        			   found=true;
 					 }
 					 //on ne se connecte pas soi même #régularisation 
-					 if(!found && i.getId()!= user.getId()) {
+					 if(!found && i.getId()!= user.getId() && !localConnexion.contains(i.getId())) {
 						 System.out.print(" \n Connexion de: "+i.getPseudo());
 						 model.add(0, i);
 						 maBD.setIdPseudoLink(i.getPseudo(),i.getId());
@@ -402,6 +406,7 @@ IOUtils.write(encoded, output);
 	           else if(message.getType()==Message.Type.DECONNECTION) {
 	        	  // int index = model.indexOf(message.getEmetteur()); // not working
 	        	   //fix via equals redefinition => refactoring possible ! 
+	        	   localConnexion.remove(message.getEmetteur().getId());
 	        	   for(Object ob: model.toArray()) {
 	        		   Interlocuteurs p =(Interlocuteurs)ob;
 	        			   if(p.getId()==message.getEmetteur().getId()) {
@@ -418,24 +423,21 @@ IOUtils.write(encoded, output);
 	           else if(message.getType()==Message.Type.ALIVE || message.getType()==Message.Type.CONNECTION) {
 	        	  	  //ONLY PERSON SEND IT (le groupe n'a pas de vie propre, quand 
 	        	   //tous ses membres sont connectés il devient connecté (absence de broadcast donc )) 
+	        	   localConnexion.add(message.getEmetteur().getId());
 	        	   boolean found=false;
 	        	   for(Object ob: model.toArray()) {
 	        		   Interlocuteurs p =(Interlocuteurs)ob;
 	        			   if(p.getId()==message.getEmetteur().getId()) {
-	        			   found=true;
-	        			   try {
-							p.setConnected(true);
-		        			p.setPseudo(message.getEmetteur().getPseudo());
-						} catch (NoSuchMethodException e1) {
-							e1.printStackTrace();
-						}
-	        			   try {
-							p.setAddressAndPorts(new SimpleEntry<>(message.getEmetteur().getAddressAndPorts().get(0)));
-						} catch (NoSuchMethodException e) {
-							System.out.print(" Erreur ! Un groupe s'est connecté ^^");
-							e.printStackTrace();
-						}
-	        			   break;
+			        			   found=true;
+			        			   try {
+											p.setConnected(true);
+						        			p.setPseudo(message.getEmetteur().getPseudo());
+											p.setAddressAndPorts(new SimpleEntry<>(message.getEmetteur().getAddressAndPorts().get(0)));
+											} catch (NoSuchMethodException e) {
+												System.out.print(" Erreur ! Un groupe s'est connecté ^^");
+												e.printStackTrace();
+									}
+			        			   break;
 	        		   }
 	        	   }
 		        	  if(!found) {
@@ -466,7 +468,6 @@ IOUtils.write(encoded, output);
 	        	   Group g=new Group(array);
 	        	   //g.addInterlocuteur(message.getEmetteur());
 	        	  // g.removeInterlocuteur(user);
-	        	  
 	        	   maBD.addGroup(g.getId(),g.getInterlocuteurs());
 	        	   model.add(1, g);
 	        	   if(initialized)

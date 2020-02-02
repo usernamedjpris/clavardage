@@ -53,3 +53,7 @@ serveur/WebContent/WEB-INF/web.xml
 .settings/org.eclipse.jdt.core.prefs
 servlet/.metadata/*
 *.snap
+doc/*
+*.js
+*.css
+doc/element-list

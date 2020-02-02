@@ -183,7 +183,7 @@ public class BD {
 	 * @param groupe
 	 * @return liste de messages
 	 */
-	public ArrayList<Message> getHistorique(Personne user, Interlocuteurs Interlocuteur, boolean groupe) {
+	public ArrayList<Message> getHistorique(Personne user, Interlocuteurs interlocuteur, boolean groupe) {
 		ArrayList<Message> messages = new ArrayList<Message>();
 				try {
 			PreparedStatement stmt;
@@ -192,18 +192,18 @@ public class BD {
 				sql = "SELECT * FROM message WHERE ((idEmet = ? AND idDest = ?) OR (idEmet = ? AND idDest = ?)) ORDER BY sentDate;";
 				stmt = c.prepareStatement(sql);
 				stmt.setInt(1, user.getId());
-				stmt.setInt(2, Interlocuteur.getId());
-				stmt.setInt(3, Interlocuteur.getId());
+				stmt.setInt(2, interlocuteur.getId());
+				stmt.setInt(3, interlocuteur.getId());
 				stmt.setInt(4, user.getId());
 			}else {
 				sql = "SELECT * FROM message WHERE (idDest = ?) ORDER BY sentDate;";
 				stmt = c.prepareStatement(sql);
-				stmt.setInt(1, Interlocuteur.getId());
+				stmt.setInt(1, interlocuteur.getId());
 			}
 			ResultSet rs = stmt.executeQuery();
 			int idUser=user.getId();
 			while (rs.next()) {
-				Message mes;
+				Message mes=null;
 				// Retrieve by column name
 				int idEmet = rs.getInt("idEmet");
 				java.util.Date date = Message.getStringToDate(rs.getString("sentDate")); 
@@ -211,10 +211,19 @@ public class BD {
 				byte[] data=btext.getBytes(1l, (int) btext.length());
 				Message.Type typ = Message.Type.valueOf(rs.getString("type"));
 				System.out.println("GET HISTORIQUE "+Integer.toString(idEmet) +" "+new String(data)+" ("+ rs.getString("sentDate")+") ["+ typ+"]");
-				if (idEmet == idUser) {// emetteur = moi
-					mes = Message.Factory.recreateMessageFromData(typ,data, user, Interlocuteur, date);
-				} else {
-					mes = Message.Factory.recreateMessageFromData(typ,data,Interlocuteur,user, date);
+				if(interlocuteur.getInterlocuteurs().size()>1) {
+					for(Interlocuteurs i: interlocuteur.getInterlocuteurs())
+						if(i.getId()==idEmet)
+							mes = Message.Factory.recreateMessageFromData(typ,data,i,interlocuteur, date);
+					if(mes==null) {
+						System.out.print("\n Impossible de retrouver l'origine de ce message !");
+						mes = Message.Factory.recreateMessageFromData(typ,data,interlocuteur,user, date);
+					}
+				}else  if (idEmet == idUser) {// emetteur = moi
+					mes = Message.Factory.recreateMessageFromData(typ,data, user, interlocuteur, date);
+				}//groupe 
+				else {
+					mes = Message.Factory.recreateMessageFromData(typ,data,interlocuteur,user, date);
 				}
 				messages.add(mes);
 			}
@@ -242,7 +251,7 @@ public class BD {
 			stmt = c.prepareStatement("SELECT * from groupe");
 			ResultSet rs=stmt.executeQuery();
 			while(rs.next()) {
-				System.out.print(" id groupe: "+rs.getInt("idGroup")+" personne :"+rs.getInt("idUtilisateur"));
+				System.out.print("\n id groupe: "+rs.getInt("idGroup")+" personne :"+rs.getInt("idUtilisateur"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -275,7 +284,6 @@ public class BD {
 			rs.close();
 			stmt.close();
 			
-			//System.out.print("\n FOUNDED : "+liste.toString());
 			PreparedStatement s;
 			sql = "SELECT * FROM groupe";
 			s = c.prepareStatement(sql);
