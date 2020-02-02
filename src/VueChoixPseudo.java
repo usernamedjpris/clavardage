@@ -16,9 +16,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 
-public class VueChoixPseudo implements ActionListener{
+public class VueChoixPseudo  implements ActionListener{
 
 	private JDialog frame;
 	private JTextField textField;
@@ -38,7 +39,9 @@ public class VueChoixPseudo implements ActionListener{
 		frame.getContentPane().setLayout(new FlowLayout());
 		frame.setTitle("Choisissez un pseudo ! :D ");
 		frame.setIconImage(new ImageIcon("images/icon.png").getImage());
-		//frame.getContentPane().setLayout(new GridLayout(6, 3));		
+		//frame.getContentPane().setLayout(new GridLayout(6, 3));
+
+		
 		
 		
 		JLabel lblPseudoDuJour = new JLabel(" Pseudo :");
@@ -71,7 +74,20 @@ public class VueChoixPseudo implements ActionListener{
 			lblIp.setHorizontalAlignment(SwingConstants.CENTER);
 			lblIp.setFont(new Font("Courier New", Font.BOLD, 10));
 			frame.getContentPane().add(lblIp);
+			//frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			/*JButton btnCan = new JButton(" annuler");
+			btnCan.setBackground(new Color(255, 102, 102));
+			btnCan.setFont(new Font("Courier New", Font.BOLD, 20));
+			btnCan.setPreferredSize(new Dimension(205,25));
+			panel.add(btnCan);
+			btnCan.addActionListener(new ActionListener() {
 
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					System.exit(0);
+				}
+
+			});*/
 			frame.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
@@ -85,27 +101,32 @@ public class VueChoixPseudo implements ActionListener{
 
 		frame.getRootPane().setDefaultButton(btnLogin); //permet de l'appuyer en appuyant sur entree
 		frame.setVisible(true);
+		//frame.setAlwaysOnTop(true);
+		
+
 	}
 	@SuppressWarnings("static-access")
-	public void actionPerformed(ActionEvent ae){
-	    String uname = textField.getText();
-	    if(!uname.equals("") && app.checkUnicity(uname) ) //check unicity
-	    {
+	public void actionPerformed(ActionEvent ae)
+	 {
+	   String uname = textField.getText();
+	   if(!uname.equals("") && app.checkUnicity(uname) ) //check unicity
+	   {
 
-			if(inApp)
-			   app.setPseudoUserSwitch(uname);
-			else
-			   app.setPseudoUserConnexion(uname);
-		    frame.setModalityType(JDialog.ModalityType.MODELESS);
-		    // frame.setModalityType(JDialog.);
-		    frame.dispose();
-	    }
+		if(inApp)
+		   app.setPseudoUserSwitch(uname);
+		   else
+		   app.setPseudoUserConnexion(uname);
+		   frame.setModalityType(JDialog.ModalityType.MODELESS);
+		  // frame.setModalityType(JDialog.);
+		   frame.dispose();
+	   }
 	    else
-	    {
+	   {
 	    	 if(uname.equals(""))
 	      JOptionPane.showMessageDialog(frame, "Ton pseudo ne peut pas être vide :'( ", "Dommage... " + "🙈", JOptionPane.INFORMATION_MESSAGE);
 	    	 else
 	      JOptionPane.showMessageDialog(frame, "Ton pseudo est déjà  pris désolé :'( ", "Dommage... " + "🙈", JOptionPane.INFORMATION_MESSAGE);
-	    }
+
+	   }
 	 }
 }

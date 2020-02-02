@@ -8,7 +8,7 @@ NB: cette représentation de ces trois packages Model-View-Controller est une vu
 ##### Modèle
 Le modèle contient le plus de classes (12 en tout).
 Plus de la moitié d'entre-elles sont consacrées au réseau.
-Dans les faits les classes `Group`, `Interlocuteurs`, `Message` et `Personne` ont été réunies dans un même package com.clava.serializable pour que Message puisse être correctement dé/sérialisée par le serveur HTTP.
+Dans les faits les classes `Group`, `Interlocuteur`, `Message` et `Personne` ont été réunies dans un même package com.clava.serializable pour que Message puisse être correctement dé/sérialisée par le serveur HTTP.
 `Reseau` et `BD` sont des singletons.
 
 ##### Vue
@@ -21,29 +21,8 @@ Dans les faits les classes `Group`, `Interlocuteurs`, `Message` et `Personne` on
 		- Une `VueCreationGroupe`
 
 ##### Contrôleur
-Le contrôleur se résume en une seule classe `ControleurApplication`.
-Le couplage entre `ControleurApplication` et les classes serveurs du réseau `ServeurUDP` et `ServeurSocketTCP` est affaiblit grâce au design patern Observer.
-
-### Types des messages
-L'un des éléments essentiel du fonctionnement de l'application peut se résumer en un attribut de la classe `Message` : `Message.Type`. 
-```
-public enum Type {CONNECTION, DECONNECTION, ASKPSEUDO, REPLYPSEUDO, SWITCH, WHOISALIVE, ALIVE, FILE, DEFAULT, GROUPCREATION, OKSERVEUR}
-```
-Chaque type de message est traité spécifiquement par `ControleurApplication` et peuvent être interprétés de la manière suivante :
-- **`CONNECTION`** `"L'émetteur du message vient juste de me connecter"`
-- **`DECONNEXION`** `"L'émetteur du message vient juste de me déconnecter"`
-- **`ASKPSEUDO`** `"L'émetteur du message demande de changer de pseudo"`
-- **`REPLYPSEUDO`** `"L'émetteur du message possède déjà le pseudo demandé par le destinataire"`          
-- **`SWITCH`** `"L'émetteur du message vient juste de changer de pseudo"`
-- **`WHOISALIVE`** `"L'émetteur du message demande qui est présent"`
-- **`ALIVE`** `"L'émetteur du message est présent"`          
-- **`FILE`** `"L'émetteur du message envoie un fichier à télécharger"` 
-- **`DEFAULT`** `"L'émetteur du message envoie un message textuel"`
-- **`GROUPCREATION`** `"L'émetteur du message crée un groupe dont les membres sont les destinataires"` 
-- **`OKSERVEUR`** `"Le serveur répond à une requête HTTP"`
-
-Le choix d'avoir factorisé toutes ces fonctionnalités en un seul attribut nous a permis d'avoir un code extensible à volonté et très peu redondant dans la partie réseau. 
-Ainsi l'ajout des fonctionnalités *serveur de présence* ou *groupe* se sont faites en ajoutant simplement les types `GROUPCREATION` ou `OKSERVEUR` au type des messages et en écrivant le comportement idoine à adopter à leur réception dans `ControleurApplication` et nous avons presque rien eu à changer dans les classes réseaux (seulement rajouter la classe `ClientHTTP` pour envoyer des requêtes pour le *serveur de présence*).
+Le contrôleur se résume en une seule classe `ControllerApplication`.
+Le couplage entre `ControllerApplication` et les classes serveurs du réseau `ServeurUDP` et `ServeurSocketTCP` est affaiblit grâce au design patern Observer.
 
 ### Fonctionnement des principaux cas d'utilisation
 #### Diagramme de cas d'utilisation
@@ -151,5 +130,5 @@ voir le [diagramme de séquence](conception/seqdiagram_sedeconnecter.png)
 	- *Vue principale* se ferme
 
 <br><br><br>
-[< Technologie](techno.md)•[Batterie de tests >](tests.md)<br>
+[< Manuel d'utilisation](manuel.md)•[Batterie de tests >](tests.md)<br>
 retour au [sommaire](README.md)<br>

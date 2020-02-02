@@ -94,7 +94,10 @@ public class VueCreationGroupe {
  			btnOK.setFont(new Font("Courier New", Font.BOLD, 20));
  			btnOK.setPreferredSize(new Dimension(75,50));
  	
- 			btnOK.addActionListener(new ActionListener() {public void actionPerformed(ActionEvent ae){		
+ 			btnOK.addActionListener(new ActionListener() {public void actionPerformed(ActionEvent ae)
+ 			 {		
+ 				///TODO 
+ 				
  				if(l != null && l.size() >1) {
  				 	 //l.add(app.getPersonne());
 					 if(app.creationGroupe(new ArrayList<>(l)))
@@ -102,15 +105,16 @@ public class VueCreationGroupe {
 					 else{
 						 JOptionPane.showMessageDialog(null, "Ce groupe existe déjà :p ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
 					 }
- 				} else
- 					JOptionPane.showMessageDialog(null, "Il faut sélectionner les personnes du groupe, au moins 2 :p (ctrl maintenu pour sélection multiple) ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);}
- 			});
+ 			 }else
+ 				JOptionPane.showMessageDialog(null, "Il faut sélectionner les personnes du groupe, au moins 2 :p (ctrl maintenu pour sélection multiple) ", "InfoBox " , JOptionPane.INFORMATION_MESSAGE);
+ 			 }});
  		    list.addListSelectionListener(listSelectionListener);
  		    list.setVisible(true);
- 		    JSplitPane split=new JSplitPane(JSplitPane.VERTICAL_SPLIT,list, btnOK);
+ 		   JSplitPane split=new JSplitPane(JSplitPane.VERTICAL_SPLIT,list, btnOK);
  		    frame.getContentPane().add(split);
- 		    frame.getRootPane().setDefaultButton(btnOK);
- 		    frame.setVisible(true);
-     	 }
+ 		   frame.getRootPane().setDefaultButton(btnOK);
+ 		   frame.setVisible(true);
+     	}
      }
+
 }

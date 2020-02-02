@@ -3,11 +3,17 @@ package com.clava.serializable;
 import java.net.InetAddress;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Group implements Interlocuteurs {
+	/**
+	 * 
+	 */
 	private static final long serialVersionUID = 1L;
 	ArrayList<Interlocuteurs> p;
-
+	private int id;
+	
 	@Override
     public boolean equals(Object o) {
 		if (this == o) return true;
@@ -15,27 +21,32 @@ public class Group implements Interlocuteurs {
         Group g = (Group) o;
         return g.getId()==this.getId();
 	}
-
 	@Override
     public int hashCode() {
         return getId();
     }
-	/**
-	 * Constructeur Group
-	 * <p> [Design Pattern Composite, Serialization]</p>
-	 * @param liste
-	 */
+	
 	public Group(ArrayList<Interlocuteurs> liste){
 		p=new ArrayList<>(liste);
+		ArrayList<Integer> array =new ArrayList<>();
+		for(Interlocuteurs i: p) {
+			array.add(i.getId());
+		}
+		 Collections.sort(array);
+		 String id="";
+		 for(int i:array) {
+			 id+=i;
+		 }
+		 this.id=id.hashCode();
 	}
 
 	@Override
 	public boolean getConnected() {
 		for (Interlocuteurs c :p){
-			if(!c.getConnected())
+			if(!c.getConnected()) 
 			return false;
 		}
-		return true;
+		return true; 
 	}
 
 	@Override
@@ -55,17 +66,13 @@ public class Group implements Interlocuteurs {
 		}
 		return array;
 	}
+	
 
 	@Override
 	public int getId() {
-		String id="";
-		System.out.print("size :"+p.size()+" p :"+p.toString());
-		for (Interlocuteurs c :p){
-			id+=c.getId();
-		}
-		return id.hashCode();
+		return id;
 	}
-
+	
 	@Override
 	public void setConnected(boolean b) throws NoSuchMethodException {
 		throw new NoSuchMethodException();
@@ -79,7 +86,7 @@ public class Group implements Interlocuteurs {
 	@Override
 	public void setPort(int port) throws NoSuchMethodException {
 		throw new NoSuchMethodException();
-
+		
 	}
 
 	@Override
@@ -93,11 +100,15 @@ public class Group implements Interlocuteurs {
 	}
 
 	public void addInterlocuteur(Interlocuteurs emetteur) {
-		p.add(emetteur);
+		p.add(emetteur);		
 	}
 
 	public void removeInterlocuteur(Personne user) {
 	p.remove(user);
-
+		
 	}
+
+	
+	
+
 }
