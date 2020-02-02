@@ -63,7 +63,7 @@ public class ControleurApplication implements PropertyChangeListener{
 			  @Override
 			  public void run() {
 				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
-			  }} , 5000, 5000);
+			  }} , 10000, 10000);
 		}
 InetAddress findIp() {
 		InetAddress localIp;
@@ -152,7 +152,6 @@ InetAddress findIp() {
 					String s=ini.get("ADVANCED", "doNotUseAutoIpAndUseThisOne", String.class);
 					if(!s.equals("")) {
 						forceUseIp=true;
-						int a;
 						ipForceLocal =InetAddress.getByName(s);
 					}
 				} catch (UnknownHostException e1) {
@@ -391,7 +390,9 @@ IOUtils.write(encoded, output);
 	           else if(message.getType()==Message.Type.DECONNECTION) {
 	        	  // int index = model.indexOf(message.getEmetteur()); // not working
 	        	   //fix via equals redefinition => refactoring possible ! 
-	        	   localConnexion.remove(localConnexion.indexOf(message.getEmetteur().getId()));
+	        	   int index=localConnexion.indexOf(message.getEmetteur().getId());
+	        	   if(index!= -1)
+	        	   localConnexion.remove(index);
 	        	   for(Object ob: model.toArray()) {
 	        		   Interlocuteurs p =(Interlocuteurs)ob;
 	        			   if(p.getId()==message.getEmetteur().getId()) {
