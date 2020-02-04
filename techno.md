@@ -47,8 +47,8 @@ La base de donnée est relativement simple et comporte 3 tables.
 ### Design Pattern 
 #### Singleton
 Ces classes ne sont instanciées qu'une seule fois et accessible partout. La BD et le réseau représentant des objets uniques centraux dans l'application, il semble judicieux d'avoir utilisé ce design pattern, sans être tombé dans l'écueil d'une utilisation trop static/globale. 
-- BD
-- Reseau
+- `BD`
+- `Reseau`
 
 #### PropertyChangeListener
 Mécanisme d'observé/observeur permettant de remonter les événements réseaux avec très peu de dépendances au contrôleur de l'application.

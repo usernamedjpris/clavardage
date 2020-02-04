@@ -75,8 +75,6 @@ public class ClientHTTP implements Runnable {
 		HttpRequest request;
 		try {
 		byte[] m= Message.serialize(message);
-		
-		byte[] encodedBytes = Base64.getEncoder().encode(m2.toByteArray());*/
 		System.out.print("http://"+ipServer+":"+portServer+"/test/clavardeur");
 		request = HttpRequest.newBuilder()
 			      .uri(URI.create("http://"+ipServer+":"+portServer+"/test/clavardeur"))
