@@ -40,6 +40,9 @@ import com.clava.vue.VuePrincipale;
 //ctrl+maj+F11=code coverage (standard)
 //ObjectAid UML (retro URL)
 //public class ControleurApplication implements Observer {
+/**
+ * Main class of application 
+ */
 public class ControleurApplication implements PropertyChangeListener{
 	private Personne user;
 	private VuePrincipale main;
@@ -53,10 +56,17 @@ public class ControleurApplication implements PropertyChangeListener{
 	private Object mutex = new Object();
 	Wini ini;
 	private InetAddress localIp;
+	/**
+	 * main thread
+	 * @param args
+	 */
 	public static void main(String[] args) {
 			new ControleurApplication();
 
 	}
+	 /**
+	 * Interroge le serveur toute les 5s pour mettre à jour les destinataires présents "ALIVE".
+	 */
 	void configServeur() {
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
@@ -65,7 +75,13 @@ public class ControleurApplication implements PropertyChangeListener{
 				  Reseau.getReseau().sendHttp(Message.Factory.whoIsAliveBroadcast(user));
 			  }} , 10000, 10000);
 		}
-InetAddress findIp() {
+	 /**
+	 * Fonction de découverte automatique de l'ip (IPV4) locale de l'utilisateur 
+	 * @return ip locale
+	 * NB : si l'application echoue à trouver l'ip locale on peut toujour la rentrer manuellement dans config.ini
+	 * @see ControleurApplication#init() 
+	 */
+	InetAddress findIp() {
 		InetAddress localIp;
 		try {
 					DatagramSocket so=new DatagramSocket();
@@ -108,6 +124,14 @@ InetAddress findIp() {
 		return (InetAddress) new Object();
 				
 	}
+	/**
+	 * Fonction de découverte automatique de l'@mac locale de l'utilisateur 
+	 * @return mac locale
+	 * NB : si l'application echoue à trouver l'@mac locale on peut toujour la rentrer manuellement dans config.ini
+	 * @see ControleurApplication#init() 
+	 * @throws SocketException
+	 * @throws UnknownHostException
+	 */
 	String findMac() throws SocketException, UnknownHostException {
 		String mac="";
 			for(Enumeration<NetworkInterface> enm = NetworkInterface.getNetworkInterfaces(); enm.hasMoreElements();){
@@ -130,6 +154,9 @@ InetAddress findIp() {
 		}
 		return mac;
 	}
+	/**
+	 * initialisation du reseau (ip, mac et port locaux) + [Design Pattern Observers]
+	 */
 	void init() {
 		String ipServer=null;
 		InetAddress ipForceLocal=null;
@@ -184,6 +211,10 @@ InetAddress findIp() {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Constructeur ControleurApplication 
+	 * <p>initialise le réseau, la Vue Pseudo (bloquante) et affiche la Vue Principale en consultant la BD + [Design Pattern Observers]</p>
+	 */
 	ControleurApplication(){
 		init();
 	    //on récupère les gens avec qui on a déjà parlé #offline reading
@@ -203,15 +234,33 @@ InetAddress findIp() {
 	    main.updateList();
 		configServeur();
 	}
+	/**
+	 * Retourne le pseudo utilisateur
+	 * @return pseudo utilisateur
+	 */
 	public String getPseudo() {
 		return user.getPseudo();
 	}
+	/**
+	 * Retourne la personne utilisateur
+	 * @return personne utilisateur
+	 */
 	public Interlocuteurs getPersonne() {
 		return user;
 	}
+	/**
+	 * Envoie un message ALIVE (emetteur = utilisateur) en broadcast UDP sur le réseau local
+	 * @param to Interlocuteurs destinataire
+	 */
 	public void sendActiveUserPseudo(Interlocuteurs to) {
 			Reseau.getReseau().sendUDP(Message.Factory.userIsAlive(user, to));
 	}
+	/**
+	 * checkUnicity envoie un message (emetteur = user, user.pseudo = newpseudo) ASKPSEUDO à tout le monde
+	 * s'il ne reçoit pas de réponse (message REPLYPSEUDO) dans les 3 secondes alors estime que pseudo pas deje pris
+	 * @param pseudo a tester
+	 * @return false si deja pris true sinon
+	 */
 	public boolean checkUnicity(String pseudo) {
 		synchronized (mutex) {
 		answerPseudo=true;
@@ -225,11 +274,11 @@ InetAddress findIp() {
 			e.printStackTrace();
 		}
 		if(answerPseudo) {
-		for(Object i : model.toArray()) {
-			Interlocuteurs v=(Interlocuteurs) i;
-			if((v.getId()!=user.getId() && v.getConnected() && v.getPseudo().equals(pseudo)))
-				return false;
-		}
+			for(Object i : model.toArray()) {
+				Interlocuteurs v=(Interlocuteurs) i;
+				if((v.getId()!=user.getId() && v.getConnected() && v.getPseudo().equals(pseudo)))
+					return false;
+			}
 			return true;
 		}
 		else {
@@ -242,7 +291,10 @@ InetAddress findIp() {
 	void deconnexion(String pseudo) {
 			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));
 	}
-
+	/**
+	 * PropertyChange reçoit les messages de Reseau [Design Pattern Observers]
+	 * et traite selon le type de message 
+	 */
 	@Override
 	synchronized public void propertyChange(PropertyChangeEvent evt) {
 		//try convert arg to message
@@ -479,23 +531,38 @@ IOUtils.write(encoded, output);
 	        }
 		}
 	}
+	/**
+	 * Envoie message de déconnexion à tout le monde
+	 */
 	public void sendDisconnected() {
 			Reseau.getReseau().sendDataBroadcast(Message.Factory.userDisconnectedBroadcast(user));
 			
 	}
+	/**
+	 * Getter du chemin de téléchargement de fichier
+	 * @return File path
+	 */
 	public File getDownloadPath() {
 		return pathDownload;
 	}
+	/**
+	 * Setter du chemin de téléchargement de fichier et l'enregistre dans le fichier config.ini
+	 * @param file
+	 */
 	public void setDownloadPath(File file) {
 	pathDownload=file;
 	//maBD.setDownloadPath(file);
 	ini.put("DOWNLOAD", "path", file.getAbsolutePath());
-	try {
-		ini.store();
-	} catch (IOException e) {
-		e.printStackTrace();
+		try {
+			ini.store();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	}
+	/**
+	 * Mets à jour la BD, la Vue Principale et la Personne utilisateur du changement de pseudo
+	 * @param uname
+	 */
 	public void setPseudoUserSwitch(String uname) {
 		/*maBD.delIdPseudoLink(user.getPseudo());*/
 		maBD.setIdPseudoLink(uname,user.getId());
@@ -504,6 +571,10 @@ IOUtils.write(encoded, output);
 		Reseau.getReseau().sendDataBroadcast(Message.Factory.switchPseudoBroadcast(user));
 	
 	}
+	/**
+	 * Setter de pseudo
+	 * @param uname
+	 */
 	public void setPseudoUserConnexion(String uname) {
 		user.setPseudo(uname);
 	}
@@ -529,9 +600,19 @@ IOUtils.write(encoded, output);
 		main.update(to,m2,true);
 		maBD.addFile(m2); 
 	}
+	/**
+	 * Récupère historique des messages stockés dans la BD associé à un interlocuteur donné 
+	 * @param activeUser interlocuteur 
+	 * @return liste de message historique de la conversation
+	 */
 	public ArrayList<Message> getHistorique(Interlocuteurs activeUser) {
 			return maBD.getHistorique(user,activeUser,(activeUser.getInterlocuteurs().size()>1));
 	}
+	/**
+	 * Crée un groupe dans la BD
+	 * @param array d'interlocuteurs, membres du groupe
+	 * @return
+	 */
 	public boolean creationGroupe(ArrayList<Interlocuteurs> array) {
 		array.add(user);
 		Group g=new Group(array);
@@ -545,11 +626,6 @@ IOUtils.write(encoded, output);
 		}
 		else {
 		return false;	
-		}
-
-		
-		
+		}		
 	}
-	
-
 }

@@ -8,38 +8,49 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 
 import com.clava.serializable.Message;
+/**
+ * ServeurUDP permet la reception observable de messages de protocole UDP
+ */
 public class ServeurUDP implements Runnable{
 	private int port;
 	final static int taille = 2048;
 	DatagramSocket socket = null;
 	boolean on=true;
 	private PropertyChangeSupport support;
-	
-	 public void addPropertyChangeListener(PropertyChangeListener pcl) {
-	        support.addPropertyChangeListener(pcl);
-	    }
-	/*@Override
-	public void update(Observable o, Object arg) {
-		System.out.print("\n ServeurUDP is notified ! (1st)");
-		this.setChanged();
-		notifyObservers(arg);
-	}*/
+    /**
+     * Ajoute un Listener à notifier (Reseau)
+     * @param pcl
+     * @see Reseau
+     */
+	public void addPropertyChangeListener(PropertyChangeListener pcl) {
+	    support.addPropertyChangeListener(pcl);
+	}
+	/**
+	 * Constructeur ServeurUDP
+	 * <p>[Design Pattern Observers]</p>
+	 * @param portUDP d'ecoute du serveur
+	 */
 	ServeurUDP(int portUDP){
 		port=portUDP;
 		support = new PropertyChangeSupport(this);
 	}
+	/**
+	 * Permet de fermer en bonne et due forme le ServerSocket UDP et de libérer ainsi le port d'écoute pour la prochaine fois
+	 */	
 	public void closeServeur() {
 	   try {
 		if(socket != null) {
-		on=false;
-		socket.close();
-		System.out.print("Collected socket UDP ! (closed)");
+			on=false;
+			socket.close();
+			System.out.print("Collected socket UDP ! (closed)");
 		}
 	   }catch (Exception e) {
-	   e.printStackTrace();
+	   		e.printStackTrace();
 	   }
 	}
-
+	/**
+	 * Remonte le message deserializé au Listener (Reseau)
+	 */
 	@Override
 	public void run() {
 		Runtime.getRuntime().addShutdownHook(new Thread(){public void run(){

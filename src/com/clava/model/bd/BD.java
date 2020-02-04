@@ -21,7 +21,10 @@ import com.clava.serializable.Personne;
 
 
 //http://www.hsqldb.org/doc/guide/guide.pdf
-//embded BD mode
+//embedded BD mode
+/**
+ * model class BD pour une sauvegarde locale des messages
+ */
 public class BD {
 	
 	static BD instance = null;
@@ -30,9 +33,9 @@ public class BD {
 	String login = "SA";
 	Connection c = null;
     /**
-     * Constructeur BD
+     * Constructeur BD privée
      * <p>
-     * classe private car singleton
+     * [Design Pattern Singleton]
      * </p>
      * 
      * @see BD#getBD()
@@ -115,8 +118,8 @@ public class BD {
 	}
 	/**
 	 * Attribue un id à un pseudo donné
-	 * @param newPseudo
-	 * @param id
+	 * @param newPseudo nouveau pseudo 
+	 * @param id relie a ce nouveau pseudo
 	 */
 	public void setIdPseudoLink(String newPseudo, int id) {
 		try {
@@ -130,53 +133,6 @@ public class BD {
 			e.printStackTrace();
 		}
 	}
-
-	/*public boolean checkUnicity(String pseudo) {
-		Boolean ok = false;
-		try {
-			PreparedStatement stmt;
-			String sql = "SELECT * FROM identification WHERE pseudo = ?";
-			stmt = c.prepareStatement(sql);
-			stmt.setNString(1, pseudo);
-			ResultSet rs = stmt.executeQuery(sql);
-			ok = !rs.next(); //si la requête nous renvoie une table vide false, true sinon
-			rs.close();
-			stmt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return ok;
-	}*/
-	/**
-	 * Retrouve id à partir du pseudo
-	 * <p>
-	 * /!\ ne garde pas en mémoire les anciens pseudos
-	 * </p>
-	 * @param pseudo
-	 * @return id
-	 */
-	/*
-	public int getIdPersonne(String pseudo) {
-		int idPersonne = 0;
-		try {
-			PreparedStatement stmt;
-			String sql = "SELECT idUtilisateur FROM identification WHERE pseudo = ?";
-			stmt = c.prepareStatement(sql);
-			stmt.setNString(1, pseudo);
-			ResultSet rs = stmt.executeQuery();
-			rs.next();
-			idPersonne = rs.getInt("idUtilisateur");
-			rs.close();
-			stmt.close();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return idPersonne;
-
-	}*/
-	
-	//id car les pseudos peuvent changer, voire s'inverser (le plus grave !), ne rendant pas fiable de savoir qui a envoyé à qui
 	/**
 	 * Retourne la conversation entière entre deux personnes données
 	 * @param user (mettre soi)
@@ -238,6 +194,11 @@ public class BD {
 		}
 		return messages;
 	}
+	/**
+	 * Permet de créer dans la BD un groupe en y ajoutant des interlocuteurs 
+	 * @param id du groupe
+	 * @param interlocuteurs liste des interlocuteurs membre du groupe
+	 */
 	public void addGroup(int id, ArrayList<Interlocuteurs> interlocuteurs) {
 		try {
 			System.out.print("\n GROUPE ADDED BD ! ");
@@ -374,35 +335,9 @@ public class BD {
 
 	
 }
-	/*/** 
-	 * Donne accès à l'emplacement de tout les fichiers téléchargés 
-	 * @return chemin de téléchargement
-	public File getDownloadPath() {
-		String downloadPath = "";
-		try {
-			Statement s = c.createStatement();
-			ResultSet rs = s.executeQuery("SELECT * FROM preferences");
-			rs.next();
-			downloadPath = rs.getString("downloadPath");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		System.out.println(downloadPath+"\n");
-		return new File(downloadPath); //def = "."
-	}
-	/**
-	 * Affecte un nouveau chemin de téléchargement
-	 * @param file
-	public void setDownloadPath(File file) {
-		try {
-			String sql = "UPDATE preferences SET downloadPath='"+file.getPath()+"'";
-			Statement s = c.createStatement();
-			s.executeQuery(sql);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+/*
 	//pour tests
+	// print table message
 	public void printMessage() {
 		try {
 			PreparedStatement stmt;
@@ -426,6 +361,7 @@ public class BD {
 		}
 		
 	}
+	// print table identification
 	public void printIdentification() {
 		try {
 			PreparedStatement stmt;
@@ -436,6 +372,26 @@ public class BD {
 				String pseudo = rs.getString("pseudo");
 				long idUtilisateur = rs.getLong("idUtilisateur");
 				System.out.println("PRINT identification "+Long.toString(idUtilisateur) +" : "+pseudo);
+			}
+			rs.close();
+			stmt.close();
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	// print table groupe
+	public void printGroupe() {
+		try {
+			PreparedStatement stmt;
+			String sql = "SELECT * FROM groupe";
+			stmt = c.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				long idGroup = rs.getLong("idUGroup");
+				long idUtilisateur = rs.getLong("idUtilisateur");
+				System.out.println("PRINT groupe "+Long.toString(idGroup) +" : "+Long.toString(idUtilisateur));
 			}
 			rs.close();
 			stmt.close();

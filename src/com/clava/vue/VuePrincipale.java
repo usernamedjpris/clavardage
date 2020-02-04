@@ -59,6 +59,9 @@ import com.clava.serializable.Interlocuteurs;
 import com.clava.serializable.Message;
 import com.clava.serializable.Personne;
 
+/**
+ * Vue qui permet la sélection d'une Personne destinataire, l'envoi de texte/fichier, la consultation d'ancien messages, l'accès aux autres fenêtres et la déconnexion 
+ */
 public class VuePrincipale {
 
 	private JFrame frame;

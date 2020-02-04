@@ -21,17 +21,13 @@ In case of static Variables:-
 A variable defined with static keyword is not serialized during serialization process.
 This variable will be loaded with current value defined in the class during deserialization.
 */
+/**
+ * Message est une classe qui encapsule toutes les informations que l'on a besoin de partager par le réseau (d'où le besoin d'être sérializable)
+ */
 public class Message implements Serializable {
 
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	/**
-	 * 
-	 */
-	public enum Type {DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ALIVE,ASKPSEUDO,REPLYPSEUDO, FILE,GROUPCREATION,OKSERVEUR, DEFAULT}
+	public enum Type {CONNECTION, DECONNECTION, SWITCH, WHOISALIVE, ALIVE, ASKPSEUDO, REPLYPSEUDO, FILE, GROUPCREATION, OKSERVEUR, DEFAULT}
 	private byte[] data;
 	private Interlocuteurs emetteur;
 	private Interlocuteurs destinataire;
@@ -41,6 +37,7 @@ public class Message implements Serializable {
 	
 	/**
 	 * Message à une Interlocuteurs TCP ou UDP (si réponse broadcast)
+	 * <p> [Design Pattern Serialization]</p>
 	 * @param cat type de message entre ALIVE, REPLYPSEUDO, DEFAULT
 	 * @param data texte si DEFAULT, null sinon
 	 * @param emetteur
@@ -57,6 +54,7 @@ public class Message implements Serializable {
 	
 	/**
 	 * Broadcast Message UDP
+	 * <p> [Design Pattern Serialization]</p>
 	 * @param cat type entre SWITCH, CONNEXION, DECONNEXION, WHOISALIVE, ASKPSEUDO
 	 * @param Interlocuteurs c-a-d l'emetteur
 	 * <br> rq pour SWITCH le nouveau pseudo est dans l'emetteur( check les id et maj en reception)
@@ -70,6 +68,7 @@ public class Message implements Serializable {
 	}
 	/**
 	 * All inclusive builder, for FILE or BD 
+     * <p> [Design Pattern Serialization]</p>
 	 * @param bytes
 	 * @param typ
 	 * @param emet

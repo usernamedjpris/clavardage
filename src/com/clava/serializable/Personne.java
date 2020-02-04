@@ -4,7 +4,9 @@ import java.net.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 
-
+/**
+ * Personne collectionne toutes les informations d'un utilisateur nécessaires pour le contacter
+ */
 public class Personne implements Serializable, Interlocuteurs{
 
 	private static final long serialVersionUID = 1L;
@@ -14,9 +16,11 @@ public class Personne implements Serializable, Interlocuteurs{
 	private String pseudo;
 	private boolean connected;
 	private int id;
-	/**
+	/**	 
+	 * Constructeur Personne
+	 * <p> [Design Pattern Serialization]</p>
 	 * @param a adresse et portTcp
-	 * @param pseudo
+	 * @param pseudo 
 	 * @param connected 
 	 * @param identifiant
 	 */

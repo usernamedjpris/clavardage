@@ -17,13 +17,21 @@ import java.time.Duration;
 import javax.swing.JOptionPane;
 
 import com.clava.serializable.Message;
-
+/**
+ * ClientHTTP permet l'envoi et la reception observable de messages de protocole HTTP 
+ */
 public class ClientHTTP implements Runnable {
 	private String ipServer;
 	private int portServer;
 	private HttpClient client;
 	private Message message;
 	private PropertyChangeSupport support;
+	/**
+	 * constructeur ClientHTTP 
+	 * <p>[Design Pattern Observers]</p>
+	 * @param ipServer
+	 * @param portServer
+	 */
     public ClientHTTP(String ipServer, int portServer) {
 		this.ipServer = ipServer;
 		this.portServer = portServer;
@@ -34,38 +42,39 @@ public class ClientHTTP implements Runnable {
 		support = new PropertyChangeSupport(this);
 		
 	}
+	 /**
+     * Remonte réponse du serveur HTTP à la classe Reseau [Design Pattern Observers]
+     * @param pcl
+     * @see Reseau
+     */
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
     }
-
+    /**
+     * Envoie un messge m en HTTP (?)
+     * @param m Message à envoyer
+     */
 	public void sendMessage (Message m) { //String data, Personne dest, Personne emmet //https://www.baeldung.com/java-http-request
 		//encodage inutile (cf reponse au retour non encode, taille de l'envoi àvoir si utile ou pas)
 		message=m;
 		//en bloquant si deconnexion (laisse le temps d'envoyer le message avant de kill
 		if(message.getType()!=Message.Type.DECONNECTION) {
-		Thread tu = new Thread(this);
-        tu.start();
-		}else
+			Thread tu = new Thread(this);
+        	tu.start();
+		} else
 			run();
 
 	}
-
+	/**
+	 * Le thread clientHTTP (implements Runnable) soumet une requête HTTP (avec timeout de 5s) au serveur de présence 
+	 * @see ControleurApplication#configServeur()
+	 */
 	@Override
 	public void run() {
 		
 		HttpRequest request;
 		try {
 		byte[] m= Message.serialize(message);
-		/*
-		ByteArrayOutputStream m2 =new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(m2);
-		int len = m.length;
-		dos.writeInt(len);
-		if (len > 0) {
-		    dos.write(m, 0, len);
-		    dos.flush();
-		}
-		
 		
 		byte[] encodedBytes = Base64.getEncoder().encode(m2.toByteArray());*/
 		System.out.print("http://"+ipServer+":"+portServer+"/test/clavardeur");
@@ -99,32 +108,5 @@ public class ClientHTTP implements Runnable {
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-		
 	}
-
 }
-
-
-/*System.out.println(URLEncoder.encode("body", "UTF-8")+"="+Base64.getEncoder().encodeToString(Message.serialize(m)));
-
-HttpURLConnection con = (HttpURLConnection) this.urlServeur.openConnection();
-con.setRequestMethod("GET");
-
-
-con.setDoOutput(true);
-DataOutputStream out = new DataOutputStream(con.getOutputStream());
-out.writeBytes(URLEncoder.encode("body", "UTF-8")+"="+URLEncoder.encode(Base64.getEncoder().encodeToString(Message.serialize(m)), "UTF-8"));
-
-out.flush();
-out.close();
-
-BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-String inputLine;
-StringBuffer content = new StringBuffer();
-while ((inputLine = in.readLine()) != null) {
-    content.append(inputLine);
-	System.out.println("READING HTTP RESPONSE : "+inputLine);
-}
-in.close();
-con.disconnect();
-*/
