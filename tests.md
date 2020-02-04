@@ -13,6 +13,9 @@
 - Cliquer sur `s'identifier`, simultanément sur les deux machines
 → Un message d'erreur s'affiche : `Ton pseudo est déjà pris désolé :'( Dommage... 🙈`
 
+<br>
+Rq: afin d'être équitable, si 2 utilisateurs se connectent exactement en même temps avec le même pseudo, le pseudo est banni, et il faut que les deux utilisateurs se connectent avec un autre pseudo pour qu'il ne le soit plus.
+
 ### Tests réseau
 - Installer et lancer SuperClavardeur™ sur deux terminaux
 
@@ -37,9 +40,15 @@
 ### Test groupe
 - Installer et lancer SuperClavardeur™ sur trois terminaux 
 - Créer un nouveau groupe en sélectionnant au moins deux autres personnes (sur réseau local ou internet) dans la *Vue creation groupe*.
-→ Toutes les personnes membres du groupe ont une nouvelle entrée dans la `zone de découverte`
-- Envoyer un message/fichier
-→ Toutes les personnes membres reçoivent le message (dans `visualisation hitorique` le message affiche le pseudo de l'emetteur)
+- Si le groupe n'existe pas déjà et il y a plus de 2 personnes connectées:
+    → Toutes les personnes membres du groupe ont une nouvelle entrée dans la `zone de découverte`
+    - Envoyer un message/fichier
+    → Toutes les personnes membres reçoivent le message (dans `visualisation hitorique` le message affiche le pseudo de l'emetteur)
+-Sinon s'il y a moins de deux personnes connectées
+    - Message d'erreur spécifiant qu'il n'y a pas assez d'utilisateurs connectés pour créer un groupe
+-Sinon si le groupe existe déjà:
+    - Message d'erreur spécifiant que le groupe déjà
+
 
 <br><br><br>
 [< Choix d'implémentation](choix.md)<br>

@@ -244,7 +244,7 @@ InetAddress findIp() {
 	}
 
 	@Override
-	synchronized public void propertyChange(PropertyChangeEvent evt) {
+	public void propertyChange(PropertyChangeEvent evt) {
 		//try convert arg to message
 		/* si  IMAGE to write file :
 		 * byte[] encoded = key.getEncoded();
@@ -404,6 +404,7 @@ IOUtils.write(encoded, output);
 	        			   break;
 	        		   }
 	        	   }
+	        	   if(initialized)
 	        	   main.updateList();
 	           }
 	           else if(message.getType()==Message.Type.ALIVE || message.getType()==Message.Type.CONNECTION) {
