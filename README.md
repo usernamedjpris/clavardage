@@ -1,13 +1,14 @@
 # SuperClavardeur™ ![logo](images/icon22.png)
 SuperClavardeur™ est une messagerie instantanée par pseudonyme destinée à accroître l'efficacité d'une équipe en permettant l'envoi simplifié de messages et de fichiers.
-SuperClavardeur™ est décentralisée dans une utilisation en réseau local.
-L'application permet également une utilisation internet mais requiert la mise en place d'un serveur de présence. 
-L'envoi et réception des messages avec l'internet se fait en Peer-to-Peer.
+SuperClavardeur™ permet une utilisation en réseau local sans intermédiaires.
+L'application permet également une utilisation via internet mais requiert la mise en place d'un serveur de présence. 
+L'envoi et la réception des messages via internet se fait en Peer-to-Peer. Le support de la configuration automatique du NAT gère seulement les équipements 
+compatibles upnp.
 
 ## Fonctionnalités principales
-- Choix et gestion d'un nouveau pseudo unique
-- Découverte utilisateurs sur un réseau local
-- Découverte utilisateurs depuis l'extérieur
+- Choix et gestion d'un pseudo unique
+- Découverte d'utilisateurs sur un réseau local
+- Découverte d'utilisateurs depuis l'extérieur
 - Envoi/réception de messages entre utilisateurs
 - Envoi/réception de fichiers entre utilisateurs
 - Gestion de l'historique (avec recherche et affichage) des anciens messages

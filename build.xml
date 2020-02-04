@@ -3,7 +3,7 @@
 <!-- https://mkyong.com/ant/ant-how-to-create-a-jar-file-with-external-libraries/ -->
 <project default="qrun">
 
-<!-- others usefull tasks: relaunch, runjar, runmultijar, javadoc -->
+<!-- others usefull tasks: relaunch, war, jar,runjar, runmultijar, javadoc -->
 
 <property name="name.application" value="clavardeur"/>
 <property name="main-class"	value="com.clava.controleur.ControleurApplication"/>
