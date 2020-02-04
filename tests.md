@@ -1,7 +1,14 @@
 ## Batterie de tests 
 
+### Tests découverte utilisateur 
+- Installer et lancer SuperClavardeur™ sur deux terminaux en réseau local ou à distance
+- S'identifier avec un pseudo (non vide) avec un terminal
+→ l'autre utilisateur ne s'affiche pas (ou en deconnecté s'il était déjà présent sur le réseau/on lui a déjà parlé auparavant)
+- S'identifier avec un pseudo (non vide) avec l'autre terminal 
+→ l'autre utilisateur s'affiche en connecté
+
 ### Tests unicité du pseudo 
-- Installer et lancer SuperClavardeur™ sur deux terminaux 
+- Installer et lancer SuperClavardeur™ sur deux terminaux en réseau local ou à distance
 
 #### Lorsqu'un utilisateur a déjà pris le pseudo
 - S'identifier avec un pseudo (non vide) avec un terminal
@@ -13,16 +20,17 @@
 - Cliquer sur `s'identifier`, simultanément sur les deux machines
 → Un message d'erreur s'affiche : `Ton pseudo est déjà pris désolé :'( Dommage... 🙈`
 
+
 <br>
 Rq: afin d'être équitable, si 2 utilisateurs se connectent exactement en même temps avec le même pseudo, le pseudo est banni, et il faut que les deux utilisateurs se connectent avec un autre pseudo pour qu'il ne le soit plus.
 
-### Tests réseau
+### Tests envoi/réception réseau
 - Installer et lancer SuperClavardeur™ sur deux terminaux
 
 #### Localhost
 - Sélectioner son propre pseudo dans la `zone de découverte` de la *Vue principale*
 - Envoyer un message/fichier
-→ La reception est instantanée : vous pouvez désormais vous écrire des penses-bêtes !
+→ vous pouvez désormais vous écrire des penses-bêtes !
 
 #### Local
 - Sélectioner un pseudo connecté (vert) sur le réseau local dans la `zone de découverte` de la *Vue principale*
@@ -38,7 +46,7 @@ Rq: afin d'être équitable, si 2 utilisateurs se connectent exactement en même
 
 
 ### Test groupe
-- Installer et lancer SuperClavardeur™ sur trois terminaux 
+- Installer et lancer SuperClavardeur™ sur trois terminaux sur le réseau local ou à distance 
 - Créer un nouveau groupe en sélectionnant au moins deux autres personnes (sur réseau local ou internet) dans la *Vue creation groupe*.
 - Si le groupe n'existe pas déjà et il y a plus de 2 personnes connectées:
     → Toutes les personnes membres du groupe ont une nouvelle entrée dans la `zone de découverte`
@@ -49,6 +57,10 @@ Rq: afin d'être équitable, si 2 utilisateurs se connectent exactement en même
 -Sinon si le groupe existe déjà:
     - Message d'erreur spécifiant que le groupe déjà
 
+
+### Tests historique
+- Prérequis:  avoir eu une ou plusieurs conversations de groupe ou de personne à personne, être identifié
+- dans la fenêtre principale sélectionner un utilisateur ou un groupe, la conversation que vous avez eu s'affiche (à droite les messages dont on est l'émetteur).
 
 <br><br><br>
 [< Choix d'implémentation](choix.md)<br>

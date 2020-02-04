@@ -22,8 +22,10 @@ import javax.swing.SwingUtilities;
 
 import com.clava.controleur.ControleurApplication;
 
-
-public class VueChoixPseudo  implements ActionListener{
+/**
+ * Vue bloquante permettant de choisir un pseudo
+ */
+public class VueChoixPseudo implements ActionListener{
 
 	private JDialog frame;
 	private JTextField textField;

@@ -14,6 +14,9 @@ import java.util.Objects;
 
 import com.clava.serializable.Message;
 //https://www.baeldung.com/java-broadcast-multicast
+/**
+ * ClientUDP permet l'envoi de messages de protocole UDP 
+ */
 public class ClientUDP {
 	int portUDP;
 	 List<InetAddress> broadcastList;
@@ -25,6 +28,13 @@ public class ClientUDP {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * Permet d'envoyer un message en broadcast (reseau local)
+	 * <p> utile pour les messages du type DECONNECTION, SWITCH, CONNECTION, WHOISALIVE, ASKPSEUDO, GROUPCREATION</p>
+	 * @param message
+	 * @throws IOException
+	 * @throws SocketException
+	 */
     public void broadcast(Message message) throws IOException, SocketException {
     	System.out.print("\n"+message.getEmetteur().getPseudo()+" envoi le message "+message.getType().toString()+" en broadcast "+
     "sur le port :"+portUDP);
@@ -39,6 +49,11 @@ public class ClientUDP {
         }
         socket.close();
     }
+    /**
+     * Liste toutes les adresses de broadcast disponibles 
+     * @return
+     * @throws SocketException
+     */
     List<InetAddress> listAllBroadcastAddresses() throws SocketException {
         List<InetAddress> broadcastList = new ArrayList<>();
         Enumeration<NetworkInterface> interfaces 
@@ -59,7 +74,8 @@ public class ClientUDP {
     }
     /**
      * R UDP not for group
-     * @param message
+     * utile pour ALIVE, REPLYPSEUDO
+     * @param message a envoyer en udp
      * @throws IOException
      * @throws SocketException
      */

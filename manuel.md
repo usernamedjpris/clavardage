@@ -1,5 +1,5 @@
 ## Manuel d'utilisation
-**prérequis** : Installation du terminal réussie<br>
+**prérequis** : Installation réussie<br>
 
 ### Aperçu
 *Vue choix pseudo :*<br>
@@ -49,8 +49,6 @@ Ouvrir le dossier des fichiers reçus  : `ALT` + `O`<br>
 Changer dossier de téléchargement : `ALT` + `C`<br>
 Changer de pseudo  : `ALT` + `P`<br>
 
-NB: Les noms des fichiers reçus sont cliquables ! <br>
-Et les liens écrits à la volée e.g. `https://google.com` aussi ! <br>
 <br><br><br>
 [< Installation](installation.md)•[Technologie >](techno.md)<br>
 retour au [sommaire](README.md)<br>

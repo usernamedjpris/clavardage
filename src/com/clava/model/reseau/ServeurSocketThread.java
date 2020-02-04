@@ -9,17 +9,32 @@ import java.beans.PropertyChangeSupport;
 import java.io.*;
 
 //public class ServeurSocketThread extends Observable implements Runnable {
-public class ServeurSocketThread implements  Runnable {
+/**
+ * ServeurSocketThread permet la reception observable de messages d'une connexion TCP avec une certaine Personne
+ */
+public class ServeurSocketThread implements Runnable {
     Socket s;
     private PropertyChangeSupport support;
+    /**
+     * Constructeur ServeurSocketThread
+     * <p>[Design Pattern Observers]</p>
+     * @param soc
+     */
     public ServeurSocketThread(Socket soc) {
         this.s = soc;
         support = new PropertyChangeSupport(this);
     }
+    /**
+     * Ajoute un Listener à notifier (ServeurTCP)
+     * @param pcl
+     * @see ServeurTCP
+     */
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
     }
-
+    /**
+     * Remonte le message reçu et déserializé au ServeurTCP du reseau
+     */
 	@Override
     public void run() {
         try{

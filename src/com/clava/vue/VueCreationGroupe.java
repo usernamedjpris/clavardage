@@ -25,7 +25,9 @@ import javax.swing.event.ListSelectionListener;
 
 import com.clava.controleur.ControleurApplication;
 import com.clava.serializable.Interlocuteurs;
-
+/**
+ * Vue qui permet de créer un groupe à partir de plusieurs personnes connectées
+ */
 public class VueCreationGroupe {
 	private List<Interlocuteurs> l=null;
 	public VueCreationGroupe(DefaultListModel<Interlocuteurs> model, ControleurApplication app) {

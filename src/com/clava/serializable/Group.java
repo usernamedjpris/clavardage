@@ -5,10 +5,11 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * Group possède une liste d'Interlocuteurs qui permet une discussion en groupe
+ */
 public class Group implements Interlocuteurs {
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
 	ArrayList<Interlocuteurs> p;
 	private int id;
@@ -24,7 +25,11 @@ public class Group implements Interlocuteurs {
     public int hashCode() {
         return getId();
     }
-	
+	/**
+	 * Constructeur Group
+	 * <p> [Design Pattern Composite, Serialization]</p>
+	 * @param liste
+	 */	
 	public Group(ArrayList<Interlocuteurs> liste){
 		p=new ArrayList<>(liste);
 		ArrayList<Integer> array =new ArrayList<>();
@@ -106,8 +111,4 @@ public class Group implements Interlocuteurs {
 	p.remove(user);
 		
 	}
-
-	
-	
-
 }
