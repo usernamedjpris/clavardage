@@ -221,12 +221,11 @@ public class BD {
 		
 	}
 	/**
-	 * retourne la liste des personnes à qui on a déjà parlé une fois sauf à soi (donner son id) 
+	 * retourne la liste des personnes que l'on a déjà croisé une fois et celles à qui on a parlé
 	 * <p>
 	 * parlé une fois = envoyé au moins eu un message default ou file à destination de cette personne
 	 * </p>
 	 * @param user 
-	 * @param id 
 	 * @return
 	 */
 	public ArrayList<Interlocuteurs> getInterlocuteursTalked(Personne user) {

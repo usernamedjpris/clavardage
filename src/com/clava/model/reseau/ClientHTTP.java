@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 
 import com.clava.serializable.Message;
 /**
- * ClientHTTP permet l'envoi et la reception observable de messages de protocole HTTP 
+ * ClientHTTP permet l'envoi et la reception (observable) de messages avec le protocole HTTP 
  */
 public class ClientHTTP implements Runnable {
 	private String ipServer;
@@ -43,15 +43,15 @@ public class ClientHTTP implements Runnable {
 		
 	}
 	 /**
-     * Remonte réponse du serveur HTTP à la classe Reseau [Design Pattern Observers]
-     * @param pcl
+     * Remonte la réponse du serveur HTTP à la classe Reseau [Design Pattern Observers]
+     * @param pcl Objet qui implémente PropertyChangeListener (à notifier)
      * @see Reseau
      */
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
     }
     /**
-     * Envoie un messge m en HTTP (?)
+     * Envoie un messge m en HTTP 
      * @param m Message à envoyer
      */
 	public void sendMessage (Message m) { //String data, Personne dest, Personne emmet //https://www.baeldung.com/java-http-request

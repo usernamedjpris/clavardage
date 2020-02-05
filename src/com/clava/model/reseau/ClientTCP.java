@@ -11,7 +11,7 @@ import java.util.AbstractMap.SimpleEntry;
 
 import com.clava.serializable.Message;
 /**
- * ClientHTCP permet l'envoi de messages de protocole TCP
+ * ClientTCP permet l'envoi de messages avec le protocole TCP
  */
 public class ClientTCP {
 	/**

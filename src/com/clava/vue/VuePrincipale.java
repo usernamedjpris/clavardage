@@ -490,11 +490,17 @@ public class VuePrincipale {
 		frame.setTitle(defaultTitle+" ["+uname+"]");
 		updateList();
 	}
+	/*
+	 * Mise à jour de l'interface graphique
+	 */
 	public void updateList() {
 		//list.updateUI();
 		list.repaint();
 		
 	}
+	/**
+	 * Selectionne le 1er élément de la liste des Interlocuteurs et rend sa conversation active (affichage et sélection)
+	 */
 	public void firstSelection() {
 		list.setSelectedIndex(0);
 		activeUser = list.getSelectedValue();

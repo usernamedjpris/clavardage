@@ -257,7 +257,9 @@ public class ControleurApplication implements PropertyChangeListener{
 	}
 	/**
 	 * checkUnicity envoie un message (emetteur = user, user.pseudo = newpseudo) ASKPSEUDO à tout le monde
-	 * s'il ne reçoit pas de réponse (message REPLYPSEUDO) dans les 3 secondes alors estime que pseudo pas deje pris
+	 * s'il ne reçoit pas de réponse (message REPLYPSEUDO) dans les 3 secondes alors le pseudo n'a pas déjà ete pris
+	 * De plus, à partir de l'appel de cette fonction, le pseudo demandé est réservé, et toute demande ASKPSEUDO reçue avec le même
+	 * pseudo sera refusée (réponse REPLYPSEUDO), afin de garantir l'unicité du pseudo.
 	 * @param pseudo a tester
 	 * @return false si deja pris true sinon
 	 */
@@ -545,14 +547,14 @@ IOUtils.write(encoded, output);
 			
 	}
 	/**
-	 * Getter du chemin de téléchargement de fichier
+	 * Getter du chemin de téléchargement de fichier (dossier d'enregistrement local)
 	 * @return File path
 	 */
 	public File getDownloadPath() {
 		return pathDownload;
 	}
 	/**
-	 * Setter du chemin de téléchargement de fichier et l'enregistre dans le fichier config.ini
+	 * Setter du chemin de téléchargement de fichier (dossier d'enregistrement local) et l'enregistre dans le fichier config.ini
 	 * @param file
 	 */
 	public void setDownloadPath(File file) {
@@ -567,7 +569,8 @@ IOUtils.write(encoded, output);
 	}
 	/**
 	 * Mets à jour la BD, la Vue Principale et la Personne utilisateur du changement de pseudo
-	 * @param uname
+	 * Et notifie les autres utilisateurs du changement de pseudo
+	 * @param uname nouveau pseudo
 	 */
 	public void setPseudoUserSwitch(String uname) {
 		/*maBD.delIdPseudoLink(user.getPseudo());*/
@@ -584,7 +587,7 @@ IOUtils.write(encoded, output);
 	public void setPseudoUserConnexion(String uname) {
 		user.setPseudo(uname);
 	}
-	/** 
+	/** Envoie d'un message texte à un utilisateur
 	* @param tosend texte à envoyer à activeUser
 	 */
 	public void sendMessage(String tosend, Interlocuteurs to) {
@@ -594,7 +597,7 @@ IOUtils.write(encoded, output);
 		maBD.addData(m);
 	}
 	/**
-	 * 
+	 * Envoie d'un fichier à un utilisateur
 	 * @param file fichier à envoyer
 	 * @param f nom du fichier
 	 */
@@ -617,7 +620,7 @@ IOUtils.write(encoded, output);
 	/**
 	 * Crée un groupe dans la BD
 	 * @param array d'interlocuteurs, membres du groupe
-	 * @return
+	 * @return true si le groupe a été créé, false s'il ne peut pas l'être
 	 */
 	public boolean creationGroupe(ArrayList<Interlocuteurs> array) {
 		array.add(user);

@@ -89,7 +89,7 @@ public class Message implements Serializable {
 		/**
 		 * @param data texte à transmettre
 		 * @param emetteur l'utilisateur
-		 * @param destinataire la Interlocuteurs avec qui il communique (conversation ouverte)
+		 * @param destinataire l'Interlocuteur avec qui il communique (conversation ouverte)
 		 * @return Message
 		 */
 		static public Message sendText(byte[] data,Interlocuteurs emetteur, Interlocuteurs destinataire) {
@@ -98,7 +98,7 @@ public class Message implements Serializable {
 		/**
 		 * @param bytes fichier en bytes
 		 * @param emetteur l'utilisateur
-		 * @param destinataire la Interlocuteurs avec qui il communique (conversation ouverte)
+		 * @param destinataire l' Interlocuteur avec qui il communique (conversation ouverte)
 	     * @param name nom du fichier
 		 * @return Message
 		 */

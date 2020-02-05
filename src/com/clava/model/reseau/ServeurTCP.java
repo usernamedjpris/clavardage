@@ -10,7 +10,7 @@ import java.net.Socket;
 
 //public class ServeurTCP extends Observable implements Observer, Runnable {
 /**
- * ServeurTCP permet la reception observable de messages de protocole TCP remontés par ServeurSocketThread
+ * ServeurTCP permet la reception (observable) de messages avec le protocole TCP remontés par ServeurSocketThread
  */
 public class ServeurTCP implements PropertyChangeListener, Runnable{
 	ServerSocket ssoc = null;
@@ -28,7 +28,7 @@ public class ServeurTCP implements PropertyChangeListener, Runnable{
 	}
     /**
      * Ajoute un Listener à notifier (Reseau)
-     * @param pcl
+     * @param pcl Objet qui implémente PropertyChangeListener (à notifier)
      * @see Reseau
      */	
 	public void addPropertyChangeListener(PropertyChangeListener pcl) {
@@ -49,7 +49,7 @@ public class ServeurTCP implements PropertyChangeListener, Runnable{
 		}
 	}
 	/**
-	 * Le serveurTCP se met en état accept et à chaque demande de connexion lance un nouveau threa ServeurSocketThrad dédié
+	 * Le serveurTCP se met en état accept et à chaque demande de connexion lance un nouveau thread ServeurSocketThrad dédié
 	 */
 	@Override
     public void run() {

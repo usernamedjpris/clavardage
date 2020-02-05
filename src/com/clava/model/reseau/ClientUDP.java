@@ -15,7 +15,7 @@ import java.util.Objects;
 import com.clava.serializable.Message;
 //https://www.baeldung.com/java-broadcast-multicast
 /**
- * ClientUDP permet l'envoi de messages de protocole UDP 
+ * ClientUDP permet l'envoi de messages avec le protocole UDP 
  */
 public class ClientUDP {
 	int portUDP;

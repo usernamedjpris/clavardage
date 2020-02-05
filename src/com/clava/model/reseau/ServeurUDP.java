@@ -9,7 +9,7 @@ import java.net.SocketException;
 
 import com.clava.serializable.Message;
 /**
- * ServeurUDP permet la reception observable de messages de protocole UDP
+ * ServeurUDP permet la reception (observable) de messages avec le protocole UDP
  */
 public class ServeurUDP implements Runnable{
 	private int port;
@@ -19,7 +19,7 @@ public class ServeurUDP implements Runnable{
 	private PropertyChangeSupport support;
     /**
      * Ajoute un Listener à notifier (Reseau)
-     * @param pcl
+     * @param pcl Objet qui implémente PropertyChangeListener (à notifier)
      * @see Reseau
      */
 	public void addPropertyChangeListener(PropertyChangeListener pcl) {

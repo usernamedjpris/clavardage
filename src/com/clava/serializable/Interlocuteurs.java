@@ -7,8 +7,8 @@ import java.util.ArrayList;
 /*AbstractMap.SimpleImmutableEntry<Integer, String> entry
 = new AbstractMap.SimpleImmutableEntry<>(1, "one");*/
 /**
- * l'interface Interlocuteurs est implémenté soir par un Group soit par une Personne 
- * <p>L'écriture des messages reste donc inchangés que ce soit un Group ou une Personne</p>
+ * l'interface Interlocuteurs est implémenté soit par un Groupe soit par une Personne 
+ * <p>L'écriture des messages reste donc inchangée que ce soit par un Groupe ou une Personne</p>
  */
 public interface Interlocuteurs extends Serializable{
 
