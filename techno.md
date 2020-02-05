@@ -2,8 +2,8 @@
 
 ### Java SE 11
 Java est un langage de programmation orienté objet.
-[télécharger](https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html "oracle.com/downloads")
-Ou sa version libre [` AdoptOpenJDK 11`](https://adoptopenjdk.net/installation.html?variant=openjdk11&jvmVariant=hotspot# "adoptopenjk")  ) 
+télécharger la version d'[oracle](https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html "oracle.com/downloads")
+ou une version libre [`AdoptOpenJDK 11`](https://adoptopenjdk.net/installation.html?variant=openjdk11&jvmVariant=hotspot# "adoptopenjk") 
 
 ### ant
 Ant (fondation Apache) est un logiciel qui automatise la compilation et la génération de la documentation de projets Java.<br>
@@ -12,15 +12,15 @@ Compiler l'ensemble du projet :
 ```ant```<br>
 Générer la javadoc à retrouver dans doc/ : 
 ```ant javadoc```<br>
-Ant permet également de d'archiver au format JAR (```ant jar```) ou WAR pour les fichiers du serveur (```ant war```).<br>
-Le choix de Ant plutôt que Maven ou Graddle a été réalisé en connaissance de cause. Au moment de la création du script notre projet ne respectait pas les conventions maven et il aurait été coûteux de changer cela. De plus, contrairement à Graddle ou Maven, ant nécessite de spécifier plus de détails, une faiblesse apparente qui est en fait une force le rendant extrêment flexible. Pour finir, il est toujours bon de commencer l'apprentissage de création de script de compilation par un langage qui a fait ses preuves et qui permet de se familiariser avec l'ensemble du processus de compilattion (plutôt que la "magie" de Maven reposant sur des conventions cachées). 
+Ant permet également de d'archiver au format JAR (`ant jar`) ou WAR pour les fichiers du serveur (`ant war`).<br>
+Le choix de Ant plutôt que Maven ou Graddle a été réalisé en connaissance de cause. Au moment de la création du script notre projet ne respectait pas les conventions maven et il aurait été coûteux de changer cela. De plus, contrairement à Graddle ou Maven, ant nécessite de spécifier plus de détails, une faiblesse apparente qui est en fait une force le rendant extrêment flexible. Pour finir, il est toujours bon de commencer l'apprentissage de création de script de compilation par un langage qui a fait ses preuves et qui permet de se familiariser avec l'ensemble du processus de compilation (plutôt que la "magie" de Maven reposant sur des conventions cachées). 
 
 ### ini4j
-ini4j est une API Java simple pour gérer les fichiers de configuration au format .ini de Windows.[site](http://ini4j.sourceforge.net/index.html)<br>
+ini4j est une API Java simple pour gérer les fichiers de configuration au format .ini de Windows. [site](http://ini4j.sourceforge.net/index.html)<br>
 voir [`config.ini`](config.ini)
 
 ### protocole TCP
-L'envoi de message entre deux utilisateurs se base sur le protocle TCP pour garantir l'arrivée des messsages à destination, grâce à  un mécanisme dereprise des pertes.
+L'envoi de message entre deux utilisateurs se base sur le protocle TCP pour garantir l'arrivée des messsages à destination, grâce à  un mécanisme de reprise des pertes.
 
 ### protocole UDP
 Ce protocole sans connexion est utilisé pour l'envoi de message en broadcast sur le réseau local où les probabilités de perte de messsage sont quasi-inexistantes. Il est aussi utilisé pour répondre aux messages reçus en broadcast. Les messages transitant par UDP sont les messages de type événements (connexion, deconnexion, mise à jour du pseudo, création d'un groupe, qui est présent, je suis présent etc. )
