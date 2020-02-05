@@ -1,12 +1,12 @@
 ## Choix d'implémentation
 
 ### Choix de conception
-#### MVC
+#### Architecture de l'application : MVC
 ![class](conception/COO-ClassDiagram.png)
 Les packages du Model-View-Controller correspondent respectivement aux packages model & serializable ; vue ; controleur. Le respect de cette architecture du code a facilité le développement simultané de l'application et éventuellement facilitera la maintenabilité et l'amélioration de l'application.
 
 ##### Modèle
-Le modèle contient le plus de classes (12 en tout).
+Le modèle contient le plus de classes (13 en tout).
 Plus de la moitié d'entre-elles sont consacrées au réseau.
 Dans les faits les classes `Group`, `Interlocuteurs`, `Message` et `Personne` ont été réunies dans un même package com.clava.serializable pour que Message puisse être correctement dé/sérialisée par le serveur HTTP.
 `Reseau` et `BD` sont des singletons.
@@ -24,14 +24,14 @@ Dans les faits les classes `Group`, `Interlocuteurs`, `Message` et `Personne` on
 Le contrôleur se résume en une seule classe `ControllerApplication`.
 Le couplage entre `ControleurApplication` et les classes serveurs du réseau `ServeurUDP` et `ServeurSocketTCP` est affaiblit grâce au design patern Observer.
 
--### Types des messages
+### Types des messages
 L'un des éléments essentiel du fonctionnement de l'application peut se résumer en un attribut de la classe `Message` : `Message.Type`. 
 ```
 public enum Type {CONNECTION, DECONNECTION, ASKPSEUDO, REPLYPSEUDO, SWITCH, WHOISALIVE, ALIVE, FILE, DEFAULT, GROUPCREATION, OKSERVEUR}
 ```
 Chaque type de message est traité spécifiquement par `ControleurApplication` et peuvent être interprétés de la manière suivante :
-- **`CONNECTION`** `"L'émetteur du message vient juste de me connecter"`
-- **`DECONNEXION`** `"L'émetteur du message vient juste de me déconnecter"`
+- **`CONNECTION`** `"L'émetteur du message vient juste de se connecter"`
+- **`DECONNEXION`** `"L'émetteur du message vient juste de se déconnecter"`
 - **`ASKPSEUDO`** `"L'émetteur du message demande de changer de pseudo"`
 - **`REPLYPSEUDO`** `"L'émetteur du message possède déjà le pseudo demandé par le destinataire"`          
 - **`SWITCH`** `"L'émetteur du message vient juste de changer de pseudo"`
@@ -44,6 +44,12 @@ Chaque type de message est traité spécifiquement par `ControleurApplication` e
 
 Le choix d'avoir factorisé toutes ces fonctionnalités en un seul attribut nous a permis d'avoir un code extensible à volonté et très peu redondant dans la partie réseau. 
 Ainsi l'ajout des fonctionnalités *serveur de présence* ou *groupe* se sont faites en ajoutant simplement les types `GROUPCREATION` ou `OKSERVEUR` au type des messages et en écrivant le comportement idoine à adopter à leur réception dans `ControleurApplication` et nous avons presque rien eu à changer dans les classes réseaux (seulement rajouter la classe `ClientHTTP` pour envoyer des requêtes pour le *serveur de présence*).
+
+#### Architecture du serveur de présence
+Le serveur se décompose en deux packages :
+![serveur de présence](conception/Serveur_class_diagram.png)
+- le package `Serveur` se comporte comme un controlleur d'un MVC : il reçoit et traite les messages.
+- le package `Serializable` copié-collé de celui de l'application, permet la désérialisation des messages reçus, et la sérialisation des messages des messages envoyés à l'application.
 
 ### Fonctionnement des principaux cas d'utilisation
 #### Diagramme de cas d'utilisation
@@ -108,7 +114,7 @@ voir le [diagramme de séquence](conception/seqdiagram_changerpseudo.png)
         - *Vue Création Groupe* s'ouvre
 3. Sélectionner des utilisateurs 
     - si le groupe est déjà créé:
-        - message "le groupe existe déjà" 
+        - `le groupe existe déjà` 
         - ↳ retour 2. 
     - sinon 
         - le programme notifie de la création de groupe aux autres utilisateurs `Message.Type =`**`GROUPCREATION`**
@@ -122,10 +128,10 @@ voir le [diagramme de séquence](conception/seqdiagram_envoyertext.png)
 3. Rentrer un texte à envoyer dans la `zone de texte` 
 4. Cliquer sur le `bouton envoi` ou `SHIFT` + `↵enter`
 	- si destinataire n'est pas connecté
-		- `Vous ne pouvez pas envoyer un message à un utilisateur non connecté :p"`
+		- `Vous ne pouvez pas envoyer un message à un utilisateur non connecté :p`
 		- ↳ retour 2.
 	- si message vide
-		- `Vous ne pouvez pas envoyer un message vide désolé :p"`
+		- `Vous ne pouvez pas envoyer un message vide désolé :p`
 		- ↳ retour 3.
 	- sinon
 		- le texte est encapsulé dans un message daté et envoyé au destinataire par TCP `Message.Type =`**`DEFAULT`**
@@ -138,7 +144,7 @@ voir le [diagramme de séquence](conception/seqdiagram_envoyerfichier.png)
 2. Sélectionner un destinataire dans la `zone de découverte` de la *Vue principale*
 3. Cliquer sur le `bouton envoi fichier` ou `SHIFT` + `F`
 	- si destinataire non connecté
-		- `Vous ne pouvez pas envoyer un message à un utilisateur non connecté :p"`
+		- `Vous ne pouvez pas envoyer un message à un utilisateur non connecté :p`
 		- ↳ retour 2.
 	- sinon
 		- le fichier est encapsulé dans un message daté et envoyé au destinataire par TCP `Message.Type =`**`FILE`**

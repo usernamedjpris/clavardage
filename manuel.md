@@ -11,7 +11,9 @@
 
 ### Lancement
 Lancer l'application après une première compilation:<br>
-```ant relaunch```<br>
+```
+ant relaunch
+```
 
 ### Changement de pseudo
 Au lancement de l'application, *Vue Choix Pseudo* s'ouvre.<br>
@@ -19,10 +21,10 @@ Renseignez votre pseudo et cliquez sur `↵enter`.<br>
 *Vue Choix Pseudo* sera ensuite accessible à n'importe quel moment par le `bouton changement pseudo` de la *Vue principale*.
 
 ### Créer un groupe
-Dans la *Vue principale*, `menu fichier`/`Créer un groupe` pour ouvrir la *Vue création groupe*. Puis sélectionner (`CTRL` + `clic`) au moins deux personnes "pseudo1" et "pseudo2" disponibles. Pour s'adresser à ce groupe sélectionner la nouvelle entrée dans la `zone de découverte` au nom de "□pseudo1:pseudo2"
+Dans la *Vue principale*, `menu fichier`/`Créer un groupe` pour ouvrir la *Vue création groupe*. Puis sélectionner (`CTRL` + `clic`) au moins deux personnes "pseudo1" et "pseudo2" disponibles. Pour s'adresser à ce groupe sélectionner la nouvelle entrée dans la `zone de découverte` au nom de "□pseudo1:pseudo2:yourownpseudo"
 
 ### Envoyer/recevoir un message
-Dans la *Vue principale*, écrire un message dans la `zone de texte`. Le HTML 3.0 est supporté ainsi que certaines balise CSS, profitez en ! <br>
+Dans la *Vue principale*, écrire un message dans la `zone de texte`. Le HTML 3.0 est supporté ainsi que certaines balises CSS, profitez en ! <br>
 Envoyez-le en cliquant sur le `bouton d'envoi` ou `SHIFT` + `↵enter`.<br> 
 N'hésitez pas à écrire des liens url `https://google.com` : ils sont cliquables !
 
@@ -48,7 +50,7 @@ Sélectionner un (ou des) fichier(s) à envoyer : `SHIFT` + `F`<br>
 Ouvrir le dossier des fichiers reçus  : `ALT` + `O`<br>
 Changer dossier de téléchargement : `ALT` + `C`<br>
 Changer de pseudo  : `ALT` + `P`<br>
-*NB*: En cas de fermeture incorrecte de l'application (arrêt d'urgence du PC, kill de l'application etc. ) le serveur ignore que vous n'êtes plus connecté et vous pouvez apparaître injustement connecté pour les autres (si on vous envoie un message un message d'erreur apparaîtra). Pour normaliser cette situation il suffit de vous reconnecter à l'application en utilisant un autre pseudo que celui que vous aviez.
+**NB**: En cas de fermeture incorrecte de l'application (arrêt d'urgence du PC, kill de l'application etc. ) le serveur ignore que vous n'êtes plus connecté et vous pouvez apparaître injustement connecté pour les autres (si on vous envoie un message un message d'erreur apparaîtra). Pour normaliser cette situation il suffit de vous reconnecter à l'application en utilisant un autre pseudo que celui que vous aviez.
 
 <br><br><br>
 [< Installation](installation.md)•[Technologie >](techno.md)<br>

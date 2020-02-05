@@ -1,6 +1,6 @@
 ## Batterie de tests 
 
-### Tests découverte utilisateur 
+### Test découverte utilisateur 
 - Installer et lancer SuperClavardeur™ sur deux terminaux en réseau local ou à distance
 - S'identifier avec un pseudo (non vide) avec un terminal
 → l'autre utilisateur ne s'affiche pas (ou en deconnecté s'il était déjà présent sur le réseau/on lui a déjà parlé auparavant)
@@ -52,15 +52,15 @@ Rq: afin d'être équitable, si 2 utilisateurs se connectent exactement en même
     → Toutes les personnes membres du groupe ont une nouvelle entrée dans la `zone de découverte`
     - Envoyer un message/fichier
     → Toutes les personnes membres reçoivent le message (dans `visualisation hitorique` le message affiche le pseudo de l'emetteur)
--Sinon s'il y a moins de deux personnes connectées
+- Sinon s'il y a moins de deux personnes connectées
     - Message d'erreur spécifiant qu'il n'y a pas assez d'utilisateurs connectés pour créer un groupe
--Sinon si le groupe existe déjà:
+- Sinon si le groupe existe déjà:
     - Message d'erreur spécifiant que le groupe déjà
 
 
-### Tests historique
-- Prérequis:  avoir eu une ou plusieurs conversations de groupe ou de personne à personne, être identifié
-- dans la fenêtre principale sélectionner un utilisateur ou un groupe, la conversation que vous avez eu s'affiche (à droite les messages dont on est l'émetteur).
+### Test historique
+- Prérequis : avoir eu une ou plusieurs conversations de groupe ou de personne à personne, être identifié
+- Dans la fenêtre principale sélectionner un utilisateur ou un groupe, la conversation que vous avez eu s'affiche (à droite les messages dont on est l'émetteur).
 
 <br><br><br>
 [< Choix d'implémentation](choix.md)<br>
