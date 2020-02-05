@@ -8,7 +8,6 @@ import java.awt.Container;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -22,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -54,10 +52,8 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import com.clava.controleur.ControleurApplication;
-import com.clava.serializable.Group;
 import com.clava.serializable.Interlocuteurs;
 import com.clava.serializable.Message;
-import com.clava.serializable.Personne;
 
 /**
  * Vue qui permet la sélection d'une Personne destinataire, l'envoi de texte/fichier, la consultation d'ancien messages, l'accès aux autres fenêtres et la déconnexion 
@@ -149,8 +145,6 @@ public class VuePrincipale {
             }
          });
         menu.add(tele);
-        
-        ///TODO Finish: pas assez stable pour le rendu final
         JMenuItem createGroup = new JMenuItem("Créer un groupe ",new ImageIcon("images/network.png"));
         createGroup.setMnemonic(KeyEvent.VK_C);
         createGroup.addActionListener(new ActionListener() {

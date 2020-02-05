@@ -296,7 +296,7 @@ public class ControleurApplication implements PropertyChangeListener{
 	 * et traite selon le type de message 
 	 */
 	@Override
-	synchronized public void propertyChange(PropertyChangeEvent evt) {
+	public void propertyChange(PropertyChangeEvent evt) {
 		//try convert arg to message
 		/* si  IMAGE to write file :
 		 * byte[] encoded = key.getEncoded();
@@ -456,6 +456,7 @@ IOUtils.write(encoded, output);
 	        			   break;
 	        		   }
 	        	   }
+	        	   if(initialized)
 	        	   main.updateList();
 	           }
 	           else if(message.getType()==Message.Type.ALIVE || message.getType()==Message.Type.CONNECTION) {
@@ -499,6 +500,11 @@ IOUtils.write(encoded, output);
 	        		   else {
 	        		   System.out.print("\n Warning !, un de vos amis a créé un groupe avec une personne que vous ne connaissez pas, "
 	        		   		+ "ceci peut être dû à un délai réseau, nous ajoutons cette personne" );
+	        		   try {
+						i.setConnected(false);
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					}
 	        		   model.add(0,i);
 	        		   array.add(i);
 	        		   }
