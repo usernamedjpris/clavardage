@@ -20,9 +20,9 @@
 - Cliquer sur `s'identifier`, simultanément sur les deux machines
 → Un message d'erreur s'affiche : `Ton pseudo est déjà pris désolé :'( Dommage... 🙈`
 
-
 <br>
-Rq: afin d'être équitable, si 2 utilisateurs se connectent exactement en même temps avec le même pseudo, le pseudo est banni, et il faut que les deux utilisateurs se connectent avec un autre pseudo pour qu'il ne le soit plus.
+
+**NB**: afin d'être équitable, si 2 utilisateurs se connectent exactement en même temps avec le même pseudo, le pseudo est banni, et il faut que les deux utilisateurs se connectent avec un autre pseudo pour qu'il ne le soit plus.
 
 ### Tests envoi/réception réseau
 - Installer et lancer SuperClavardeur™ sur deux terminaux
